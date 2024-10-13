@@ -1,34 +1,35 @@
-'use strict';
+import { Sprite, init, GameLoop } from "../node_modules/kontra/kontra.mjs";
 
-function gameInit()
-{
-    // called once after the engine starts up
-    // setup the game
-}
 
-function gameUpdate()
-{
-    // called every frame at 60 frames per second
-    // handle input and update the game state
-}
+let { canvas } = init();
 
-function gameUpdatePost()
-{
-    // called after physics and objects are updated
-    // setup camera and prepare for render
-}
+let sprite = Sprite({
+    x: 100,
+    y: 100,
+    // dx: 2, // Moves each frame
 
-function gameRender()
-{
-    // called before objects are rendered
-    // draw any background effects that appear behind objects
-}
+    color: '#DDD',
 
-function gameRenderPost()
-{
-    // called after objects are rendered
-    // draw effects or hud that appear above all objects
-}
+    // custom properties
+    radius: 20,
 
-// Startup LittleJS Engine
-engineInit(gameInit, gameUpdate, gameUpdatePost, gameRender, gameRenderPost);
+    render: function () {
+        this.context.fillStyle = this.color;
+
+        this.context.beginPath();
+        this.context.arc(0, 0, this.radius, 0, 2 * Math.PI);
+        this.context.fill();
+    }
+});
+
+let loop = GameLoop({  // create the main game loop
+    update: function () { // update the game state
+        sprite.update();
+    },
+    render: function () { // render the game state
+        sprite.render();
+    }
+});
+
+loop.start();    // start the game
+

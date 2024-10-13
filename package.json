@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "littlejsengine": "^1.9.9"
+    "kontra": "^10.0.2"
   }
 }

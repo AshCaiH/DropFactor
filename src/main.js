@@ -2,15 +2,13 @@ import { init, GameLoop, Sprite, Text, GameObject, randInt } from "../node_modul
 
 let { canvas } = init();
 
-let sprites = [];
-
-let coins = [];
+let objects = [];
 
 let gridSize = {width: 7, height: 7};
-let coinBuffer = 4;
-let coinRadius = 20;
+let coinBuffer = 12;
+let coinRadius = 30;
 
-let palette = ["#003f5c","#374c80","#7a5195","#bc5090","#ef5675","#ff764a","#ffa600"]
+let palette = [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80", "#003f5c" ]
 
 
 function makeCoin(x,y) {
@@ -20,12 +18,11 @@ function makeCoin(x,y) {
     let text = Text({
         opacity: isBuried ? 0: 1,
         text: value,
-        color: value <= 3 ? "#CDE" : "#311",
+        color: value >= 5 ? "#CDE" : "#311",
         font: 'bold 24px Arial',
-        height: coinRadius * 2,
         width: coinRadius * 2,
         textAlign: "center",
-        anchor: {x: 0, y: -0.35},
+        anchor: {x: 0, y: -0.8},
     });
 
     let background = Sprite({
@@ -43,33 +40,32 @@ function makeCoin(x,y) {
 
     const children = [background, text]
 
-    background
-
     let coin = GameObject({
-        x: x * (coinRadius * 2 + coinBuffer) + 2,
-        y: y * (coinRadius * 2 + coinBuffer) + 2,
+        x: x * (coinRadius * 2 + coinBuffer),
+        y: y * (coinRadius * 2 + coinBuffer),
         bg: background,
         text: text,
         children
     })
 
-    sprites.push(coin);
+    return coin;
 }
 
 for (let x = 0; x < gridSize.width; x++) {
 for (let y = 0; y < gridSize.height; y++) {
-    makeCoin(x,y);
+    objects.push(makeCoin(x,y));
 }}
 
+let camera = GameObject({
+    x: 700 / 2 - (coinRadius + coinBuffer) * (gridSize.width - 1) + coinBuffer,
+    y: coinRadius + coinBuffer * 2,
+    children: objects,
+})
 
-let loop = GameLoop({  // create the main game loop
-    update: function () { // update the game state
-        sprites.forEach((sprite) => sprite.update());
-    },
-    render: function () { // render the game state
-        sprites.forEach((sprite) => sprite.render());
-    }
+
+let loop = GameLoop({
+    update: () => camera.update(),
+    render: () => camera.render()
 });
 
-loop.start();    // start the game
-
+loop.start();

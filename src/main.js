@@ -17,16 +17,18 @@ let grid = Array.from({ length:7 }, (item, i) => Array.from({ length:7 }, (item,
 
 console.log(grid);
 
-function makeCoin(x,y) {
+function makeCoin(gridX,gridY) {
+    dropping = true;
+
     let value = randInt(1,7)
     let isBuried = randInt(1,8) === 8
 
-    y = -1;
+    gridY = -1;
 
     // How many coins are already in column?
-    let coinsInColumn = grid[x].filter(item => item !== null).length;
-    y = gridSize.height - coinsInColumn - 1;
-    console.log(y);
+    let coinsInColumn = grid[gridX].filter(item => item !== null).length;
+    gridY = gridSize.height - coinsInColumn - 1;
+    console.log(gridY);
 
     let text = Text({
         opacity: isBuried ? 0: 1,
@@ -54,26 +56,41 @@ function makeCoin(x,y) {
     const children = [background, text]
 
     let coin = GameObject({
-        position: {x: x, y: y},
-        x: x * (coinRadius * 2 + coinBuffer),
-        y: y * (coinRadius * 2 + coinBuffer),
+        gridPos: {x: gridX, y: gridY},
+        x: gridX * (coinRadius * 2 + coinBuffer),
+        y: -1 * (coinRadius * 2 + coinBuffer),
+        dy: 24,
         bg: background,
         text: text,
         children,
-        update: () => {
-
+        update: function() {
+            if (this.y >= this.gridPos.y * (coinRadius * 2 + coinBuffer)) {
+                this.y = this.gridPos.y * (coinRadius * 2 + coinBuffer);
+                dropping = false;
+                this.dy = 0;
+            } else {
+                this.y += this.dy;
+            }
         }
     })
 
-    grid[x][y] = coin;
+    grid[gridX][gridY] = coin;
 
     return coin;
 }
 
+// objects.push(makeCoin(0,0));
+
 for (let x = 0; x < gridSize.width; x++) {
 for (let y = 0; y < gridSize.height; y++) {
-    objects.push(makeCoin(x,y));
+    // while (!dropping) {
+        objects.push(makeCoin(x,y));
+    // }
 }}
+
+// if (!dropping) {
+//     objects.push(makeCoin(randInt(0,gridSize.width),0));
+// }
 
 let camera = GameObject({
     x: 700 / 2 - (coinRadius + coinBuffer) * (gridSize.width - 1) + coinBuffer,

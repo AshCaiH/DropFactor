@@ -10,10 +10,23 @@ let coinRadius = 30;
 
 let palette = [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80", "#003f5c" ]
 
+let dropping = false;
+let gameOver = false;
+
+let grid = Array.from({ length:7 }, (item, i) => Array.from({ length:7 }, (item, i) => null))
+
+console.log(grid);
 
 function makeCoin(x,y) {
     let value = randInt(1,7)
-    let isBuried = randInt(1,10) == 10
+    let isBuried = randInt(1,8) === 8
+
+    y = -1;
+
+    // How many coins are already in column?
+    let coinsInColumn = grid[x].filter(item => item !== null).length;
+    y = gridSize.height - coinsInColumn - 1;
+    console.log(y);
 
     let text = Text({
         opacity: isBuried ? 0: 1,
@@ -41,12 +54,18 @@ function makeCoin(x,y) {
     const children = [background, text]
 
     let coin = GameObject({
+        position: {x: x, y: y},
         x: x * (coinRadius * 2 + coinBuffer),
         y: y * (coinRadius * 2 + coinBuffer),
         bg: background,
         text: text,
-        children
+        children,
+        update: () => {
+
+        }
     })
+
+    grid[x][y] = coin;
 
     return coin;
 }

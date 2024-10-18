@@ -11,9 +11,7 @@ let palette = [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80"
 let dropping = false;
 let gameOver = false;
 
-let grid = Array.from({ length:7 }, (item, i) => Array.from({ length:7 }, (item, i) => null))
-
-console.log(grid);
+let grid = Array.from({ length:gridSize.width }, (item, i) => Array.from({ length:gridSize.height }, (item, i) => null))
 
 function makeCoin(gridX,gridY) {
 	dropping = true;
@@ -40,25 +38,20 @@ function makeCoin(gridX,gridY) {
 		anchor: {x: 0, y: -0.8},
 	});
 
-	let background = Sprite({
+	let coinColour = Sprite({
 		color: isBuried ? "#ABC": palette[value-1],
 		render: function() {
 			this.context.fillStyle = this.color;
+			this.context.lineWidth = 2.5;
+			this.context.strokeStyle = "#456";
 			this.context.beginPath();
 			this.context.arc(coinRadius, coinRadius, coinRadius, 0, 2 * Math.PI);
+			this.context.closePath();
 			this.context.fill();
-			this.context.closePath();
-		}
-	})
-
-	let stroke = Sprite({
-		render: function() {
-			this.context.lineWidth = 2;
-			this.context.strokeStyle = "#BCD";
-			this.context.stroke();
 			this.context.beginPath();
-			this.context.arc(coinRadius, coinRadius, coinRadius, 0, 2 * Math.PI);
+			this.context.arc(coinRadius, coinRadius, coinRadius - 3, 0, 2 * Math.PI);
 			this.context.closePath();
+			this.context.stroke();
 		}
 	})
 
@@ -67,7 +60,7 @@ function makeCoin(gridX,gridY) {
 		x: gridX * (coinRadius * 2 + coinBuffer),
 		y: -1 * (coinRadius * 2 + coinBuffer),
 		dy: 48,
-		bg: background,
+		bg: coinColour,
 		text: text,
 		dropping: true,
 		update: function(dt) {
@@ -81,17 +74,38 @@ function makeCoin(gridX,gridY) {
 		}
 	})
 
-	coin.addChild(background, stroke, text);
+	coin.addChild(coinColour, text);
 
 	grid[gridX][gridY] = coin;
 
 	return coin;
 }
+
+let gridBg = Sprite({
+	render: function() {
+		for (let i=0; i<7; i++) {
+		for (let j=0; j<7; j++) {
+			this.context.lineWidth = 1.5;
+			this.context.strokeStyle = "#345";
+			this.context.stroke();
+			this.context.beginPath();
+			this.context.strokeRect(
+				i*(coinRadius * 2 + coinBuffer)-coinBuffer/2,
+				j*(coinRadius * 2 + coinBuffer)-coinBuffer/2,
+				coinRadius * 2 + coinBuffer,
+				(coinRadius * 2 + coinBuffer)
+			);
+			this.context.closePath();
+		}}
+	}
+})
 		
 let camera = GameObject({
 	x: 700 / 2 - (coinRadius + coinBuffer) * (gridSize.width - 1) + coinBuffer,
 	y: coinRadius + coinBuffer * 2,
 })
+
+camera.addChild(gridBg);
 
 function update() {
 	camera.update()

@@ -1,16 +1,9 @@
-import { init, GameLoop, Sprite, Text, GameObject, randInt } from "../node_modules/kontra/kontra.mjs";
+import { init, GameLoop, Sprite, GameObject, initPointer, getPointer, randInt } from "../node_modules/kontra/kontra.mjs";
 import { makeCoin } from "./coin.js";
 
 let { canvas } = init();
 
-// let gridSize = {width: 7, height: 7};
-// let coinBuffer = 12;
-// let coinRadius = 30;
-
-// let palette = [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80", "#003f5c" ]
-
-// let dropping = false;
-// let gameOver = false;
+initPointer();
 
 let size = {x: 7, y: 7}
 
@@ -34,7 +27,6 @@ let gridBg = Sprite({
 		for (let j=0; j<7; j++) {
 			this.context.lineWidth = 1.5;
 			this.context.strokeStyle = "#345";
-			this.context.stroke();
 			this.context.beginPath();
 			this.context.strokeRect(
 				i*(board.coinRadius * 2 + board.coinBuffer)-board.coinBuffer/2,
@@ -46,16 +38,49 @@ let gridBg = Sprite({
 		}}
 	}
 })
+
+let dropZone = Sprite({
+    xPos: 0,
+    opacity: 0,
+    render: function() {
+        let gradient = this.context.createLinearGradient(0, 0, 0, 600);
+        gradient.addColorStop(0, "#678F");
+        gradient.addColorStop(1, "#6780");
+
+        this.context.fillStyle = gradient;
+        this.context.beginPath();
+        this.context.fillRect(
+            -board.coinBuffer / 2 + this.xPos * (board.coinRadius * 2 + board.coinBuffer),
+            -board.coinBuffer / 2,
+            board.coinRadius * 2 + board.coinBuffer,
+            (board.coinRadius * 2 + board.coinBuffer) * board.height,
+        );
+        this.context.closePath();
+    }
+})
 		
 let camera = GameObject({
 	x: 700 / 2 - (board.coinRadius + board.coinBuffer) * (board.width - 1) + board.coinBuffer,
 	y: board.coinRadius + board.coinBuffer * 2,
 })
 
-camera.addChild(gridBg);
+function cursorToCell() {
+	const cursorPos = (({ x, y }) => ({ x, y }))(getPointer());
+
+	Object.keys(cursorPos).forEach(function(k, index) {cursorPos[k] -= camera[k] - board.coinBuffer/2});
+
+	Object.keys(cursorPos).forEach(function(k, index) {cursorPos[k] = Math.floor(cursorPos[k]/(board.coinRadius * 2 + board.coinBuffer))});
+
+	return cursorPos;
+}
+
+camera.addChild(dropZone, gridBg);
 
 function update() {
-	camera.update()
+	camera.update();
+    let cellPos = cursorToCell();
+    dropZone.xPos = cellPos.x;
+    dropZone.opacity = (cellPos.x < 0 || cellPos.x >= board.width) ? 0 : 1;
 	if (!state.dropping && !state.gameOver)
 		camera.addChild(makeCoin(board,state,randInt(0,board.width-1),0));
 }

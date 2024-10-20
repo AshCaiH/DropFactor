@@ -1,5 +1,6 @@
 import { init, GameLoop, Sprite, GameObject, initPointer, getPointer, randInt } from "../node_modules/kontra/kontra.mjs";
 import { makeCoin } from "./coin.js";
+import { Dropzone } from "./dropzone.js";
 
 let { canvas } = init();
 
@@ -39,29 +40,11 @@ let gridBg = Sprite({
 	}
 })
 
-let dropZone = Sprite({
-    xPos: 0,
-    opacity: 0,
-    render: function() {
-        let gradient = this.context.createLinearGradient(0, 0, 0, 600);
-        gradient.addColorStop(0, "#678F");
-        gradient.addColorStop(1, "#6780");
+let dropZone = new Dropzone(board);
 
-        this.context.fillStyle = gradient;
-        this.context.beginPath();
-        this.context.fillRect(
-            -board.coinBuffer / 2 + this.xPos * (board.coinRadius * 2 + board.coinBuffer),
-            -board.coinBuffer / 2,
-            board.coinRadius * 2 + board.coinBuffer,
-            (board.coinRadius * 2 + board.coinBuffer) * board.height,
-        );
-        this.context.closePath();
-    }
-})
-		
 let camera = GameObject({
 	x: 700 / 2 - (board.coinRadius + board.coinBuffer) * (board.width - 1) + board.coinBuffer,
-	y: board.coinRadius + board.coinBuffer * 2,
+	y: board.coinRadius * 2 + board.coinBuffer * 2,
 })
 
 function cursorToCell() {

@@ -7,12 +7,6 @@ export const dropStates  = {
 }
 
 export class Dropzone extends SpriteClass {
-	static states  = {
-        HIDDEN: 0,
-        WAITING: 1,
-        DROPPING: 2,
-    }
-
     constructor(board, camera) {
         super({
             xPos: 0,

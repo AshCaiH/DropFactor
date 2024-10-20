@@ -40,30 +40,17 @@ let gridBg = Sprite({
 	}
 })
 
-let dropZone = new Dropzone(board);
 
 let camera = GameObject({
 	x: 700 / 2 - (board.coinRadius + board.coinBuffer) * (board.width - 1) + board.coinBuffer,
 	y: board.coinRadius * 2 + board.coinBuffer * 2,
 })
 
-function cursorToCell() {
-	const cursorPos = (({ x, y }) => ({ x, y }))(getPointer());
-
-	Object.keys(cursorPos).forEach(function(k, index) {cursorPos[k] -= camera[k] - board.coinBuffer/2});
-
-	Object.keys(cursorPos).forEach(function(k, index) {cursorPos[k] = Math.floor(cursorPos[k]/(board.coinRadius * 2 + board.coinBuffer))});
-
-	return cursorPos;
-}
-
+let dropZone = new Dropzone(board, camera);
 camera.addChild(dropZone, gridBg);
 
 function update() {
-	camera.update();
-    let cellPos = cursorToCell();
-    dropZone.xPos = cellPos.x;
-    dropZone.opacity = (cellPos.x < 0 || cellPos.x >= board.width) ? 0 : 1;
+	camera.update();	
 	if (!state.dropping && !state.gameOver)
 		camera.addChild(makeCoin(board,state,randInt(0,board.width-1),0));
 }

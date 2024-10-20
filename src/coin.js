@@ -1,17 +1,39 @@
-import { Sprite, Text, GameObject, randInt } from "../node_modules/kontra/kontra.mjs";
+import { Sprite, Text, GameObject, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
+
+// export class Dropzone extends SpriteClass {
+//     constructor(b) {
+//         super({
+//             xPos: 0,
+//             opacity: 1,
+//             board: b,
+//         });
+//     }
+
+//     draw () {
+//         const { coinBuffer, coinRadius, height } = this.board;
+//         let gradient = this.context.createLinearGradient(0, 0, 0, 600);
+//         gradient.addColorStop(0, "#6785");
+//         gradient.addColorStop(1, "#6782");
+
+//         this.context.fillStyle = gradient;
+//         this.context.beginPath();
+//         this.context.fillRect(
+//             -coinBuffer / 2 + this.xPos * (coinRadius * 2 + coinBuffer),
+//             -coinBuffer / 2,
+//             coinRadius * 2 + coinBuffer,
+//             (coinRadius * 2 + coinBuffer) * height,
+//         );
+//         this.context.closePath();
+//     }
+// }
+
+
 
 export class Coin {
-	states = Object.freeze({
-		WAITING: 0,
-		DROPPING: 1,
-		IDLE: 2,
-		POPPING: 3,
-	});
-
-	state = state.WAITING;
 
 	constructor(gState, board) {
 		gState.dropping = true;
+		this.state = states.WAITING
 
 		let value = randInt(1,7)
 		let isBuried = randInt(1,8) === 8

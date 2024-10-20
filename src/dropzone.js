@@ -1,17 +1,25 @@
-import { SpriteClass } from "../node_modules/kontra/kontra.mjs";
+import { getPointer, SpriteClass } from "../node_modules/kontra/kontra.mjs";
+
+export const dropStates  = {
+    HIDDEN: 0,
+    CONTROL: 1,
+    DROPPING: 2,
+}
 
 export class Dropzone extends SpriteClass {
-	states = Object.freeze({
+	static states  = {
         HIDDEN: 0,
-		WAITING: 1,
-		DROPPING: 2,
-	});
+        WAITING: 1,
+        DROPPING: 2,
+    }
 
-    constructor(b) {
+    constructor(board, camera) {
         super({
             xPos: 0,
             opacity: 1,
-            board: b,
+            board: board,
+            camera: camera,
+            state: dropStates.CONTROL,
         });
     }
 
@@ -31,4 +39,25 @@ export class Dropzone extends SpriteClass {
         );
         this.context.closePath();
     }
+
+    move () {
+        let cellPos = cursorToCell(this.board, this.camera);
+        this.xPos = cellPos.x;
+        this.opacity = (cellPos.x < 0 || cellPos.x >= this.board.width) ? 0 : 1;
+    }
+
+    update (dt) {
+        super.update(dt);
+        if (this.state === dropStates.CONTROL) this.move();
+    }
+}
+
+function cursorToCell(board, camera) {
+    const { coinBuffer, coinRadius } = board;
+	const cPos = (({ x, y }) => ({ x, y }))(getPointer());
+
+	Object.keys(cPos).forEach(function(k, index) {cPos[k] -= camera[k] - coinBuffer/2});
+    Object.keys(cPos).forEach(function(k, index) {cPos[k] = Math.floor(cPos[k]/(coinRadius * 2 + coinBuffer))});
+
+	return cPos;
 }

@@ -1,68 +1,72 @@
-import { Sprite, Text, GameObject, randInt } from "../node_modules/kontra/kontra.mjs";
+import { Sprite, Text, GameObject, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
 
-export function makeCoin(board,state,gridX,gridY) {
-	state.dropping = true;
+export const cStates = Object.freeze({
+	WAITING: 0,
+	DROPPING: 1,
+	IDLE: 2,
+	POPPING: 3,
+	OOB: 4,
+	RISING: 5,
+});
 
-	let value = randInt(1,7)
-	let isBuried = randInt(1,8) === 8
+export class Coin extends SpriteClass {
 
-	gridY = -1;
+	constructor(gridX, board) {
+		let value = randInt(1,7);
+		let isBuried = randInt(1,8) === 8;
+		let state = cStates.DROPPING;
 
-	// How many coins are already in column?
-	let coinsInColumn = board.grid[gridX].filter(item => item !== null).length;
-	gridY = board.height - coinsInColumn - 1;
+		super ({
+			gridPos: {x: gridX, y: -1},
+			state: state,
+			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
+			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
+			dy: 48,
+			value: value,
+			isBuried: isBuried,
+			update: function(dt) {
+				if (this.gridPos.y == -1) {this.state = cStates.OOB; board.gameOver = true; return}
+				this.advance(dt)
+				if (state === cStates.DROPPING && this.y > this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) {
+					this.y = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);					
+					this.state = cStates.IDLE;
+				}
+			},
+		});
 
-	if (gridY === -1) state.gameOver = true;
+		let text = Text({
+			opacity: this.isBuried ? 0: 1,
+			text: value,
+			color: value >= 5 ? "#CDE" : "#311",
+			font: 'bold 24px Arial',
+			width: board.coinRadius * 2,
+			textAlign: "center",
+			anchor: {x: 0, y: -0.8},
+		})
 
-	let text = Text({
-		opacity: isBuried ? 0: 1,
-		text: value,
-		color: value >= 5 ? "#CDE" : "#311",
-		font: 'bold 24px Arial',
-		width: board.coinRadius * 2,
-		textAlign: "center",
-		anchor: {x: 0, y: -0.8},
-	});
-
-	let coinColour = Sprite({
-		color: isBuried ? "#ABC": board.coinPalette[value-1],
-		render: function() {
-			this.context.fillStyle = this.color;
-			this.context.lineWidth = 2.5;
-			this.context.strokeStyle = "#456";
-			this.context.beginPath();
-			this.context.arc(board.coinRadius, board.coinRadius, board.coinRadius, 0, 2 * Math.PI);
-			this.context.closePath();
-			this.context.fill();
-			this.context.beginPath();
-			this.context.arc(board.coinRadius, board.coinRadius, board.coinRadius - 3, 0, 2 * Math.PI);
-			this.context.closePath();
-			this.context.stroke();
-		}
-	})
-
-	let coin = GameObject({
-		gridPos: {x: gridX, y: gridY},
-		x: gridX * (board.coinRadius * 2 + board.coinBuffer),
-		y: -1 * (board.coinRadius * 2 + board.coinBuffer),
-		dy: 48,
-		bg: coinColour,
-		text: text,
-		dropping: true,
-		update: function(dt) {
-			this.advance()
-			if (this.dropping && this.y >= this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) {
-				this.y = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
-				state.dropping = false;
-				this.dropping = false;
-				this.dy = 0;
+		let bg = Sprite({
+			color: isBuried ? "#ABC": board.coinPalette[value-1],
+			render: function() {
+				let ctx = this.context
+				ctx.fillStyle = this.color;
+				ctx.lineWidth = 2.5;
+				ctx.strokeStyle = this.color;
+				ctx.beginPath();
+				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius-3, 0, 2 * Math.PI);
+				ctx.closePath();
+				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius, 0, 2 * Math.PI);
+				ctx.closePath();
+				ctx.stroke();
 			}
-		}
-	})
+		})
 
-	coin.addChild(coinColour, text);
+		this.addChild(bg, text);
 
-	board.grid[gridX][gridY] = coin;
+		let coinsInColumn = board.grid[gridX].filter(item => item !== null).length;
+		this.gridPos.y = board.height - coinsInColumn - 1;
 
-	return coin;
+		board.grid[this.gridPos.x][this.gridPos.y] = this;
+	}
 }

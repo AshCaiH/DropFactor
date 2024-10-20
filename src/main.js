@@ -1,10 +1,16 @@
-import { init, GameLoop, Sprite, GameObject, initPointer, getPointer, randInt } from "../node_modules/kontra/kontra.mjs";
-import { makeCoin } from "./coin.js";
+import { init, GameLoop, Sprite, GameObject, initPointer, randInt } from "../node_modules/kontra/kontra.mjs";
+import { Coin, cStates } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 
 let { canvas } = init();
 
 initPointer();
+
+let states = {
+	control: 0,
+	dropping: 1,
+	gameOver: 2,
+}
 
 let size = {x: 7, y: 7}
 
@@ -50,9 +56,22 @@ let dropZone = new Dropzone(board, camera);
 camera.addChild(dropZone, gridBg);
 
 function update() {
-	camera.update();	
-	if (!state.dropping && !state.gameOver)
-		camera.addChild(makeCoin(board,state,randInt(0,board.width-1),0));
+	camera.update();
+
+	let coins = board.grid.flat().filter(coin => coin != null);
+	
+	if (coins.filter(coin => coin.state === cStates.DROPPING).length > 0)
+		state.dropping = true;
+	else state.dropping = false;
+
+	// if (board.grid.flat().filter(coin => coin != null && coin.state === cStates.DROPPING).length > 1)
+	// 	console.log(board.grid);
+
+	if (!state.dropping && !state.gameOver) {
+		
+		console.log(board.grid.flat().filter(coin => coin !== null));
+		camera.addChild(new Coin(randInt(0,board.width-1), board));
+	}
 }
 
 let loop = GameLoop({

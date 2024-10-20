@@ -10,7 +10,7 @@ export class Dropzone extends SpriteClass {
     constructor(board, camera) {
         super({
             xPos: 0,
-            opacity: 1,
+            opacity: 0,
             board: board,
             camera: camera,
             state: dropStates.CONTROL,

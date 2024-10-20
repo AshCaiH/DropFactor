@@ -25,9 +25,10 @@ export class Coin extends SpriteClass {
 			value: value,
 			isBuried: isBuried,
 			update: function(dt) {
+				if (this.gridPos.y == -1) {this.state = cStates.OOB; board.gameOver = true; return}
 				this.advance(dt)
 				if (state === cStates.DROPPING && this.y > this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) {
-					this.y = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
+					this.y = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);					
 					this.state = cStates.IDLE;
 				}
 			},
@@ -65,8 +66,6 @@ export class Coin extends SpriteClass {
 
 		let coinsInColumn = board.grid[gridX].filter(item => item !== null).length;
 		this.gridPos.y = board.height - coinsInColumn - 1;
-
-		console.log(this.gridPos);
 
 		board.grid[this.gridPos.x][this.gridPos.y] = this;
 	}

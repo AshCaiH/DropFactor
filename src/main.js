@@ -7,10 +7,12 @@ let { canvas } = init();
 initPointer();
 
 let states = {
-	control: 0,
-	dropping: 1,
-	gameOver: 2,
+	CONTROL: 0,
+	DROPPING: 1,
+	GAMEOVER: 2,
 }
+
+let state = states.control;
 
 let size = {x: 7, y: 7}
 
@@ -18,14 +20,10 @@ let board = {
 	width: size.x,
 	height: size.y,
 	grid: Array.from({ length:size.x }, (item, i) => Array.from({ length:size.y }, (item, i) => null)),
+	gameOver: false,
 	coinBuffer: 12,
 	coinRadius: 30,
 	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80", "#003f5c" ]
-}
-
-let state = {
-	dropping: false,
-	gameOver: false
 }
 
 let gridBg = Sprite({
@@ -60,16 +58,13 @@ function update() {
 
 	let coins = board.grid.flat().filter(coin => coin != null);
 	
-	if (coins.filter(coin => coin.state === cStates.DROPPING).length > 0)
-		state.dropping = true;
-	else state.dropping = false;
+	if (board.gameOver)
+		state = states.GAMEOVER;
+	else if (coins.filter(coin => coin.state === cStates.DROPPING).length > 0)
+		state == states.DROPPING;
+	else state = states.CONTROL;
 
-	// if (board.grid.flat().filter(coin => coin != null && coin.state === cStates.DROPPING).length > 1)
-	// 	console.log(board.grid);
-
-	if (!state.dropping && !state.gameOver) {
-		
-		console.log(board.grid.flat().filter(coin => coin !== null));
+	if (state == states.CONTROL) {
 		camera.addChild(new Coin(randInt(0,board.width-1), board));
 	}
 }

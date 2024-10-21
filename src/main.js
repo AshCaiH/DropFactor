@@ -23,7 +23,9 @@ let board = {
 let machine = new Machine("INPUT", {
 	INPUT: {
 		drop: () => {
-			camera.addChild(new Coin(randInt(0,board.width-1), board));
+			let dropPos = randInt(0,board.width-1);
+			camera.addChild(new Coin(dropPos, board));
+			dropZone.machine.dispatch("drop", [dropPos]);
 			machine.changeState("CHECKING");
 		},
 		power: (type) => {console.log(`Ran power ${type}`)},
@@ -37,6 +39,8 @@ let machine = new Machine("INPUT", {
 
 			if (board.gameOver) machine.changeState("GAMEOVER");
 			else machine.changeState("INPUT");
+			
+			dropZone.machine.dispatch("unlock");
 		}
 	},
 	CHECKING: {
@@ -48,8 +52,6 @@ let machine = new Machine("INPUT", {
 				if (coin.machine.dispatch("checkfall"))
 					changes = true;
 			})
-
-			console.log(changes);
 
 			if (changes) machine.changeState("ANIMATION");
 		}

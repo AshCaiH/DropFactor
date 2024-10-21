@@ -1,6 +1,7 @@
 import { init, GameLoop, Sprite, GameObject, initPointer, randInt } from "../node_modules/kontra/kontra.mjs";
 import { Coin, cStates } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
+import "./machinetest.js";
 
 let { canvas } = init();
 

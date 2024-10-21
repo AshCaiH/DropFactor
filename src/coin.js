@@ -1,4 +1,4 @@
-import { Sprite, Text, GameObject, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
+import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
 
 export const cStates = Object.freeze({
 	WAITING: 0,

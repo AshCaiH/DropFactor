@@ -1,36 +1,73 @@
+import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
-
-export const cStates = Object.freeze({
-	WAITING: 0,
-	DROPPING: 1,
-	IDLE: 2,
-	POPPING: 3,
-	OOB: 4,
-	RISING: 5,
-});
 
 export class Coin extends SpriteClass {
 
 	constructor(gridX, board) {
 		let value = randInt(1,7);
 		let isBuried = randInt(1,8) === 8;
-		let state = cStates.DROPPING;
+
+		let machine = new Machine("DROPZONE", {
+			IDLE: {
+				check: () => check(),
+			},
+			DROPZONE: {
+				update: () => {
+					
+				},
+				drop: () => {
+					machine.changeState("CHECKING");
+					machine.dispatch("check");
+				}
+			},
+			DROPPING: {
+				update: (dt) => {
+					this.advance(dt)
+					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
+					if (this.y > targetPos) {
+						this.y = targetPos;
+						machine.changeState("IDLE");
+					}
+				}
+			},
+			RISING: {
+				update: () => {},
+			},
+			OOB: {},
+			CHECKING: {
+				check: () => {
+					board.grid[this.gridPos.x][this.gridPos.y] = null;
+					console.log(this.gridPos.y, board.height);
+
+					for (let i=this.gridPos.y; i<board.height; i++) {
+						if (board.grid[this.gridPos.x][i] === null) this.gridPos.y = i;
+						else break;
+					}
+
+					board.grid[this.gridPos.x][this.gridPos.y] = this;
+
+					if (this.gridPos.y == -1) {
+						board.gameOver = true;
+						machine.changeState("OOB");
+					}
+					else machine.changeState("DROPPING");
+				}
+			},
+			POPPING: {
+				update: () => {}
+			},
+		});
 
 		super ({
 			gridPos: {x: gridX, y: -1},
-			state: state,
 			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
 			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
 			dy: 48,
 			value: value,
 			isBuried: isBuried,
+			machine: machine,
 			update: function(dt) {
-				if (this.gridPos.y == -1) {this.state = cStates.OOB; board.gameOver = true; return}
-				this.advance(dt)
-				if (state === cStates.DROPPING && this.y > this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) {
-					this.y = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);					
-					this.state = cStates.IDLE;
-				}
+				machine.dispatch("update", dt);
 			},
 		});
 
@@ -42,6 +79,7 @@ export class Coin extends SpriteClass {
 			width: board.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
+			update: () => {text.text = this.machine.state},
 		})
 
 		let bg = Sprite({
@@ -64,9 +102,6 @@ export class Coin extends SpriteClass {
 
 		this.addChild(bg, text);
 
-		let coinsInColumn = board.grid[gridX].filter(item => item !== null).length;
-		this.gridPos.y = board.height - coinsInColumn - 1;
-
-		board.grid[this.gridPos.x][this.gridPos.y] = this;
+		machine.dispatch("drop");
 	}
 }

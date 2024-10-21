@@ -3,7 +3,6 @@ import { Machine } from "./Machine.js";
 let speed = 0;
 
 let machine = new Machine("IDLE", {
-
     IDLE: {rev: () => {speed++, machine.changeState("MOVING")}},
     MOVING: {
         rev: () => {

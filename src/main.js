@@ -1,19 +1,10 @@
 import { init, GameLoop, Sprite, GameObject, initPointer, randInt } from "../node_modules/kontra/kontra.mjs";
-import { Coin, cStates } from "./coin.js";
+import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
-import "./machinetest.js";
 
 let { canvas } = init();
 
 initPointer();
-
-let states = {
-	CONTROL: 0,
-	DROPPING: 1,
-	GAMEOVER: 2,
-}
-
-let state = states.control;
 
 let size = {x: 7, y: 7}
 
@@ -59,15 +50,9 @@ function update() {
 
 	let coins = board.grid.flat().filter(coin => coin != null);
 	
-	if (board.gameOver)
-		state = states.GAMEOVER;
-	else if (coins.filter(coin => coin.state === cStates.DROPPING).length > 0)
-		state == states.DROPPING;
-	else state = states.CONTROL;
-
-	if (state == states.CONTROL) {
+	if (board.gameOver) {}
+	else if (coins.filter(coin => coin.machine.state !== "IDLE").length == 0)
 		camera.addChild(new Coin(randInt(0,board.width-1), board));
-	}
 }
 
 let loop = GameLoop({

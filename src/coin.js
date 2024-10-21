@@ -16,8 +16,9 @@ export class Coin extends SpriteClass {
 					
 				},
 				drop: () => {
+					board.coins.push(this);
 					machine.changeState("CHECKING");
-					machine.dispatch("check");
+					machine.dispatch("checkfall");
 				}
 			},
 			DROPPING: {
@@ -35,9 +36,8 @@ export class Coin extends SpriteClass {
 			},
 			OOB: {},
 			CHECKING: {
-				check: () => {
+				checkfall: () => {
 					board.grid[this.gridPos.x][this.gridPos.y] = null;
-					console.log(this.gridPos.y, board.height);
 
 					for (let i=this.gridPos.y; i<board.height; i++) {
 						if (board.grid[this.gridPos.x][i] === null) this.gridPos.y = i;
@@ -51,6 +51,8 @@ export class Coin extends SpriteClass {
 						machine.changeState("OOB");
 					}
 					else machine.changeState("DROPPING");
+
+					return true;
 				}
 			},
 			POPPING: {
@@ -79,7 +81,6 @@ export class Coin extends SpriteClass {
 			width: board.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
-			update: () => {text.text = this.machine.state},
 		})
 
 		let bg = Sprite({

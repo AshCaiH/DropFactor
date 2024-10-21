@@ -1,19 +1,33 @@
 import { getPointer, SpriteClass } from "../node_modules/kontra/kontra.mjs";
-
-export const dropStates  = {
-    HIDDEN: 0,
-    CONTROL: 1,
-    DROPPING: 2,
-}
+import { Machine } from "./Machine.js";
 
 export class Dropzone extends SpriteClass {
     constructor(board, camera) {
+        let machine = new Machine("INPUT", {
+            INPUT: {
+                update: () => {
+                    let cellPos = cursorToCell(this.board, this.camera);
+                    this.xPos = cellPos.x;
+                    this.opacity = (cellPos.x < 0 || cellPos.x >= this.board.width) ? 0 : 1;
+                },
+                drop: (xPos) => {
+                    this.xPos = xPos;
+                    this.opacity = 1;
+                    machine.changeState("LOCKED")
+                }
+            },
+            LOCKED: {
+                unlock: () => {machine.changeState("INPUT")}
+            },
+            HIDDEN: {},
+        });
+
         super({
             xPos: 0,
-            opacity: 0,
+            opacity: 1,
             board: board,
             camera: camera,
-            state: dropStates.CONTROL,
+            machine: machine,
         });
     }
 
@@ -34,15 +48,9 @@ export class Dropzone extends SpriteClass {
         this.context.closePath();
     }
 
-    move () {
-        let cellPos = cursorToCell(this.board, this.camera);
-        this.xPos = cellPos.x;
-        this.opacity = (cellPos.x < 0 || cellPos.x >= this.board.width) ? 0 : 1;
-    }
-
     update (dt) {
         super.update(dt);
-        if (this.state === dropStates.CONTROL) this.move();
+        this.machine.dispatch("update");
     }
 }
 

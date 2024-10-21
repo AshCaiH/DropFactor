@@ -1,18 +1,11 @@
-import { init, GameLoop, Sprite, GameObject, initPointer, randInt } from "../node_modules/kontra/kontra.mjs";
-import { Coin, cStates } from "./coin.js";
+import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt } from "../node_modules/kontra/kontra.mjs";
+import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
+import { Machine } from "./Machine.js";
 
 let { canvas } = init();
 
 initPointer();
-
-let states = {
-	CONTROL: 0,
-	DROPPING: 1,
-	GAMEOVER: 2,
-}
-
-let state = states.control;
 
 let size = {x: 7, y: 7}
 
@@ -21,10 +14,50 @@ let board = {
 	height: size.y,
 	grid: Array.from({ length:size.x }, (item, i) => Array.from({ length:size.y }, (item, i) => null)),
 	gameOver: false,
+	coins: [],
 	coinBuffer: 12,
 	coinRadius: 30,
 	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80", "#003f5c" ]
 }
+
+let machine = new Machine("INPUT", {
+	INPUT: {
+		drop: () => {
+			let dropPos = randInt(0,board.width-1);
+			camera.addChild(new Coin(dropPos, board));
+			dropZone.machine.dispatch("drop", [dropPos]);
+			machine.changeState("CHECKING");
+		},
+		power: (type) => {console.log(`Ran power ${type}`)},
+	},
+	ANIMATION: {
+		update: () => {
+			for (const coin of board.coins) {
+				if (["DROPPING","RISING","POPPING"].includes(coin.machine.state))
+					return;
+			}			
+
+			if (board.gameOver) machine.changeState("GAMEOVER");
+			else machine.changeState("INPUT");
+			
+			dropZone.machine.dispatch("unlock");
+		}
+	},
+	CHECKING: {
+		update: () => {
+			let changes = false;
+
+			board.coins.map((coin) => {
+				coin.machine.changeState("CHECKING");
+				if (coin.machine.dispatch("checkfall"))
+					changes = true;
+			})
+
+			if (changes) machine.changeState("ANIMATION");
+		}
+	},
+	GAMEOVER: {},
+});
 
 let gridBg = Sprite({
 	render: function() {
@@ -53,20 +86,21 @@ let camera = GameObject({
 let dropZone = new Dropzone(board, camera);
 camera.addChild(dropZone, gridBg);
 
+let debugText = Text({
+	y: board.height * (board.coinRadius * 2 + board.coinBuffer) + 10,
+	color: "white",
+	text: "hello",
+	font: 'bold 12px Arial',
+	update: () => {debugText.text = machine.state}
+})
+
+camera.addChild(debugText);
+
 function update() {
 	camera.update();
 
-	let coins = board.grid.flat().filter(coin => coin != null);
-	
-	if (board.gameOver)
-		state = states.GAMEOVER;
-	else if (coins.filter(coin => coin.state === cStates.DROPPING).length > 0)
-		state == states.DROPPING;
-	else state = states.CONTROL;
-
-	if (state == states.CONTROL) {
-		camera.addChild(new Coin(randInt(0,board.width-1), board));
-	}
+	machine.dispatch("drop");
+	machine.dispatch("update");
 }
 
 let loop = GameLoop({

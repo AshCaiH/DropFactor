@@ -51,13 +51,30 @@ export class Coin extends SpriteClass {
 			},
 			POPPING: {
 				start: () => {
-					let inColumn = 0;
-					for (let i=board.height-1; i>=0; i--) {
-						if (board.grid[this.gridPos.x][i] != null) inColumn++;
-						else break;
+					if (this.isBuried) machine.setState("IDLE");
+					else {
+						let inColumn = 0;
+						for (let i=board.height-1; i>=0; i--) {
+							if (board.grid[this.gridPos.x][i] != null) inColumn++;
+							else break;
+						}
+						if (inColumn == value) return true;
+						let inRow = 1;
+						let x = this.gridPos.x - 1;
+						while (x >= 0) {
+							if (board.grid[x][this.gridPos.y] == null) break;
+							else inRow++;
+							x--;
+						}
+						x = this.gridPos.x + 1;
+						while (x < board.width) {
+							if (board.grid[x][this.gridPos.y] == null) break;
+							else inRow++;
+							x++;
+						}
+						if (inRow == value) return true;
+						machine.setState("IDLE");
 					}
-					if (this.isBuried || inColumn != value) machine.setState("IDLE");
-					else return true;
 				},
 				update: (dt) => {
 					opacity -= 0.03;
@@ -78,7 +95,7 @@ export class Coin extends SpriteClass {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
 			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
-			dy: 12,
+			dy: 48,
 			value: value,
 			isBuried: isBuried,
 			machine: machine,

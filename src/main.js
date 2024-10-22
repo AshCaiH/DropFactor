@@ -43,11 +43,11 @@ let machine = new Machine("INPUT", {
 			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {
-			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
-			if (finished) {
-				if (board.gameOver) machine.setStateAndRun("GAMEOVER", "start");
-				machine.setStateAndRun("POPPING", "start");
-			}
+			if (board.gameOver) machine.setStateAndRun("GAMEOVER", "start");
+			else {let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+				if (finished) {				
+					machine.setStateAndRun("POPPING", "start");
+			}}
 		}
 	},
 	POPPING: {

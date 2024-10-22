@@ -10,33 +10,19 @@ export class Coin extends SpriteClass {
 
 		let machine = new Machine("DROPZONE", {
 			IDLE: {
-				drop: () => {machine.setStateAndRun("CHECKING", "checkfall")},
-				pop: () => {machine.setStateAndRun("CHECKING", "checkPop")},
+				drop: () => {machine.setStateAndRun("DROPPING", "start")},
+				pop: () => {machine.setStateAndRun("POPPING", "start")},
 			},
 			DROPZONE: {
 				update: () => {
 					
 				},
 				drop: () => {
-					machine.setStateAndRun("CHECKING", "checkfall");
+					machine.setStateAndRun("DROPPING", "start");
 				}
 			},
 			DROPPING: {
-				update: (dt) => {
-					this.advance(dt)
-					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
-					if (this.y > targetPos) {
-						this.y = targetPos;
-						machine.setState("IDLE");
-					}
-				}
-			},
-			RISING: {
-				update: () => {},
-			},
-			OOB: {},
-			CHECKING: {
-				checkfall: () => {
+				start: () => {
 					board.grid[this.gridPos.x][this.gridPos.y] = null;
 
 					for (let i=this.gridPos.y; i<board.height; i++) {
@@ -54,8 +40,17 @@ export class Coin extends SpriteClass {
 
 					return true;
 				},
-
-				checkPop: () => {
+				update: (dt) => {
+					this.advance(dt)
+					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
+					if (this.y > targetPos) {
+						this.y = targetPos;
+						machine.setState("IDLE");
+					}
+				}
+			},
+			POPPING: {
+				start: () => {
 					let inColumn = 0;
 					for (let i=board.height-1; i>=0; i--) {
 						if (board.grid[this.gridPos.x][i] != null) inColumn++;
@@ -67,9 +62,7 @@ export class Coin extends SpriteClass {
 					} else {
 						machine.setState("IDLE");
 					}
-				}
-			},
-			POPPING: {
+				},
 				update: (dt) => {
 					opacity -= 0.03;
 					if (opacity <= 0) {
@@ -78,6 +71,10 @@ export class Coin extends SpriteClass {
 					}
 				}
 			},
+			RISING: {
+				update: () => {},
+			},
+			OOB: {},
 		});
 
 		super ({

@@ -78,7 +78,7 @@ export class Coin extends SpriteClass {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
 			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
-			dy: 3,
+			dy: 12,
 			value: value,
 			isBuried: isBuried,
 			machine: machine,

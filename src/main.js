@@ -8,7 +8,8 @@ let { canvas } = init();
 initPointer();
 
 let size = {x: 7, y: 7}
-let changes = false;
+let changes = null;
+let number = 0;
 
 let board = {
 	width: size.x,
@@ -23,7 +24,10 @@ let board = {
 
 let machine = new Machine("INPUT", {
 	INPUT: {
-		start: () => {dropZone.machine.dispatch("unlock");},
+		start: () => {
+			dropZone.machine.dispatch("unlock");
+			machine.dispatch("drop");
+		},
 		drop: () => {
 			let dropPos = randInt(0,board.width-1);
 			let coin = new Coin(dropPos, board)
@@ -36,31 +40,27 @@ let machine = new Machine("INPUT", {
 	DROPPING: {
 		start: () => {
 			board.coins.map((coin) => {coin.machine.dispatch("drop")});
-			changes = false;
+			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {
-			for (const coin of board.coins) {
-				if (coin.machine.state == "DROPPING") {
-					changes = true;
-					return;
-				}
+			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+			if (finished) {
+				if (board.gameOver) machine.setStateAndRun("GAMEOVER", "start");
+				machine.setStateAndRun("POPPING", "start");
 			}
-
-			if (board.gameOver) machine.setStateAndRun("GAMEOVER", "start");
-			else if (changes) {machine.setStateAndRun("POPPING", "start");}
-			else machine.setState("INPUT");
 		}
 	},
 	POPPING: {
 		start: () => {			
 			board.coins.map((coin) => {coin.machine.dispatch("pop")});
-			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE");
+			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {			
 			board.coins = board.coins.filter((coin) => coin.isAlive());
 			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
 			if (finished) {
+				console.log(changes);
 				if (changes > 0) machine.setStateAndRun("DROPPING", "start");
 				else machine.setStateAndRun("INPUT", "start");
 			}
@@ -111,11 +111,11 @@ let debugText = Text({
 })
 
 camera.addChild(debugText);
+machine.dispatch("start");
 
 function update() {
 	camera.update();
 
-	machine.dispatch("drop");
 	machine.dispatch("update");
 }
 

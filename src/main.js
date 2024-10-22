@@ -8,6 +8,7 @@ let { canvas } = init();
 initPointer();
 
 let size = {x: 7, y: 7}
+let changes = false;
 
 let board = {
 	width: size.x,
@@ -33,20 +34,36 @@ let machine = new Machine("INPUT", {
 		power: (type) => {console.log(`Ran power ${type}`)},
 	},
 	DROPPING: {
-		start: () => {board.coins.map((coin) => {coin.machine.dispatch("drop")});},
+		start: () => {
+			board.coins.map((coin) => {coin.machine.dispatch("drop")});
+			changes = false;
+		},
 		update: () => {
-			for (const coin of board.coins) {if (coin.machine.state == "DROPPING") return;}
+			for (const coin of board.coins) {
+				if (coin.machine.state == "DROPPING") {
+					changes = true;
+					return;
+				}
+			}
 
 			if (board.gameOver) machine.setStateAndRun("GAMEOVER", "start");
-			else {machine.setStateAndRun("POPPING", "start");}
+			else if (changes) {machine.setStateAndRun("POPPING", "start");}
+			else machine.setState("INPUT");
 		}
 	},
 	POPPING: {
-		start: () => {board.coins.map((coin) => {coin.machine.dispatch("pop")});},
-		update: () => {
-			for (const coin of board.coins) {if (coin.machine.state == "POPPING") return;}
+		start: () => {			
+			board.coins.map((coin) => {coin.machine.dispatch("pop")});
+			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE");
+		},
+		update: () => {			
+			board.coins = board.coins.filter((coin) => coin.isAlive());
+			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
-			machine.setStateAndRun("INPUT", "start");
+			if (finished) {
+				if (changes > 0) machine.setStateAndRun("DROPPING", "start");
+				else machine.setStateAndRun("INPUT", "start");
+			}
 		}
 	},
 	RISING: {

@@ -10,7 +10,6 @@ export class Coin extends SpriteClass {
 
 		let machine = new Machine("DROPZONE", {
 			IDLE: {
-				check: () => check(),
 				drop: () => {machine.setStateAndRun("CHECKING", "checkfall")},
 				pop: () => {machine.setStateAndRun("CHECKING", "checkPop")},
 			},
@@ -57,10 +56,16 @@ export class Coin extends SpriteClass {
 				},
 
 				checkPop: () => {
-					if (value === 3 && !this.isBuried) {
-						console.log(this);
+					let inColumn = 0;
+					for (let i=board.height-1; i>=0; i--) {
+						if (board.grid[this.gridPos.x][i] != null) inColumn++;
+						else break;
+					}
+					if (value === inColumn && !this.isBuried) {
 						machine.setState("POPPING");
 						return true;
+					} else {
+						machine.setState("IDLE");
 					}
 				}
 			},
@@ -68,9 +73,8 @@ export class Coin extends SpriteClass {
 				update: (dt) => {
 					opacity -= 0.03;
 					if (opacity <= 0) {
-						board.grid[this.gridPos.x][this.gridPos.y] = null
-						board.coins.pop(this);
-						this.parent.removeChild(this);
+						board.grid[this.gridPos.x][this.gridPos.y] = null				
+						this.ttl = 0;
 					}
 				}
 			},
@@ -105,6 +109,7 @@ export class Coin extends SpriteClass {
 			anchor: {x: 0, y: -0.8},
 			render: function() {
 				this.opacity = isBuried ? 0: opacity;
+				// this.text = machine.state;
 				this.draw();
 			}
 		})

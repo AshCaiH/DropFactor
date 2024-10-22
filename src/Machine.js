@@ -14,5 +14,10 @@ export class Machine {
         if (action) return action.apply(this, ...payload);
     }
 
-    changeState(newState) {this.state = newState};
+    setState(newState) {this.state = newState};
+
+    setStateAndRun(newState, actionName, ...payload) {
+        this.state = newState;
+        this.dispatch(actionName, ...payload);
+    }
 }

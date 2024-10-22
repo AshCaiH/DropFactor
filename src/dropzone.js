@@ -13,11 +13,11 @@ export class Dropzone extends SpriteClass {
                 drop: (xPos) => {
                     this.xPos = xPos;
                     this.opacity = 1;
-                    machine.changeState("LOCKED")
+                    machine.setState("LOCKED")
                 }
             },
             LOCKED: {
-                unlock: () => {machine.changeState("INPUT")}
+                unlock: () => {machine.setState("INPUT")}
             },
             HIDDEN: {},
         });

@@ -10,15 +10,15 @@ export class Coin extends SpriteClass {
 		let machine = new Machine("DROPZONE", {
 			IDLE: {
 				check: () => check(),
+				drop: () => {machine.setStateAndRun("CHECKING", "checkfall")},
+				pop: () => {machine.setStateAndRun("CHECKING", "checkPop")},
 			},
 			DROPZONE: {
 				update: () => {
 					
 				},
 				drop: () => {
-					board.coins.push(this);
-					machine.changeState("CHECKING");
-					machine.dispatch("checkfall");
+					machine.setStateAndRun("CHECKING", "checkfall");
 				}
 			},
 			DROPPING: {
@@ -27,7 +27,7 @@ export class Coin extends SpriteClass {
 					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
 					if (this.y > targetPos) {
 						this.y = targetPos;
-						machine.changeState("IDLE");
+						machine.setState("IDLE");
 					}
 				}
 			},
@@ -48,19 +48,30 @@ export class Coin extends SpriteClass {
 
 					if (this.gridPos.y == -1) {
 						board.gameOver = true;
-						machine.changeState("OOB");
+						machine.setState("OOB");
 					}
-					else machine.changeState("DROPPING");
+					else machine.setState("DROPPING");
 
 					return true;
 				},
 
 				checkPop: () => {
-					return false;
+					if (value === 3 && !this.isBuried) {
+						console.log(this.parent);
+						machine.setState("POPPING");
+						return true;
+					}
 				}
 			},
 			POPPING: {
-				update: () => {}
+				update: (dt) => {
+					this.opacity -= 0.08;
+					if (this.opacity <= 0) {
+						board.grid[this.gridPos.x][this.gridPos.y] = null
+						board.coins.pop(this);
+						this.parent.removeChild(this);
+					}
+				}
 			},
 		});
 
@@ -73,9 +84,11 @@ export class Coin extends SpriteClass {
 			isBuried: isBuried,
 			machine: machine,
 			update: function(dt) {
-				machine.dispatch("update", dt);
+				machine.dispatch("update", [dt]);
 			},
 		});
+		
+		board.coins.push(this);
 
 		let text = Text({
 			opacity: this.isBuried ? 0: 1,
@@ -89,10 +102,12 @@ export class Coin extends SpriteClass {
 
 		let bg = Sprite({
 			color: isBuried ? "#ABC": board.coinPalette[value-1],
+			opacity: this.opacity,
 			render: function() {
 				let ctx = this.context
 				ctx.fillStyle = this.color;
 				ctx.lineWidth = 2.5;
+				ctx.opacity = 0;
 				ctx.strokeStyle = this.color;
 				ctx.beginPath();
 				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius-3, 0, 2 * Math.PI);
@@ -106,7 +121,5 @@ export class Coin extends SpriteClass {
 		})
 
 		this.addChild(bg, text);
-
-		machine.dispatch("drop");
 	}
 }

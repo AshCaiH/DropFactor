@@ -53,6 +53,10 @@ export class Coin extends SpriteClass {
 					else machine.changeState("DROPPING");
 
 					return true;
+				},
+
+				checkPop: () => {
+					return false;
 				}
 			},
 			POPPING: {

@@ -22,29 +22,19 @@ let board = {
 
 let machine = new Machine("INPUT", {
 	INPUT: {
+		start: () => {
+			dropZone.machine.dispatch("unlock");
+		},
 		drop: () => {
 			let dropPos = randInt(0,board.width-1);
 			camera.addChild(new Coin(dropPos, board));
 			dropZone.machine.dispatch("drop", [dropPos]);
-			machine.changeState("CHECKING");
+			machine.changeState("DROPPING");
 		},
 		power: (type) => {console.log(`Ran power ${type}`)},
 	},
-	ANIMATION: {
-		update: () => {
-			for (const coin of board.coins) {
-				if (["DROPPING","RISING","POPPING"].includes(coin.machine.state))
-					return;
-			}			
-
-			if (board.gameOver) machine.changeState("GAMEOVER");
-			else machine.changeState("INPUT");
-			
-			dropZone.machine.dispatch("unlock");
-		}
-	},
-	CHECKING: {
-		update: () => {
+	DROPPING: {
+		check: () => {
 			let changes = false;
 
 			board.coins.map((coin) => {
@@ -54,7 +44,26 @@ let machine = new Machine("INPUT", {
 			})
 
 			if (changes) machine.changeState("ANIMATION");
+		},
+		update: () => {
+			for (const coin of board.coins) {
+				if (coin.machine.state == "DROPPING") return;
+			}
+
+			if (board.gameOver) machine.changeState("GAMEOVER");
+			else {
+				machine.changeState("INPUT");
+				machine.dispatch("start");
+			}
 		}
+	},
+	POPPING: {
+		check: () => {},
+		update: () => {}
+	},
+	RISING: {
+		check: () => {},
+		update: () => {}
 	},
 	GAMEOVER: {},
 });

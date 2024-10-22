@@ -56,18 +56,15 @@ export class Coin extends SpriteClass {
 						if (board.grid[this.gridPos.x][i] != null) inColumn++;
 						else break;
 					}
-					if (value === inColumn && !this.isBuried) {
-						machine.setState("POPPING");
-						return true;
-					} else {
-						machine.setState("IDLE");
-					}
+					if (this.isBuried || inColumn != value) machine.setState("IDLE");
+					else return true;
 				},
 				update: (dt) => {
 					opacity -= 0.03;
 					if (opacity <= 0) {
 						board.grid[this.gridPos.x][this.gridPos.y] = null				
 						this.ttl = 0;
+						machine.setState("IDLE");
 					}
 				}
 			},
@@ -81,7 +78,7 @@ export class Coin extends SpriteClass {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
 			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
-			dy: 48,
+			dy: 3,
 			value: value,
 			isBuried: isBuried,
 			machine: machine,

@@ -7,8 +7,8 @@ export class Dropzone extends SpriteClass {
             INPUT: {
                 update: () => {
                     let cellPos = cursorToCell(this.board, this.camera);
-                    this.xPos = cellPos.x;
-                    this.opacity = (cellPos.x < 0 || cellPos.x >= this.board.width) ? 0 : 1;
+                    this.xPos = Math.min(Math.max(0, cellPos.x), this.board.width - 1);
+                    // this.opacity = (cellPos.x < 0 || cellPos.x >= this.board.width) ? 0 : 1;
                 },
                 drop: (xPos) => {
                     this.xPos = xPos;

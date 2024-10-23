@@ -1,4 +1,4 @@
-import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, initInput, onPointer } from "../node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPointer } from "../node_modules/kontra/kontra.mjs";
 import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";

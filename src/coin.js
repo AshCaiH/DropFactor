@@ -1,10 +1,11 @@
 import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
+import { Particles } from "./particles.js";
 
 export class Coin extends SpriteClass {
 	constructor(gridX, board) {
 		let value = randInt(1,7);
-		let isBuried = randInt(1,4) === 4;
+		let isBuried = randInt(1,3) === 3;
 		let opacity = 1;
 		let dropZone = null;
 
@@ -36,6 +37,7 @@ export class Coin extends SpriteClass {
 			},
 			DROPPING: {
 				start: () => {
+					this.dy = 12;
 					board.grid[this.gridPos.x][this.gridPos.y] = null;
 
 					for (let i=this.gridPos.y; i<board.height; i++) {
@@ -55,6 +57,7 @@ export class Coin extends SpriteClass {
 				},
 				update: (dt) => {
 					this.advance(dt)
+					this.dy += 2;
 					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
 					if (this.y > targetPos) {
 						this.y = targetPos;
@@ -108,6 +111,13 @@ export class Coin extends SpriteClass {
 				start: () => {
 					isBuried = false;
 					this.isBuried = false;
+					this.parent.addChild(new Particles(
+						{
+							x: this.x + board.coinRadius,
+							y: this.y + board.coinRadius,
+							// anchor: {x: -board.coinRadius, y: 0},
+						}
+					));
 				},
 				update: () => {
 					machine.setState("IDLE");
@@ -177,10 +187,12 @@ export class Coin extends SpriteClass {
 	}
 
 	breakSurrounding() {
-		console.log("breaksurrounding");
+		// console.log("breaksurrounding");
 		let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
 		surrounding.forEach((s) => {
 			let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
+			if (checkPos.x < 0 || checkPos.x >= 7) return;
+			else if (checkPos.y < 0 || checkPos.y >= 7) return;
 			console.log(checkPos);
 			if (this.grid[checkPos.x][checkPos.y]) this.grid[checkPos.x][checkPos.y].machine.dispatch("crumble");
 		});

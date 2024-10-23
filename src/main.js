@@ -2,6 +2,7 @@ import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPoint
 import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
+import { Particles } from "./particles.js";
 
 let { canvas } = init();
 

@@ -2,10 +2,9 @@ import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
 
 export class Coin extends SpriteClass {
-
 	constructor(gridX, board) {
 		let value = randInt(1,7);
-		let isBuried = randInt(1,8) === 8;
+		let isBuried = randInt(1,4) === 4;
 		let opacity = 1;
 		let dropZone = null;
 
@@ -13,6 +12,12 @@ export class Coin extends SpriteClass {
 			IDLE: {
 				drop: () => machine.setStateAndRun("DROPPING", "start"),
 				pop: () => machine.setStateAndRun("POPPING", "start"),
+				crumble: () => {
+					if (!isBuried) return;
+					console.log("crumble", this.gridPos);
+					this.machine.setStateAndRun("CRUMBLING", "start");
+					isBuried = false;
+				}
 			},
 			DROPZONE: {
 				start: (dz) => {
@@ -66,7 +71,10 @@ export class Coin extends SpriteClass {
 							if (board.grid[this.gridPos.x][i] != null) inColumn++;
 							else break;
 						}
-						if (inColumn == value) return true;
+						if (inColumn == value) {
+							this.breakSurrounding();
+							return true;
+						}
 						let inRow = 1;
 						let x = this.gridPos.x - 1;
 						while (x >= 0) {
@@ -80,7 +88,10 @@ export class Coin extends SpriteClass {
 							else inRow++;
 							x++;
 						}
-						if (inRow == value) return true;
+						if (inRow == value) {
+							this.breakSurrounding();
+							return true;
+						}
 						machine.setState("IDLE");
 					}
 				},
@@ -88,10 +99,19 @@ export class Coin extends SpriteClass {
 					opacity -= 0.05;
 					if (opacity <= 0) {
 						board.grid[this.gridPos.x][this.gridPos.y] = null				
-						this.ttl = 0;
 						machine.setState("IDLE");
+						this.kill();
 					}
 				}
+			},
+			CRUMBLING: {
+				start: () => {
+					isBuried = false;
+					this.isBuried = false;
+				},
+				update: () => {
+					machine.setState("IDLE");
+				},
 			},
 			RISING: {
 				update: () => {},
@@ -108,6 +128,7 @@ export class Coin extends SpriteClass {
 			isBuried: isBuried,
 			machine: machine,
 			opacity: 0.5,
+			grid: board.grid,
 			update: function(dt) {
 				machine.dispatch("update", [dt]);
 			},
@@ -119,7 +140,7 @@ export class Coin extends SpriteClass {
 		board.coins.push(this);
 
 		let text = Text({
-			opacity: isBuried ? 0: 1,
+			// opacity: isBuried ? 0: 1,
 			text: value,
 			color: value >= 5 ? "#CDE" : "#311",
 			font: 'bold 24px Arial',
@@ -128,19 +149,19 @@ export class Coin extends SpriteClass {
 			anchor: {x: 0, y: -0.8},
 			render: function() {
 				this.opacity = isBuried ? 0: opacity;
-				// this.text = machine.state;
+				// this.text = isBuried;
 				this.draw();
 			}
 		})
 
-		let bg = Sprite({
-			color: isBuried ? "#ABC": board.coinPalette[value-1],
+		let bg = Sprite({			
 			render: function() {
 				let ctx = this.context
+				let colour = isBuried ? "#ABC": board.coinPalette[value-1];
 				this.opacity = opacity;
-				ctx.fillStyle = this.color;
+				ctx.fillStyle = colour;
 				ctx.lineWidth = 2.5;
-				ctx.strokeStyle = this.color;
+				ctx.strokeStyle = colour;
 				ctx.beginPath();
 				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius-3, 0, 2 * Math.PI);
 				ctx.closePath();
@@ -153,5 +174,20 @@ export class Coin extends SpriteClass {
 		})
 
 		this.addChild(bg, text);
+	}
+
+	breakSurrounding() {
+		console.log("breaksurrounding");
+		let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
+		surrounding.forEach((s) => {
+			let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
+			console.log(checkPos);
+			if (this.grid[checkPos.x][checkPos.y]) this.grid[checkPos.x][checkPos.y].machine.dispatch("crumble");
+		});
+	}
+
+	kill() {
+		this.ttl = 0;
+		this.children = [];
 	}
 }

@@ -7,17 +7,25 @@ export class Coin extends SpriteClass {
 		let value = randInt(1,7);
 		let isBuried = randInt(1,8) === 8;
 		let opacity = 1;
+		let dropZone = null;
 
 		let machine = new Machine("DROPZONE", {
 			IDLE: {
-				drop: () => {machine.setStateAndRun("DROPPING", "start")},
-				pop: () => {machine.setStateAndRun("POPPING", "start")},
+				drop: () => machine.setStateAndRun("DROPPING", "start"),
+				pop: () => machine.setStateAndRun("POPPING", "start"),
 			},
 			DROPZONE: {
+				start: (dz) => {
+					dropZone = dz
+					this.gridPos.x = dropZone.xPos * (board.coinRadius * 2 + board.coinBuffer);
+					this.x = this.gridPos.x * (board.coinRadius * 2 + board.coinBuffer);
+				},
 				update: () => {
-					
+					this.gridPos.x = Math.min(Math.max(0, dropZone.xPos), board.width -1);
+					this.x = this.gridPos.x * (board.coinRadius * 2 + board.coinBuffer);
 				},
 				drop: () => {
+					this.x = dropZone.xPos * (board.coinRadius * 2 + board.coinBuffer);
 					machine.setStateAndRun("DROPPING", "start");
 				}
 			},
@@ -77,7 +85,7 @@ export class Coin extends SpriteClass {
 					}
 				},
 				update: (dt) => {
-					opacity -= 0.03;
+					opacity -= 0.05;
 					if (opacity <= 0) {
 						board.grid[this.gridPos.x][this.gridPos.y] = null				
 						this.ttl = 0;

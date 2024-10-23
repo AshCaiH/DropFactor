@@ -23,7 +23,7 @@ export class Dropzone extends SpriteClass {
         });
 
         super({
-            xPos: 0,
+            xPos: 4,
             opacity: 1,
             board: board,
             camera: camera,

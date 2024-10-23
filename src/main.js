@@ -1,4 +1,4 @@
-import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt } from "../node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, initInput, onPointer } from "../node_modules/kontra/kontra.mjs";
 import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
@@ -9,7 +9,8 @@ initPointer();
 
 let size = {x: 7, y: 7}
 let changes = null;
-let number = 0;
+let auto = false;
+let dropPos = null;
 
 let board = {
 	width: size.x,
@@ -26,12 +27,12 @@ let machine = new Machine("INPUT", {
 	INPUT: {
 		start: () => {
 			dropZone.machine.dispatch("unlock");
-			machine.dispatch("drop");
+			dropPos = auto ? randInt(0,board.width-1) : dropZone.x;
+			let coin = new Coin(dropPos, board)
+			coin.machine.dispatch("start", [dropZone]);
+			camera.addChild(coin);
 		},
 		drop: () => {
-			let dropPos = randInt(0,board.width-1);
-			let coin = new Coin(dropPos, board)
-			camera.addChild(coin);
 			dropZone.machine.dispatch("drop", [dropPos]);
 			machine.setStateAndRun("DROPPING", "start");
 		},
@@ -112,6 +113,11 @@ let debugText = Text({
 
 camera.addChild(debugText);
 machine.dispatch("start");
+
+onPointer('down', function(e, object) {
+	dropPos = dropZone.xPos;
+	machine.dispatch("drop");
+});
 
 function update() {
 	camera.update();

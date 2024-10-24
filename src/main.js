@@ -138,7 +138,7 @@ let debugText = Text({
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = machine.state}
+	update: () => {debugText.text = `${board.nextRise}\n\n${machine.state}`}
 })
 
 camera.addChild(debugText);

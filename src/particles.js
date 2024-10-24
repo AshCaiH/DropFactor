@@ -12,11 +12,7 @@ const defaultParticle = {
 	gravity: 0,
 	decel: 0.97,
 	shrink: 0.3,
-	randomise: function() {
-		this.dx = Math.random() * 6 - 3;
-		this.dy = Math.random() * 6 - 3;
-		this.rotation = Math.random();
-	},
+	randomise: function() {randomise(this)},
 	update: function() {
 		this.advance();
 		this.dx *= this.decel;
@@ -36,13 +32,19 @@ export const presets = {
 		ttl: 100,
 		shrink: 0.2,
 		randomise: function() {
+			randomise(this);
 			this.x = Math.random() * 40 - 20;
 			this.y = Math.random() * 40 - 20;
 			this.dx = Math.random() * 7 - 3.5;
 			this.dy = Math.random() * - 5;
-			this.rotation = Math.random();
 		},
 	})
+}
+
+function randomise(target) {
+	target.dx = Math.random() * 6 - 3;
+	target.dy = Math.random() * 6 - 3;
+	target.rotation = Math.random();
 }
 
 export class Particles extends SpriteClass {

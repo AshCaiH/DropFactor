@@ -25,7 +25,8 @@ const defaultParticle = {
 }
 
 export const presets = {
-	crumbling: Object.assign({}, defaultParticle, {
+	crumbling: {
+		...defaultParticle,
 		gravity: 0.4,
 		count: 40,
 		decel: 0.98,
@@ -38,7 +39,7 @@ export const presets = {
 			this.dx = Math.random() * 7 - 3.5;
 			this.dy = Math.random() * - 5;
 		},
-	})
+	}
 }
 
 function randomise(target) {

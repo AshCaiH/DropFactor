@@ -3,7 +3,7 @@ import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontr
 import { Particles, presets } from "./particles.js";
 
 export class Coin extends SpriteClass {
-	constructor(gridX, board) {
+	constructor(gridX, board, ...options) {
 		let value = randInt(1,7);
 		let isBuried = randInt(1,3) === 3;
 		let opacity = 1;
@@ -36,6 +36,7 @@ export class Coin extends SpriteClass {
 			DROPPING: {
 				start: () => {
 					this.dy = 12;
+					// TODO: Wipe grid from main script instead.
 					board.grid[this.gridPos.x][this.gridPos.y] = null;
 
 					for (let i=this.gridPos.y; i<board.height; i++) {
@@ -134,12 +135,20 @@ export class Coin extends SpriteClass {
 				},
 			},
 			RISING: {
-				update: () => {},
+				start: () => {
+					this.gridPos.y -= 1;
+					board.grid[this.gridPos.x][this.gridPos.y] = this;
+					if (this.gridPos.y <= -1) board.gameOver = true;
+				},
+				update: () => {
+					this.y -= 12;
+					if (this.y <= this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) this.machine.setState("IDLE");
+				},
 			},
 			OOB: {},
 		});
 
-		super ({
+		super (Object.assign({}, {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
 			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
@@ -154,8 +163,8 @@ export class Coin extends SpriteClass {
 			},
 			draw: function() {
 				this.opacity = opacity;
-			}
-		});
+			},
+		}, ...options));
 		
 		let self = this;
 		
@@ -168,9 +177,9 @@ export class Coin extends SpriteClass {
 			width: board.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
+			opacity: self.dirtLayer > 0 ? 0: opacity,
 			render: function() {
 				this.opacity = self.dirtLayer > 0 ? 0: opacity;
-				// this.text = self.dirtLayer;
 				this.draw();
 			}
 		})

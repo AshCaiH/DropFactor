@@ -20,12 +20,18 @@ let board = {
 	coins: [],
 	coinBuffer: 12,
 	coinRadius: 30,
-	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ]
+	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ],
+	nextRise: 4,
+	riseTurns: 4,
 }
 
 let machine = new Machine("INPUT", {
 	INPUT: {
 		start: () => {
+			if (board.gameOver) {
+				machine.setStateAndRun("GAMEOVER");
+				return;
+			}
 			dropZone.machine.dispatch("unlock");
 			dropPos = auto ? randInt(0,board.width-1) : dropZone.x;
 			let coin = new Coin(dropPos, board)
@@ -33,8 +39,10 @@ let machine = new Machine("INPUT", {
 			camera.addChild(coin);
 		},
 		drop: () => {
+			console.log("drop");			
+			board.nextRise--;
 			dropZone.machine.dispatch("drop", [dropPos]);
-			machine.setStateAndRun("DROPPING", "start");
+			machine.setStateAndRun("DROPPING");
 		},
 		power: (type) => {console.log(`Ran power ${type}`)},
 	},
@@ -44,34 +52,57 @@ let machine = new Machine("INPUT", {
 			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {
-			if (board.gameOver) machine.setStateAndRun("GAMEOVER", "start");
-			else {let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
-				if (finished) {				
-					machine.setStateAndRun("POPPING", "start");
-			}}
+			if (board.gameOver) machine.setStateAndRun("GAMEOVER");
+			else {
+				let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+				if (finished) machine.setStateAndRun("POPPING");
+			}
 		}
 	},
 	POPPING: {
-		start: () => {			
+		start: () => {
 			board.coins.map((coin) => {coin.machine.dispatch("pop")});
 			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
-		update: () => {			
+		update: () => {
 			board.coins = board.coins.filter((coin) => coin.isAlive());
 			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
 			if (finished) {
-				if (changes > 0) machine.setStateAndRun("DROPPING", "start");
-				else machine.setStateAndRun("INPUT", "start");
+				if (changes > 0) machine.setStateAndRun("DROPPING");
+				else machine.setStateAndRun("RISING");
 			}
 		}
 	},
 	RISING: {
-		start: () => {},
-		update: () => {}
+		start: () => {
+			if (board.nextRise > 0) {
+				machine.setStateAndRun("INPUT");
+			} else {				
+				board.nextRise = board.riseTurns;
+				board.coins.map(coin => {
+					coin.machine.setStateAndRun("RISING");
+				});
+				for (let i=0; i<board.width; i++) {
+					let coin = new Coin(i, board, {
+						gridPos: {x: i, y: board.height},
+						y: board.height * (board.coinRadius * 2 + board.coinBuffer),
+						dirtLayer: 2
+					})
+					coin.machine.setStateAndRun("RISING");
+					camera.addChild(coin);
+				}
+			}
+		},
+		update: () => {
+			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+
+			if (board.gameOver) machine.setStateAndRun("GAMEOVER")
+			else if (finished) machine.setStateAndRun("POPPING");
+		}
 	},
 	GAMEOVER: {
-		start: () => {dropZone.machine.dispatch("unlock");}
+		start: () => {}
 	},
 });
 
@@ -107,7 +138,7 @@ let debugText = Text({
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = machine.state}
+	update: () => {debugText.text = `${board.nextRise}\n\n${machine.state}`}
 })
 
 camera.addChild(debugText);

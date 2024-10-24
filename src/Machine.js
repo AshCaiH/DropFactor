@@ -16,7 +16,7 @@ export class Machine {
 
 	setState(newState) {this.state = newState};
 
-	setStateAndRun(newState, actionName, ...payload) {
+	setStateAndRun(newState, actionName = "start", ...payload) {
 		this.state = newState;
 		this.dispatch(actionName, ...payload);
 	}

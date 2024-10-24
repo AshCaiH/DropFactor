@@ -130,8 +130,6 @@ export class Coin extends SpriteClass {
 							preset: presets.crumbling,
 						}
 					));
-				},
-				update: () => {
 					machine.setState("IDLE");
 				},
 			},

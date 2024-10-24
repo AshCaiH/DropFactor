@@ -1,13 +1,28 @@
-import { GameObject, Pool, Sprite, SpriteClass } from "../node_modules/kontra/kontra.mjs";
-import { Machine } from "./Machine.js";
-
-
+import { SpriteClass } from "../node_modules/kontra/kontra.mjs";
 
 export class Particles extends SpriteClass {
 	constructor(options) {
 		super(options);
-		for (let i=0; i<20; i++) {
-			this.addChild(new Particle());
+		let count = options.count ? options.count : 20;
+		let mode = options.mode ? options.mode : "pop";
+		for (let i=0; i<count; i++) {
+			this.addChild(new Particle({
+				height: 10,
+				width: 10,
+				dx: mode == "pop" ? Math.random() * 3 - 1.5 : Math.random() * 4 - 2,
+				dy: mode == "pop" ? Math.random() * 3 - 1.5 : Math.random() * -4,
+				color: options.color ? options.color : "#ABC",
+				ttl:50 + Math.floor(Math.random() * 20),
+				rotation: Math.random(),
+				update: function() {
+					this.advance();
+					this.dx *= 0.995;
+					this.dy = mode == "pop" ? this.dy * 0.995 : this.dy + 0.3;
+					this.height -= 0.2;
+					this.width -= 0.2;
+					this.ttl--;
+				}
+			}));
 		}
 	}
 
@@ -19,24 +34,7 @@ export class Particles extends SpriteClass {
 
 class Particle extends SpriteClass {
 	constructor(options) {
-		super({
-			height: 10,
-			width: 10,
-			color: "#ABC",
-			dx: Math.random() * 4 - 2,
-			dy: Math.random() * -4,
-			ttl:40 + Math.floor(Math.random() * 20),
-			rotation: Math.random(),
-			update: function() {
-				this.advance();
-				this.dx *= 0.995;
-				this.dy += 0.3;
-				this.height -= 0.2;
-				this.width -= 0.2;
-				this.ttl--;
-				console.log(this.ttl);
-			}
-		});
-		
+		super(options);
+		console.log("colour:", this.color);
 	};
 };

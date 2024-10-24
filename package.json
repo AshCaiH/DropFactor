@@ -1,5 +1,10 @@
 {
+  "name": "drop-factor",
   "dependencies": {
     "kontra": "^10.0.2"
+  },
+  "devDependencies": {
+    "grunt": "^1.6.1",
+    "grunt-contrib-uglify": "^5.2.2"
   }
 }

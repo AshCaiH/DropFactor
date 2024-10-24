@@ -1,6 +1,6 @@
 import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
-import { Particles } from "./particles.js";
+import { Particles, presets } from "./particles.js";
 
 export class Coin extends SpriteClass {
 	constructor(gridX, board) {
@@ -80,8 +80,7 @@ export class Coin extends SpriteClass {
 								{
 									x: this.x + board.coinRadius,
 									y: this.y + board.coinRadius,
-									color: board.coinPalette[value-1],
-								}
+								}, {color: board.coinPalette[value-1]}
 							));
 							this.breakSurrounding();
 							return true;
@@ -103,9 +102,8 @@ export class Coin extends SpriteClass {
 							this.parent.addChild(new Particles(
 								{
 									x: this.x + board.coinRadius,
-									y: this.y + board.coinRadius,
-									color: board.coinPalette[value-1],
-								}
+									y: this.y + board.coinRadius
+								}, {color: board.coinPalette[value-1]}
 							));
 							this.breakSurrounding();
 							return true;
@@ -130,8 +128,7 @@ export class Coin extends SpriteClass {
 						{
 							x: this.x + board.coinRadius,
 							y: this.y + board.coinRadius,
-							count: 40,
-							mode: "crumble",
+							preset: presets.crumbling,
 						}
 					));
 				},

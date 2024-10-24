@@ -138,11 +138,12 @@ export class Coin extends SpriteClass {
 				start: () => {
 					this.gridPos.y -= 1;
 					board.grid[this.gridPos.x][this.gridPos.y] = this;
-					this.y = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)
-					this.machine.setState("IDLE");
 					if (this.gridPos.y <= -1) board.gameOver = true;
 				},
-				update: () => {},
+				update: () => {
+					this.y -= 12;
+					if (this.y <= this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) this.machine.setState("IDLE");
+				},
 			},
 			OOB: {},
 		});
@@ -164,11 +165,6 @@ export class Coin extends SpriteClass {
 				this.opacity = opacity;
 			},
 		}, ...options));
-
-		// if (options.length > 0) {
-		// 	console.log(this);
-		// 	throw new Error("Stop!");
-		// }
 		
 		let self = this;
 		
@@ -181,9 +177,9 @@ export class Coin extends SpriteClass {
 			width: board.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
+			opacity: self.dirtLayer > 0 ? 0: opacity,
 			render: function() {
 				this.opacity = self.dirtLayer > 0 ? 0: opacity;
-				// this.text = self.dirtLayer;
 				this.draw();
 			}
 		})

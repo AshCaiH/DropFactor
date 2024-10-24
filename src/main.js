@@ -86,6 +86,7 @@ let machine = new Machine("INPUT", {
 				for (let i=0; i<board.width; i++) {
 					let coin = new Coin(i, board, {
 						gridPos: {x: i, y: board.height},
+						y: board.height * (board.coinRadius * 2 + board.coinBuffer),
 						dirtLayer: 2
 					})
 					coin.machine.setStateAndRun("RISING");

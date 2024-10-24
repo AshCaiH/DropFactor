@@ -61,7 +61,6 @@ let machine = new Machine("INPUT", {
 			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
 			if (finished) {
-				console.log(changes);
 				if (changes > 0) machine.setStateAndRun("DROPPING", "start");
 				else machine.setStateAndRun("INPUT", "start");
 			}

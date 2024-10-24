@@ -122,14 +122,14 @@ export class Coin extends SpriteClass {
 			},
 			CRUMBLING: {
 				start: () => {
-					this.dirtLayer--;
 					this.parent.addChild(new Particles(
 						{
 							x: this.x + board.coinRadius,
 							y: this.y + board.coinRadius,
-							preset: presets.crumbling,
-						}
+							preset: this.dirtLayer == 2 ? presets.crumbling : presets.breaking,
+						}, {color: this.dirtLayer == 2 ? "#678" : "#ABC",}
 					));
+					this.dirtLayer--;
 					machine.setState("IDLE");
 				},
 			},
@@ -160,7 +160,6 @@ export class Coin extends SpriteClass {
 		let self = this;
 		
 		board.coins.push(this);
-		console.log(this.dirtLayer, isBuried, isBuried ? 2 : 0)
 
 		let text = Text({
 			text: value,

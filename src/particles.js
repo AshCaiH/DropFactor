@@ -6,7 +6,7 @@ const defaultParticle = {
 	color: "#ABC",
 	height:10,
 	width:10,
-	count: 20,
+	count: 30,
 	ttl: 60,
 	rotation: Math.random(),
 	gravity: 0,
@@ -25,19 +25,36 @@ const defaultParticle = {
 }
 
 export const presets = {
-	crumbling: {
+	breaking: {
 		...defaultParticle,
 		gravity: 0.4,
 		count: 40,
 		decel: 0.98,
 		ttl: 100,
-		shrink: 0.2,
+		shrink: 0.12,
 		randomise: function() {
 			randomise(this);
 			this.x = Math.random() * 40 - 20;
 			this.y = Math.random() * 40 - 20;
 			this.dx = Math.random() * 7 - 3.5;
 			this.dy = Math.random() * - 5;
+		},
+	},
+	crumbling: {
+		...defaultParticle,
+		gravity: 0.6,
+		height: 12,
+		width: 12,
+		count: 20,
+		decel: 0.98,
+		ttl: 100,
+		shrink: 0.1,
+		randomise: function() {
+			randomise(this);
+			this.x = Math.random() * 40 - 20;
+			this.y = Math.random() * 40 - 20;
+			this.dx = Math.random() * 3 - 1.5;
+			this.dy = Math.random() * - 3;
 		},
 	}
 }
@@ -50,9 +67,10 @@ function randomise(target) {
 
 export class Particles extends SpriteClass {
 	constructor(options, particleOptions) {
+		console.log(particleOptions);
+		console.log({...options.preset ?? defaultParticle, ...particleOptions});
 		super(options);
-		let preset = options.preset ?? defaultParticle;
-		Object.assign(preset, particleOptions);
+		let preset = {...options.preset ?? defaultParticle, ...particleOptions}
 		for (let i=0; i<defaultParticle.count; i++) {
 			preset.randomise();
 			this.addChild(Sprite(preset));

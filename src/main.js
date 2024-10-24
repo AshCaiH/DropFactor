@@ -21,11 +21,11 @@ let board = {
 	coinBuffer: 12,
 	coinRadius: 30,
 	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ],
-	nextRise: 4,
-	riseTurns: 4,
+	nextRise: 0,
+	riseTurns: 5,
 }
 
-let machine = new Machine("INPUT", {
+let machine = new Machine("RISING", {
 	INPUT: {
 		start: () => {
 			if (board.gameOver) {
@@ -38,8 +38,7 @@ let machine = new Machine("INPUT", {
 			coin.machine.dispatch("start", [dropZone]);
 			camera.addChild(coin);
 		},
-		drop: () => {
-			console.log("drop");			
+		drop: () => {		
 			board.nextRise--;
 			dropZone.machine.dispatch("drop", [dropPos]);
 			machine.setStateAndRun("DROPPING");

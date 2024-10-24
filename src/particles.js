@@ -67,8 +67,6 @@ function randomise(target) {
 
 export class Particles extends SpriteClass {
 	constructor(options, particleOptions) {
-		console.log(particleOptions);
-		console.log({...options.preset ?? defaultParticle, ...particleOptions});
 		super(options);
 		let preset = {...options.preset ?? defaultParticle, ...particleOptions}
 		for (let i=0; i<defaultParticle.count; i++) {

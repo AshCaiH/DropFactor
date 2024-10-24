@@ -5,7 +5,7 @@ import { Particles, presets } from "./particles.js";
 export class Coin extends SpriteClass {
 	constructor(gridX, board, ...options) {
 		let value = randInt(1,7);
-		let isBuried = randInt(1,3) === 3;
+		let isBuried = 0 //randInt(1,3) === 3;
 		let opacity = 1;
 		let dropZone = null;
 
@@ -141,8 +141,12 @@ export class Coin extends SpriteClass {
 					if (this.gridPos.y <= -1) board.gameOver = true;
 				},
 				update: () => {
-					this.y -= 12;
-					if (this.y <= this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)) this.machine.setState("IDLE");
+					this.y -= 4;
+					let target = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)
+					if (this.y <= target) {
+						this.machine.setState("IDLE");
+						this.y = target;
+					}
 				},
 			},
 			OOB: {},
@@ -190,6 +194,21 @@ export class Coin extends SpriteClass {
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
 					"#ABC": board.coinPalette[value-1];
 				this.opacity = opacity;
+				let boardWidth = board.width * (board.coinRadius * 2 + board.coinBuffer)
+				let boardHeight = board.height * (board.coinRadius * 2 + board.coinBuffer)
+				let dim = {
+					top: -this.parent.y - (board.coinRadius * 2 - board.coinBuffer) * 2,
+					bottom: -this.parent.y + board.height * (board.coinRadius * 2 + board.coinBuffer) - board.coinBuffer / 2,
+					left: -this.parent.x - board.coinBuffer,
+					right:-this.parent.x - board.coinBuffer + board.height * (board.coinRadius + board.coinBuffer) * 2,
+				}
+				ctx.save()
+				ctx.moveTo(dim.left, dim.top);
+				ctx.lineTo(dim.right, dim.top);
+				ctx.lineTo(dim.right, dim.bottom);
+				ctx.lineTo(dim.left, dim.bottom);
+				ctx.closePath();
+				ctx.clip()
 				ctx.fillStyle = colour;
 				ctx.lineWidth = 2.5;
 				ctx.strokeStyle = colour;
@@ -201,6 +220,7 @@ export class Coin extends SpriteClass {
 				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius, 0, 2 * Math.PI);
 				ctx.closePath();
 				ctx.stroke();
+				ctx.restore();
 			}
 		})
 

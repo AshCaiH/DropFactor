@@ -20,7 +20,7 @@ let board = {
 	coins: [],
 	coinBuffer: 12,
 	coinRadius: 30,
-	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#374c80", "#003f5c" ]
+	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ]
 }
 
 let machine = new Machine("INPUT", {

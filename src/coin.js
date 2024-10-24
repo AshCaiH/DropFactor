@@ -66,50 +66,51 @@ export class Coin extends SpriteClass {
 				}
 			},
 			POPPING: {
-				start: () => {
+				start: () => {					
 					if (this.isBuried) machine.setState("IDLE");
-					else {
-						// TODO: Clean up this code.
-						let inColumn = 0;
-						for (let i=board.height-1; i>=0; i--) {
-							if (board.grid[this.gridPos.x][i] != null) inColumn++;
-							else break;
-						}
-						if (inColumn == value) {
-							this.parent.addChild(new Particles(
-								{
-									x: this.x + board.coinRadius,
-									y: this.y + board.coinRadius,
-								}, {color: board.coinPalette[value-1]}
-							));
-							this.breakSurrounding();
-							return true;
-						}
-						let inRow = 1;
-						let x = this.gridPos.x - 1;
-						while (x >= 0) {
-							if (board.grid[x][this.gridPos.y] == null) break;
-							else inRow++;
-							x--;
-						}
-						x = this.gridPos.x + 1;
-						while (x < board.width) {
-							if (board.grid[x][this.gridPos.y] == null) break;
-							else inRow++;
-							x++;
-						}
-						if (inRow == value) {
-							this.parent.addChild(new Particles(
-								{
-									x: this.x + board.coinRadius,
-									y: this.y + board.coinRadius
-								}, {color: board.coinPalette[value-1]}
-							));
-							this.breakSurrounding();
-							return true;
-						}						
-						machine.setState("IDLE");
+					else if (this.machine.dispatch("checkVertical") || this.machine.dispatch("checkHorizontal")) {
+						this.parent.addChild(new Particles(
+							{
+								x: this.x + board.coinRadius,
+								y: this.y + board.coinRadius
+							}, {color: board.coinPalette[value-1]}
+						));
+						this.machine.dispatch("breakSurrounding");
+						return true;
+					} else machine.setState("IDLE");
+				},
+				checkVertical: () => {
+					let inColumn = 0;
+					for (let i=board.height-1; i>=0; i--) {
+						if (board.grid[this.gridPos.x][i] != null) inColumn++;
+						else break;
 					}
+					if (inColumn == value) return true;
+				},
+				checkHorizontal: () => {
+					let inRow = 1;
+					let x = this.gridPos.x - 1;
+					while (x >= 0) {
+						if (board.grid[x][this.gridPos.y] == null) break;
+						else inRow++;
+						x--;
+					}
+					x = this.gridPos.x + 1;
+					while (x < board.width) {
+						if (board.grid[x][this.gridPos.y] == null) break;
+						else inRow++;
+						x++;
+					}
+					if (inRow === value) return true;
+				},
+				breakSurrounding: () => {
+					let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
+					surrounding.forEach((s) => {
+						let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
+						if (checkPos.x < 0 || checkPos.x >= board.width) return;
+						else if (checkPos.y < 0 || checkPos.y >= board.height) return;
+						if (this.grid[checkPos.x][checkPos.y]) this.grid[checkPos.x][checkPos.y].machine.dispatch("crumble");
+					});
 				},
 				update: (dt) => {
 					opacity -= 0.05;
@@ -197,18 +198,6 @@ export class Coin extends SpriteClass {
 		})
 
 		this.addChild(bg, text);
-	}
-
-	breakSurrounding() {
-		// console.log("breaksurrounding");
-		let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
-		surrounding.forEach((s) => {
-			let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
-			// TODO: Change board bounds to not be hardcoded here.
-			if (checkPos.x < 0 || checkPos.x >= 7) return;
-			else if (checkPos.y < 0 || checkPos.y >= 7) return;
-			if (this.grid[checkPos.x][checkPos.y]) this.grid[checkPos.x][checkPos.y].machine.dispatch("crumble");
-		});
 	}
 
 	kill() {

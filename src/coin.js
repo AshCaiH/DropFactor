@@ -14,10 +14,8 @@ export class Coin extends SpriteClass {
 				drop: () => machine.setStateAndRun("DROPPING", "start"),
 				pop: () => machine.setStateAndRun("POPPING", "start"),
 				crumble: () => {
-					if (!isBuried) return;
-					console.log("crumble", this.gridPos);
+					if (this.dirtLayer == 0) return;
 					this.machine.setStateAndRun("CRUMBLING", "start");
-					isBuried = false;
 				}
 			},
 			DROPZONE: {
@@ -67,7 +65,7 @@ export class Coin extends SpriteClass {
 			},
 			POPPING: {
 				start: () => {					
-					if (this.isBuried) machine.setState("IDLE");
+					if (this.dirtLayer > 0) machine.setState("IDLE");
 					else if (this.machine.dispatch("checkVertical") || this.machine.dispatch("checkHorizontal")) {
 						this.parent.addChild(new Particles(
 							{
@@ -109,7 +107,8 @@ export class Coin extends SpriteClass {
 						let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
 						if (checkPos.x < 0 || checkPos.x >= board.width) return;
 						else if (checkPos.y < 0 || checkPos.y >= board.height) return;
-						if (this.grid[checkPos.x][checkPos.y]) this.grid[checkPos.x][checkPos.y].machine.dispatch("crumble");
+						let adjacent = this.grid[checkPos.x][checkPos.y]
+						if (adjacent) adjacent.machine.dispatch("crumble");
 					});
 				},
 				update: (dt) => {
@@ -123,8 +122,7 @@ export class Coin extends SpriteClass {
 			},
 			CRUMBLING: {
 				start: () => {
-					isBuried = false;
-					this.isBuried = false;
+					this.dirtLayer--;
 					this.parent.addChild(new Particles(
 						{
 							x: this.x + board.coinRadius,
@@ -149,10 +147,10 @@ export class Coin extends SpriteClass {
 			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
 			dy: 48,
 			value: value,
-			isBuried: isBuried,
 			machine: machine,
 			opacity: 0.5,
 			grid: board.grid,
+			dirtLayer: isBuried ? 2 : 0,
 			update: function(dt) {
 				machine.dispatch("update", [dt]);
 			},
@@ -161,10 +159,12 @@ export class Coin extends SpriteClass {
 			}
 		});
 		
+		let self = this;
+		
 		board.coins.push(this);
+		console.log(this.dirtLayer, isBuried, isBuried ? 2 : 0)
 
 		let text = Text({
-			// opacity: isBuried ? 0: 1,
 			text: value,
 			color: value >= 5 ? "#CDE" : "#311",
 			font: 'bold 24px Arial',
@@ -172,16 +172,17 @@ export class Coin extends SpriteClass {
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
 			render: function() {
-				this.opacity = isBuried ? 0: opacity;
-				// this.text = isBuried;
+				this.opacity = self.dirtLayer > 0 ? 0: opacity;
+				// this.text = self.dirtLayer;
 				this.draw();
 			}
 		})
 
 		let bg = Sprite({			
 			render: function() {
-				let ctx = this.context
-				let colour = isBuried ? "#ABC": board.coinPalette[value-1];
+				let ctx = this.context;
+				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
+					"#ABC": board.coinPalette[value-1];
 				this.opacity = opacity;
 				ctx.fillStyle = colour;
 				ctx.lineWidth = 2.5;

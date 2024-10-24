@@ -2,7 +2,6 @@ import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPoint
 import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
-import { Particles } from "./particles.js";
 
 let { canvas } = init();
 
@@ -16,7 +15,7 @@ let dropPos = null;
 let board = {
 	width: size.x,
 	height: size.y,
-	grid: Array.from({ length:size.x }, (item, i) => Array.from({ length:size.y }, (item, i) => null)),
+	grid: Array.from({ length:size.x }, i => Array.from({ length:size.y }, i => null)),
 	gameOver: false,
 	coins: [],
 	coinBuffer: 12,

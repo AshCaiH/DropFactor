@@ -1,28 +1,46 @@
 import { SpriteClass } from "../node_modules/kontra/kontra.mjs";
 
+const defaultParticle = {
+	x: 0,
+	y: 0,
+	color: "#ABC",
+	height:10,
+	width:10,
+	count: 20,
+	ttl: 50,
+	rotation: Math.random(),
+	gravity: 0,
+	decel: 0.995,
+	shrink: 0.2,
+	randomise: function() {
+		this.dx = Math.random() * 3 - 1.5;
+		this.dy = Math.random() * 3 - 1.5;
+		this.rotation = Math.random();
+	},
+	update: function() {
+		this.advance();
+		this.dx *= this.decel;
+		this.dy = this.gravity == 0 ? this.dy * this.decel : this.dy + this.gravity;
+		this.height -= this.shrink;
+		this.width -= this.shrink;
+		this.ttl--;
+	}
+}
+
+export const presets = {
+	crumbling: Object.assign({
+		gravity: 0.3,
+		count: 40,
+	}, defaultParticle) 
+}
+
 export class Particles extends SpriteClass {
-	constructor(options) {
+	constructor(options, particleOptions) {
 		super(options);
-		let count = options.count ? options.count : 20;
-		let mode = options.mode ? options.mode : "pop";
-		for (let i=0; i<count; i++) {
-			this.addChild(new Particle({
-				height: 10,
-				width: 10,
-				dx: mode == "pop" ? Math.random() * 3 - 1.5 : Math.random() * 4 - 2,
-				dy: mode == "pop" ? Math.random() * 3 - 1.5 : Math.random() * -4,
-				color: options.color ? options.color : "#ABC",
-				ttl:50 + Math.floor(Math.random() * 20),
-				rotation: Math.random(),
-				update: function() {
-					this.advance();
-					this.dx *= 0.995;
-					this.dy = mode == "pop" ? this.dy * 0.995 : this.dy + 0.3;
-					this.height -= 0.2;
-					this.width -= 0.2;
-					this.ttl--;
-				}
-			}));
+		console.log(particleOptions ? particleOptions.preset : null);
+		for (let i=0; i<defaultParticle.count; i++) {
+			defaultParticle.randomise();
+			this.addChild(new Particle(defaultParticle));
 		}
 	}
 

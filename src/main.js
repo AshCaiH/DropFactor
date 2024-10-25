@@ -2,44 +2,31 @@ import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPoint
 import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
+import { settings, global } from "./Global.js";
 
 let { canvas } = init();
 
 initPointer();
 
-let size = {x: 7, y: 7}
 let changes = null;
 let auto = false;
 let dropPos = null;
 
-let board = {
-	width: size.x,
-	height: size.y,
-	grid: Array.from({ length:size.x }, i => Array.from({ length:size.y }, i => null)),
-	gameOver: false,
-	coins: [],
-	coinBuffer: 12,
-	coinRadius: 30,
-	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ],
-	nextRise: 0,
-	riseTurns: 5,
-}
-
 let machine = new Machine("RISING", {
 	INPUT: {
 		start: () => {
-			if (board.gameOver) {
+			if (global.gameOver) {
 				machine.setStateAndRun("GAMEOVER");
 				return;
 			}
 			dropZone.machine.dispatch("unlock");
-			dropPos = auto ? randInt(0,board.width-1) : dropZone.x;
-			let coin = new Coin(dropPos, board)
+			dropPos = auto ? randInt(0,settings.slots.x-1) : dropZone.x;
+			let coin = new Coin(dropPos)
 			coin.machine.dispatch("start", [dropZone]);
 			camera.addChild(coin);
 		},
 		drop: () => {		
-			board.nextRise--;
+			global.remainingTurns--;
 			dropZone.machine.dispatch("drop", [dropPos]);
 			machine.setStateAndRun("DROPPING");
 		},
@@ -47,27 +34,26 @@ let machine = new Machine("RISING", {
 	},
 	DROPPING: {
 		start: () => {
-			console.log(board.coins.length)
-			board.coins.sort((a,b) => a.gridPos.y < b.gridPos.y); 
-			board.coins.map((coin) => {coin.machine.dispatch("drop")});
-			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
+			global.coins.sort((a,b) => a.gridPos.y < b.gridPos.y); 
+			global.coins.map((coin) => {coin.machine.dispatch("drop")});
+			changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {
-			if (board.gameOver) machine.setStateAndRun("GAMEOVER");
+			if (global.gameOver) machine.setStateAndRun("GAMEOVER");
 			else {
-				let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+				let finished = global.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 				if (finished) machine.setStateAndRun("POPPING");
 			}
 		}
 	},
 	POPPING: {
 		start: () => {
-			board.coins.map((coin) => {coin.machine.dispatch("pop")});
-			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
+			global.coins.map((coin) => {coin.machine.dispatch("pop")});
+			changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {
-			board.coins = board.coins.filter((coin) => coin.isAlive());
-			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+			global.coins = global.coins.filter((coin) => coin.isAlive());
+			let finished = global.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
 			if (finished) {
 				if (changes > 0) machine.setStateAndRun("DROPPING");
@@ -77,17 +63,18 @@ let machine = new Machine("RISING", {
 	},
 	RISING: {
 		start: () => {
-			if (board.nextRise > 0) {
+			console.log("rising");
+			if (global.remainingTurns > 0) {
 				machine.setStateAndRun("INPUT");
 			} else {				
-				board.nextRise = board.riseTurns;
-				board.coins.map(coin => {
+				global.remainingTurns = settings.turnsInRound;
+				global.coins.map(coin => {
 					coin.machine.setStateAndRun("RISING");
 				});
-				for (let i=0; i<board.width; i++) {
-					let coin = new Coin(i, board, {
-						gridPos: {x: i, y: board.height},
-						y: board.height * (board.coinRadius * 2 + board.coinBuffer),
+				for (let i=0; i<settings.slots.x; i++) {
+					let coin = new Coin(i, {
+						gridPos: {x: i, y: settings.slots.y},
+						y: global.boardDims.height,
 						dirtLayer: 2
 					})
 					coin.machine.setStateAndRun("RISING");
@@ -96,9 +83,9 @@ let machine = new Machine("RISING", {
 			}
 		},
 		update: () => {
-			let finished = board.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+			let finished = global.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
-			if (board.gameOver) machine.setStateAndRun("GAMEOVER")
+			if (global.gameOver) machine.setStateAndRun("GAMEOVER")
 			else if (finished) machine.setStateAndRun("POPPING");
 		}
 	},
@@ -115,10 +102,10 @@ let gridBg = Sprite({
 			this.context.strokeStyle = "#345";
 			this.context.beginPath();
 			this.context.strokeRect(
-				i*(board.coinRadius * 2 + board.coinBuffer)-board.coinBuffer/2,
-				j*(board.coinRadius * 2 + board.coinBuffer)-board.coinBuffer/2,
-				board.coinRadius * 2 + board.coinBuffer,
-				(board.coinRadius * 2 + board.coinBuffer)
+				i*(settings.coinRadius * 2 + settings.coinBuffer)-settings.coinBuffer/2,
+				j*(settings.coinRadius * 2 + settings.coinBuffer)-settings.coinBuffer/2,
+				settings.coinRadius * 2 + settings.coinBuffer,
+				(settings.coinRadius * 2 + settings.coinBuffer)
 			);
 			this.context.closePath();
 		}}
@@ -127,19 +114,20 @@ let gridBg = Sprite({
 
 
 let camera = GameObject({
-	x: 700 / 2 - (board.coinRadius + board.coinBuffer) * (board.width - 1) + board.coinBuffer,
-	y: board.coinRadius * 2 + board.coinBuffer * 2,
+	x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer,
+	y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 })
+global.camera = camera;
 
-let dropZone = new Dropzone(board, camera);
+let dropZone = new Dropzone();
 camera.addChild(dropZone, gridBg);
 
 let debugText = Text({
-	y: board.height * (board.coinRadius * 2 + board.coinBuffer) + 10,
+	y: global.boardDims.height + 10,
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = `${board.nextRise}\n\n${machine.state}`}
+	update: () => {debugText.text = `${global.remainingTurns}\n\n${machine.state}`}
 })
 
 camera.addChild(debugText);

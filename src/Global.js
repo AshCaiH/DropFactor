@@ -9,13 +9,15 @@ export const settings = {
 
 	// Animation
 	launchSpeed: 10,
-	fallSpeed: 6,
+	fallSpeed: 12,
 	fallAccel: 1.1,
 
 	// Gameplay
 	turnsInRound: 5, // Before rising phase happens
 	initialTurns: 0, // 0 runs rising phase immediately on game start.
-	roundMode: "rise",
+	roundMode: "drop",
+
+	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo² 
 };
 
 export const global = {
@@ -29,5 +31,6 @@ export const global = {
 	remainingTurns: settings.initialTurns,
 	coins: [],
 	score: 0,
+	combo: 1,
 	gameOver: false,
 }

@@ -37,7 +37,6 @@ export class Coin extends SpriteClass {
 			DROPPING: {
 				start: () => {
 					this.dy = this.firstDrop ? settings.launchSpeed : settings.fallSpeed;
-					console.log(this.firstDrop);
 					this.firstDrop = false;
 					// TODO: Wipe grid from main script instead.
 					global.grid[this.gridPos.x][this.gridPos.y] = null;
@@ -70,17 +69,27 @@ export class Coin extends SpriteClass {
 			POPPING: {
 				start: () => {
 					if (this.dirtLayer > 0) machine.setState("IDLE");
-					else if (this.machine.dispatch("checkVertical") || this.machine.dispatch("checkHorizontal")) {
-						global.score += 1 * global.combo;
-						this.parent.addChild(new Particles(
-							{
-								x: this.x + settings.coinRadius,
-								y: this.y + settings.coinRadius
-							}, {color: settings.coinPalette[value-1]}
-						));
-						this.machine.dispatch("breakSurrounding");
-						return true;
-					} else machine.setState("IDLE");
+					else {
+						let vCheck = this.machine.dispatch("checkVertical");
+						let hCheck = this.machine.dispatch("checkHorizontal");
+						if (vCheck || hCheck) {
+							global.score += 1 * global.combo;
+							this.parent.addChild(new Particles(
+								{
+									preset: presets.popping,
+									x: this.x + settings.coinRadius,
+									y: this.y + settings.coinRadius,
+								}, 
+								{
+									color: settings.coinPalette[value-1],
+									v: vCheck,
+									h: hCheck,
+								}
+							));
+							this.machine.dispatch("breakSurrounding");
+							return true;
+						} else machine.setState("IDLE");
+					}
 				},
 				checkVertical: () => {
 					let inColumn = 0;
@@ -117,7 +126,7 @@ export class Coin extends SpriteClass {
 					});
 				},
 				update: (dt) => {
-					opacity -= 0.05;
+					opacity -= 0.1;
 					if (opacity <= 0) {
 						global.grid[this.gridPos.x][this.gridPos.y] = null				
 						machine.setState("IDLE");

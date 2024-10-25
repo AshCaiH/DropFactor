@@ -15,7 +15,7 @@ export const settings = {
 	// Gameplay
 	turnsInRound: 5, // Before rising phase happens
 	initialTurns: 0, // 0 runs rising phase immediately on game start.
-	roundMode: "drop",
+	roundMode: "rise",
 
 	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo² 
 };

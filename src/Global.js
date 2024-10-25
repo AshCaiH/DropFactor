@@ -9,7 +9,7 @@ export const settings = {
 
 	// Animation
 	launchSpeed: 10,
-	fallSpeed: 6,
+	fallSpeed: 8,
 	fallAccel: 1.1,
 
 	// Gameplay

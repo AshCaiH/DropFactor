@@ -116,7 +116,7 @@ export class Coin extends SpriteClass {
 					});
 				},
 				update: (dt) => {
-					opacity -= 0.05;
+					opacity -= 0.1;
 					if (opacity <= 0) {
 						global.grid[this.gridPos.x][this.gridPos.y] = null				
 						machine.setState("IDLE");

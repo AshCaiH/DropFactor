@@ -1,17 +1,17 @@
 import { SpriteClass, Sprite } from "../node_modules/kontra/kontra.mjs";
+import { settings } from "./Global.js";
 
 const defaultParticle = {
-	x: 0,
-	y: 0,
 	color: "#ABC",
-	height:10,
-	width:10,
+	height:6,
+	width:6,
 	count: 30,
 	ttl: 60,
 	rotation: Math.random(),
 	gravity: 0,
 	decel: 0.97,
 	shrink: 0.3,
+	vector: {x:0, y:0},
 	randomise: function() {randomise(this)},
 	update: function() {
 		this.advance();
@@ -27,15 +27,13 @@ const defaultParticle = {
 export const presets = {
 	breaking: {
 		...defaultParticle,
-		gravity: 0.4,
+		gravity: 0.8,
 		count: 40,
 		decel: 0.98,
 		ttl: 100,
 		shrink: 0.12,
 		randomise: function() {
 			randomise(this);
-			this.x = Math.random() * 40 - 20;
-			this.y = Math.random() * 40 - 20;
 			this.dx = Math.random() * 7 - 3.5;
 			this.dy = Math.random() * - 5;
 		},
@@ -51,8 +49,6 @@ export const presets = {
 		shrink: 0.1,
 		randomise: function() {
 			randomise(this);
-			this.x = Math.random() * 40 - 20;
-			this.y = Math.random() * 40 - 20;
 			this.dx = Math.random() * 3 - 1.5;
 			this.dy = Math.random() * - 3;
 		},
@@ -60,8 +56,16 @@ export const presets = {
 }
 
 function randomise(target) {
-	target.dx = Math.random() * 6 - 3;
-	target.dy = Math.random() * 6 - 3;
+	let angle = (Math.random() * 360) * Math.PI / 180;
+	let distance = Math.random();
+	target.vector.x = Math.sin(angle);
+	target.vector.y = Math.cos(angle);
+	console.log(target.vector.x, target.vector.x * settings.coinRadius * 2);
+	target.x = target.vector.x * settings.coinRadius - distance * settings.coinRadius * 0.2 * Math.sign(target.vector.x);
+	target.y = target.vector.y * settings.coinRadius;
+	
+	target.dx = target.vector.x * Math.random();
+	target.dy = target.vector.y * Math.random();
 	target.rotation = Math.random();
 }
 

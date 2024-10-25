@@ -1,14 +1,14 @@
 import { getPointer, SpriteClass } from "../node_modules/kontra/kontra.mjs";
+import { global, settings } from "./Global.js";
 import { Machine } from "./Machine.js";
 
 export class Dropzone extends SpriteClass {
-	constructor(board, camera) {
+	constructor() {
 		let machine = new Machine("INPUT", {
 			INPUT: {
 				update: () => {
-					let cellPos = cursorToCell(this.board, this.camera);
-					this.xPos = Math.min(Math.max(0, cellPos.x), this.board.width - 1);
-					// this.opacity = (cellPos.x < 0 || cellPos.x >= this.board.width) ? 0 : 1;
+					let cellPos = cursorToCell();
+					this.xPos = Math.min(Math.max(0, cellPos.x), settings.slots.x - 1);
 				},
 				drop: (xPos) => {
 					this.xPos = xPos;
@@ -25,14 +25,11 @@ export class Dropzone extends SpriteClass {
 		super({
 			xPos: 4,
 			opacity: 1,
-			board: board,
-			camera: camera,
 			machine: machine,
 		});
 	}
 
 	draw () {
-		const { coinBuffer, coinRadius, height } = this.board;
 		let gradient = this.context.createLinearGradient(0, 0, 0, 600);
 		gradient.addColorStop(0, "#6785");
 		gradient.addColorStop(1, "#6782");
@@ -40,10 +37,10 @@ export class Dropzone extends SpriteClass {
 		this.context.fillStyle = gradient;
 		this.context.beginPath();
 		this.context.fillRect(
-			-coinBuffer / 2 + this.xPos * (coinRadius * 2 + coinBuffer),
-			-coinBuffer / 2,
-			coinRadius * 2 + coinBuffer,
-			(coinRadius * 2 + coinBuffer) * height,
+			-settings.coinBuffer / 2 + this.xPos * (settings.coinRadius * 2 + settings.coinBuffer),
+			-settings.coinBuffer / 2,
+			settings.coinRadius * 2 + settings.coinBuffer,
+			global.boardDims.height,
 		);
 		this.context.closePath();
 	}
@@ -54,12 +51,11 @@ export class Dropzone extends SpriteClass {
 	}
 }
 
-function cursorToCell(board, camera) {
-	const { coinBuffer, coinRadius } = board;
+function cursorToCell() {
 	const cPos = (({ x, y }) => ({ x, y }))(getPointer());
 
-	Object.keys(cPos).forEach(function(k, index) {cPos[k] -= camera[k] - coinBuffer/2});
-	Object.keys(cPos).forEach(function(k, index) {cPos[k] = Math.floor(cPos[k]/(coinRadius * 2 + coinBuffer))});
+	Object.keys(cPos).forEach(function(k, index) {cPos[k] -= global.camera[k] - settings.coinBuffer/2});
+	Object.keys(cPos).forEach(function(k, index) {cPos[k] = Math.floor(cPos[k]/(settings.coinRadius * 2 + settings.coinBuffer))});
 
 	return cPos;
 }

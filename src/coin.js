@@ -1,9 +1,10 @@
 import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
 import { Particles, presets } from "./particles.js";
+import { global, settings } from "./Global.js";
 
 export class Coin extends SpriteClass {
-	constructor(gridX, board, ...options) {
+	constructor(gridX, ...options) {
 		let value = randInt(1,7);
 		let isBuried = 0 //randInt(1,3) === 3;
 		let opacity = 1;
@@ -21,15 +22,15 @@ export class Coin extends SpriteClass {
 			DROPZONE: {
 				start: (dz) => {
 					dropZone = dz
-					this.gridPos.x = dropZone.xPos * (board.coinRadius * 2 + board.coinBuffer);
-					this.x = this.gridPos.x * (board.coinRadius * 2 + board.coinBuffer);
+					this.gridPos.x = dropZone.xPos * (settings.coinRadius * 2 + settings.coinBuffer);
+					this.x = this.gridPos.x * (settings.coinRadius * 2 + settings.coinBuffer);
 				},
 				update: () => {
-					this.gridPos.x = Math.min(Math.max(0, dropZone.xPos), board.width -1);
-					this.x = this.gridPos.x * (board.coinRadius * 2 + board.coinBuffer);
+					this.gridPos.x = Math.min(Math.max(0, dropZone.xPos), settings.slots.x -1);
+					this.x = this.gridPos.x * (settings.coinRadius * 2 + settings.coinBuffer);
 				},
 				drop: () => {
-					this.x = dropZone.xPos * (board.coinRadius * 2 + board.coinBuffer);
+					this.x = dropZone.xPos * (settings.coinRadius * 2 + settings.coinBuffer);
 					machine.setStateAndRun("DROPPING", "start");
 				}
 			},
@@ -37,17 +38,17 @@ export class Coin extends SpriteClass {
 				start: () => {
 					this.dy = 12;
 					// TODO: Wipe grid from main script instead.
-					board.grid[this.gridPos.x][this.gridPos.y] = null;
+					global.grid[this.gridPos.x][this.gridPos.y] = null;
 
-					for (let i=this.gridPos.y; i<board.height; i++) {
-						if (board.grid[this.gridPos.x][i] === null) this.gridPos.y = i;
+					for (let i=this.gridPos.y; i<settings.slots.y; i++) {
+						if (global.grid[this.gridPos.x][i] === null) this.gridPos.y = i;
 						else break;
 					}
 
-					board.grid[this.gridPos.x][this.gridPos.y] = this;
+					global.grid[this.gridPos.x][this.gridPos.y] = this;
 
 					if (this.gridPos.y == -1) {
-						board.gameOver = true;
+						global.gameOver = true;
 						machine.setState("OOB");
 					}
 					else machine.setState("DROPPING");
@@ -57,7 +58,7 @@ export class Coin extends SpriteClass {
 				update: (dt) => {
 					this.advance(dt)
 					this.dy += 2;
-					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
+					let targetPos = this.gridPos.y * (settings.coinRadius * 2 + settings.coinBuffer);
 					if (this.y > targetPos) {
 						this.y = targetPos;
 						machine.setState("IDLE");
@@ -70,9 +71,9 @@ export class Coin extends SpriteClass {
 					else if (this.machine.dispatch("checkVertical") || this.machine.dispatch("checkHorizontal")) {
 						this.parent.addChild(new Particles(
 							{
-								x: this.x + board.coinRadius,
-								y: this.y + board.coinRadius
-							}, {color: board.coinPalette[value-1]}
+								x: this.x + settings.coinRadius,
+								y: this.y + settings.coinRadius
+							}, {color: settings.coinPalette[value-1]}
 						));
 						this.machine.dispatch("breakSurrounding");
 						return true;
@@ -80,8 +81,8 @@ export class Coin extends SpriteClass {
 				},
 				checkVertical: () => {
 					let inColumn = 0;
-					for (let i=board.height-1; i>=0; i--) {
-						if (board.grid[this.gridPos.x][i] != null) inColumn++;
+					for (let i=settings.slots.y-1; i>=0; i--) {
+						if (global.grid[this.gridPos.x][i] != null) inColumn++;
 						else break;
 					}
 					if (inColumn == value) return true;
@@ -90,13 +91,13 @@ export class Coin extends SpriteClass {
 					let inRow = 1;
 					let x = this.gridPos.x - 1;
 					while (x >= 0) {
-						if (board.grid[x][this.gridPos.y] == null) break;
+						if (global.grid[x][this.gridPos.y] == null) break;
 						else inRow++;
 						x--;
 					}
 					x = this.gridPos.x + 1;
-					while (x < board.width) {
-						if (board.grid[x][this.gridPos.y] == null) break;
+					while (x < settings.slots.x) {
+						if (global.grid[x][this.gridPos.y] == null) break;
 						else inRow++;
 						x++;
 					}
@@ -106,16 +107,16 @@ export class Coin extends SpriteClass {
 					let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
 					surrounding.forEach((s) => {
 						let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
-						if (checkPos.x < 0 || checkPos.x >= board.width) return;
-						else if (checkPos.y < 0 || checkPos.y >= board.height) return;
-						let adjacent = this.grid[checkPos.x][checkPos.y]
+						if (checkPos.x < 0 || checkPos.x >= settings.slots.x) return;
+						else if (checkPos.y < 0 || checkPos.y >= settings.slots.y) return;
+						let adjacent = global.grid[checkPos.x][checkPos.y]
 						if (adjacent) adjacent.machine.dispatch("crumble");
 					});
 				},
 				update: (dt) => {
 					opacity -= 0.05;
 					if (opacity <= 0) {
-						board.grid[this.gridPos.x][this.gridPos.y] = null				
+						global.grid[this.gridPos.x][this.gridPos.y] = null				
 						machine.setState("IDLE");
 						this.kill();
 					}
@@ -125,8 +126,8 @@ export class Coin extends SpriteClass {
 				start: () => {
 					this.parent.addChild(new Particles(
 						{
-							x: this.x + board.coinRadius,
-							y: this.y + board.coinRadius,
+							x: this.x + settings.coinRadius,
+							y: this.y + settings.coinRadius,
 							preset: this.dirtLayer == 2 ? presets.crumbling : presets.breaking,
 						}, {color: this.dirtLayer == 2 ? "#678" : "#ABC",}
 					));
@@ -137,12 +138,12 @@ export class Coin extends SpriteClass {
 			RISING: {
 				start: () => {
 					this.gridPos.y -= 1;
-					board.grid[this.gridPos.x][this.gridPos.y] = this;
-					if (this.gridPos.y <= -1) board.gameOver = true;
+					global.grid[this.gridPos.x][this.gridPos.y] = this;
+					if (this.gridPos.y <= -1) global.gameOver = true;
 				},
 				update: () => {
 					this.y -= 4;
-					let target = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)
+					let target = this.gridPos.y * (settings.coinRadius * 2 + settings.coinBuffer)
 					if (this.y <= target) {
 						this.machine.setState("IDLE");
 						this.y = target;
@@ -154,13 +155,12 @@ export class Coin extends SpriteClass {
 
 		super (Object.assign({}, {
 			gridPos: {x: gridX, y: -1},
-			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
-			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
+			x: gridX * (settings.coinRadius * 2 + settings.coinBuffer),
+			y: -1 * (settings.coinRadius * 2 + settings.coinBuffer),
 			dy: 48,
 			value: value,
 			machine: machine,
 			opacity: 0.5,
-			grid: board.grid,
 			dirtLayer: isBuried ? 2 : 0,
 			update: function(dt) {
 				machine.dispatch("update", [dt]);
@@ -172,13 +172,13 @@ export class Coin extends SpriteClass {
 		
 		let self = this;
 		
-		board.coins.push(this);
+		global.coins.push(this);
 
 		let text = Text({
 			text: value,
 			color: value >= 5 ? "#CDE" : "#311",
 			font: 'bold 24px Arial',
-			width: board.coinRadius * 2,
+			width: settings.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
 			opacity: self.dirtLayer > 0 ? 0: opacity,
@@ -192,35 +192,33 @@ export class Coin extends SpriteClass {
 			render: function() {
 				let ctx = this.context;
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
-					"#ABC": board.coinPalette[value-1];
+					"#ABC": settings.coinPalette[value-1];
 				this.opacity = opacity;
-				let boardWidth = board.width * (board.coinRadius * 2 + board.coinBuffer)
-				let boardHeight = board.height * (board.coinRadius * 2 + board.coinBuffer)
-				let dim = {
-					top: -this.parent.y - (board.coinRadius * 2 - board.coinBuffer) * 2,
-					bottom: -this.parent.y + board.height * (board.coinRadius * 2 + board.coinBuffer) - board.coinBuffer / 2,
-					left: -this.parent.x - board.coinBuffer,
-					right:-this.parent.x - board.coinBuffer + board.height * (board.coinRadius + board.coinBuffer) * 2,
-				}
-				ctx.save()
-				ctx.moveTo(dim.left, dim.top);
-				ctx.lineTo(dim.right, dim.top);
-				ctx.lineTo(dim.right, dim.bottom);
-				ctx.lineTo(dim.left, dim.bottom);
-				ctx.closePath();
-				ctx.clip()
+				// let dim = {
+				// 	top: -this.parent.y - (settings.coinRadius * 2 - settings.coinBuffer) * 2,
+				// 	bottom: -this.parent.y + global.boardDims.height,
+				// 	left: -this.parent.x - settings.coinBuffer,
+				// 	right:-this.parent.x - global.boardDims.width,
+				// }
+				// ctx.save()
+				// ctx.moveTo(dim.left, dim.top);
+				// ctx.lineTo(dim.right, dim.top);
+				// ctx.lineTo(dim.right, dim.bottom);
+				// ctx.lineTo(dim.left, dim.bottom);
+				// ctx.closePath();
+				// ctx.clip()
 				ctx.fillStyle = colour;
 				ctx.lineWidth = 2.5;
 				ctx.strokeStyle = colour;
 				ctx.beginPath();
-				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius-3, 0, 2 * Math.PI);
+				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius-3, 0, 2 * Math.PI);
 				ctx.closePath();
 				ctx.fill();
 				ctx.beginPath();
-				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius, 0, 2 * Math.PI);
+				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius, 0, 2 * Math.PI);
 				ctx.closePath();
 				ctx.stroke();
-				ctx.restore();
+				// ctx.restore();
 			}
 		})
 

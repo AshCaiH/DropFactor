@@ -13,12 +13,15 @@ export const settings = {
 };
 
 export const global = {
+	camera: null,
+	dropZone: null,
+	grid: Array.from({ length:settings.slots.x }, i => Array.from({ length:settings.slots.y }, i => null)),
 	boardDims: {
 		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
 		width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
 	},
 	remainingTurns: settings.initialTurns,
-	camera: null,
 	coins: [],
 	score: 0,
+	gameOver: false,
 }

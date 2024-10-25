@@ -47,6 +47,8 @@ let machine = new Machine("RISING", {
 	},
 	DROPPING: {
 		start: () => {
+			console.log(board.coins.length)
+			board.coins.sort((a,b) => a.gridPos.y < b.gridPos.y); 
 			board.coins.map((coin) => {coin.machine.dispatch("drop")});
 			changes = board.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},

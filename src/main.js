@@ -12,7 +12,7 @@ let changes = null;
 let auto = false;
 let dropPos = null;
 
-let machine = new Machine("RISING", {
+let machine = new Machine("NEXTROUND", {
 	INPUT: {
 		start: () => {
 			if (global.gameOver) {
@@ -57,27 +57,28 @@ let machine = new Machine("RISING", {
 
 			if (finished) {
 				if (changes > 0) machine.setStateAndRun("DROPPING");
-				else machine.setStateAndRun("RISING");
+				else machine.setStateAndRun("NEXTROUND");
 			}
 		}
 	},
-	RISING: {
+	NEXTROUND: {
 		start: () => {
-			console.log("rising");
-			if (global.remainingTurns > 0) {
-				machine.setStateAndRun("INPUT");
-			} else {				
+			console.log(global.remainingTurns);
+			if (global.remainingTurns > 0) machine.setStateAndRun("INPUT");
+			else {
+				let nextState = settings.roundMode == "rise" ? "RISING" : "DROPPING";
+				console.log(nextState);
 				global.remainingTurns = settings.turnsInRound;
 				global.coins.map(coin => {
-					coin.machine.setStateAndRun("RISING");
+					coin.machine.setStateAndRun(nextState);
 				});
 				for (let i=0; i<settings.slots.x; i++) {
 					let coin = new Coin(i, {
-						gridPos: {x: i, y: settings.slots.y},
-						y: global.boardDims.height,
+						gridPos: {x: i, y: settings.roundMode == "rise" ? settings.slots.y : -1},
+						y: settings.roundMode == "rise" ? global.boardDims.height : -settings.coinRadius - settings.coinBuffer,
 						dirtLayer: 2
 					})
-					coin.machine.setStateAndRun("RISING");
+					coin.machine.setStateAndRun(nextState);
 					camera.addChild(coin);
 				}
 			}

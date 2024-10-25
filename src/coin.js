@@ -35,7 +35,7 @@ export class Coin extends SpriteClass {
 				}
 			},
 			DROPPING: {
-				start: () => {
+				start: (launch = false) => {
 					this.dy = 12;
 					// TODO: Wipe grid from main script instead.
 					global.grid[this.gridPos.x][this.gridPos.y] = null;
@@ -57,7 +57,7 @@ export class Coin extends SpriteClass {
 				},
 				update: (dt) => {
 					this.advance(dt)
-					this.dy += 2;
+					this.dy *= settings.fallAccel;
 					let targetPos = this.gridPos.y * (settings.coinRadius * 2 + settings.coinBuffer);
 					if (this.y > targetPos) {
 						this.y = targetPos;
@@ -157,17 +157,12 @@ export class Coin extends SpriteClass {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (settings.coinRadius * 2 + settings.coinBuffer),
 			y: -1 * (settings.coinRadius * 2 + settings.coinBuffer),
-			dy: 48,
 			value: value,
 			machine: machine,
 			opacity: 0.5,
 			dirtLayer: isBuried ? 2 : 0,
-			update: function(dt) {
-				machine.dispatch("update", [dt]);
-			},
-			draw: function() {
-				this.opacity = opacity;
-			},
+			update: function(dt) {machine.dispatch("update", [dt])},
+			draw: function() {this.opacity = opacity},
 		}, ...options));
 		
 		let self = this;

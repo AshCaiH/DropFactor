@@ -7,9 +7,15 @@ export const settings = {
 	coinBuffer: 12,
 	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ],
 
+	// Animation
+	launchSpeed: 8,
+	fallSpeed: 0.1,
+	fallAccel: 1.1,
+
 	// Gameplay
 	turnsInRound: 5, // Before rising phase happens
-	initialTurns: 0, // 0 runs rising phase immediately on game start. 
+	initialTurns: 0, // 0 runs rising phase immediately on game start.
+	roundMode: "rise",
 };
 
 export const global = {

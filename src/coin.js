@@ -194,19 +194,19 @@ export class Coin extends SpriteClass {
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
 					"#ABC": settings.coinPalette[value-1];
 				this.opacity = opacity;
-				// let dim = {
-				// 	top: -this.parent.y - (settings.coinRadius * 2 - settings.coinBuffer) * 2,
-				// 	bottom: -this.parent.y + global.boardDims.height,
-				// 	left: -this.parent.x - settings.coinBuffer,
-				// 	right:-this.parent.x - global.boardDims.width,
-				// }
-				// ctx.save()
-				// ctx.moveTo(dim.left, dim.top);
-				// ctx.lineTo(dim.right, dim.top);
-				// ctx.lineTo(dim.right, dim.bottom);
-				// ctx.lineTo(dim.left, dim.bottom);
-				// ctx.closePath();
-				// ctx.clip()
+				let dim = {
+					top: -this.parent.y - 200,
+					bottom: -this.parent.y + global.boardDims.height - settings.coinBuffer / 2,
+					left: -this.parent.x - settings.coinBuffer / 2,
+					right: -this.parent.x + global.boardDims.width - settings.coinBuffer / 2,
+				}
+				ctx.save()
+				ctx.moveTo(dim.left, dim.top);
+				ctx.lineTo(dim.right, dim.top);
+				ctx.lineTo(dim.right, dim.bottom);
+				ctx.lineTo(dim.left, dim.bottom);
+				ctx.closePath();
+				ctx.clip()
 				ctx.fillStyle = colour;
 				ctx.lineWidth = 2.5;
 				ctx.strokeStyle = colour;
@@ -218,7 +218,7 @@ export class Coin extends SpriteClass {
 				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius, 0, 2 * Math.PI);
 				ctx.closePath();
 				ctx.stroke();
-				// ctx.restore();
+				ctx.restore();
 			}
 		})
 

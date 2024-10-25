@@ -35,8 +35,10 @@ export class Coin extends SpriteClass {
 				}
 			},
 			DROPPING: {
-				start: (launch = false) => {
-					this.dy = 12;
+				start: () => {
+					this.dy = this.firstDrop ? settings.launchSpeed : settings.fallSpeed;
+					console.log(this.firstDrop);
+					this.firstDrop = false;
 					// TODO: Wipe grid from main script instead.
 					global.grid[this.gridPos.x][this.gridPos.y] = null;
 
@@ -159,8 +161,8 @@ export class Coin extends SpriteClass {
 			y: -1 * (settings.coinRadius * 2 + settings.coinBuffer),
 			value: value,
 			machine: machine,
-			opacity: 0.5,
 			dirtLayer: isBuried ? 2 : 0,
+			firstDrop: false,
 			update: function(dt) {machine.dispatch("update", [dt])},
 			draw: function() {this.opacity = opacity},
 		}, ...options));

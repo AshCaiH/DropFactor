@@ -21,7 +21,7 @@ let machine = new Machine("NEXTROUND", {
 			}
 			dropZone.machine.dispatch("unlock");
 			dropPos = auto ? randInt(0,settings.slots.x-1) : dropZone.x;
-			let coin = new Coin(dropPos)
+			let coin = new Coin(dropPos, {firstDrop: true})
 			coin.machine.dispatch("start", [dropZone]);
 			camera.addChild(coin);
 		},

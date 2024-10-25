@@ -8,8 +8,8 @@ export const settings = {
 	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ],
 
 	// Animation
-	launchSpeed: 8,
-	fallSpeed: 0.1,
+	launchSpeed: 10,
+	fallSpeed: 6,
 	fallAccel: 1.1,
 
 	// Gameplay

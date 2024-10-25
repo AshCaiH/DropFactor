@@ -68,9 +68,10 @@ export class Coin extends SpriteClass {
 				}
 			},
 			POPPING: {
-				start: () => {					
+				start: () => {
 					if (this.dirtLayer > 0) machine.setState("IDLE");
 					else if (this.machine.dispatch("checkVertical") || this.machine.dispatch("checkHorizontal")) {
+						global.score += 1 * global.combo;
 						this.parent.addChild(new Particles(
 							{
 								x: this.x + settings.coinRadius,

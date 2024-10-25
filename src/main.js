@@ -15,6 +15,7 @@ let dropPos = null;
 let machine = new Machine("NEXTROUND", {
 	INPUT: {
 		start: () => {
+			global.combo = 1;
 			if (global.gameOver) {
 				machine.setStateAndRun("GAMEOVER");
 				return;
@@ -56,8 +57,10 @@ let machine = new Machine("NEXTROUND", {
 			let finished = global.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
 
 			if (finished) {
-				if (changes > 0) machine.setStateAndRun("DROPPING");
-				else machine.setStateAndRun("NEXTROUND");
+				if (changes > 0) {
+					machine.setStateAndRun("DROPPING");
+					global.combo++;
+				} else machine.setStateAndRun("NEXTROUND");
 			}
 		}
 	},
@@ -75,7 +78,7 @@ let machine = new Machine("NEXTROUND", {
 				for (let i=0; i<settings.slots.x; i++) {
 					let coin = new Coin(i, {
 						gridPos: {x: i, y: settings.roundMode == "rise" ? settings.slots.y : -1},
-						y: settings.roundMode == "rise" ? global.boardDims.height : -settings.coinRadius - settings.coinBuffer,
+						y: settings.roundMode == "rise" ? global.boardDims.height : -settings.coinRadius * 2 - settings.coinBuffer,
 						dirtLayer: 2
 					})
 					coin.machine.setStateAndRun(nextState);
@@ -128,10 +131,21 @@ let debugText = Text({
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = `${global.remainingTurns}\n\n${machine.state}`}
+	update: () => {debugText.text = `Turns: ${global.remainingTurns}\n\nMulti: x${global.combo}\n\n${machine.state}`}
 })
 
-camera.addChild(debugText);
+let score = Text({
+	x: global.boardDims.width - settings.coinBuffer,
+	y: global.boardDims.height + 10,
+	color: "white",
+	text: "hello",
+	anchor: {x:1, y:0},
+	textAlign: "right",
+	font: 'bold 28px Arial',
+	update: () => {score.text = `${global.score}`}
+})
+
+camera.addChild(debugText, score);
 machine.dispatch("start");
 
 onPointer('down', function(e, object) {

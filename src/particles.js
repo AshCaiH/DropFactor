@@ -29,8 +29,11 @@ const defaultParticle = {
 export const presets = {
 	popping: {
 		...defaultParticle,
-		height:10,
-		width:10,
+		height:14,
+		width:14,
+		gravity: 0.5,
+		shrink: 0.4,
+		ttl: 100,
 		randomise: function() {
 			randomise(this);
 		},

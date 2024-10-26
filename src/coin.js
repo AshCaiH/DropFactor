@@ -5,7 +5,7 @@ import { global, settings } from "./Global.js";
 
 export class Coin extends SpriteClass {
 	constructor(gridX, ...options) {
-		let value = randInt(1,7);
+		// let value = randInt(1,7);
 		let isBuried = 0 //randInt(1,3) === 3;
 		let opacity = 1;
 		let dropZone = null;
@@ -169,7 +169,7 @@ export class Coin extends SpriteClass {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (settings.coinRadius * 2 + settings.coinBuffer),
 			y: -1 * (settings.coinRadius * 2 + settings.coinBuffer),
-			value: value,
+			value: randInt(1,7),
 			machine: machine,
 			dirtLayer: isBuried ? 2 : 0,
 			firstDrop: false,
@@ -178,6 +178,7 @@ export class Coin extends SpriteClass {
 		}, ...options));
 		
 		let self = this;
+		let value = this.value;
 		
 		global.coins.push(this);
 

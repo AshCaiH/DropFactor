@@ -29,7 +29,7 @@ export const global = {
 		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
 		width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
 	},
-	coinWeights: Object.fromEntries(Array.from({ length:settings.slots.x }, (i,k) => [k+1,0])),
+	coinWeights: Object.fromEntries(Array.from({ length:settings.slots.x }, (i,k) => [k+1,1])),
 	remainingTurns: settings.initialTurns,
 	coins: [],
 	score: 0,

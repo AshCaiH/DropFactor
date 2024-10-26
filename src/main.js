@@ -12,17 +12,44 @@ let changes = null;
 let auto = false;
 let dropPos = null;
 
+function randomCoin() {
+	if (!settings.weightCoins) return randInt(0,settings.slots.x-1);
+	let sumWeights = Object.values(global.coinWeights).reduce((sum, n) => sum + n, 0);
+	let runningTotal = 0;
+	let randomNumber = randInt(0,sumWeights);
+	let value = null;
+	console.log("random", sumWeights);
+	console.log("weights", Object.keys(global.coinWeights).length);
+	for (let i = 1; i <= Object.keys(global.coinWeights).length; i++) {
+		console.log(i, randomNumber, runningTotal);
+		runningTotal += global.coinWeights[i]
+		if (randomNumber <= runningTotal) {
+			value = i;
+			break;
+		}
+	}
+	Object.keys(global.coinWeights).forEach(key => global.coinWeights[key]++);
+	global.coinWeights[value] = 1;
+	return value;
+};
+
 let machine = new Machine("NEXTROUND", {
 	INPUT: {
 		start: () => {
+			console.log(global.coinWeights);
 			global.combo = 1;
 			if (global.gameOver) {
 				machine.setStateAndRun("GAMEOVER");
 				return;
 			}
 			dropZone.machine.dispatch("unlock");
+
 			dropPos = auto ? randInt(0,settings.slots.x-1) : dropZone.x;
-			let coin = new Coin(dropPos, {firstDrop: true})
+			let coin = new Coin(dropPos, {
+				value: randomCoin(),
+				firstDrop: true
+			})
+			console.log(coin.value);
 			coin.machine.dispatch("start", [dropZone]);
 			camera.addChild(coin);
 		},
@@ -131,7 +158,7 @@ let debugText = Text({
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = `Turns: ${global.remainingTurns}\n\nMulti: x${global.combo}\n\n${machine.state}`}
+	update: () => {debugText.text = `Turns: ${global.remainingTurns}\n\nMulti: x${global.combo}\n\n${Object.values(global.coinWeights)}\n\n${machine.state}`}
 })
 
 let score = Text({

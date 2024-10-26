@@ -17,7 +17,8 @@ export const settings = {
 	initialTurns: 0, // 0 runs rising phase immediately on game start.
 	roundMode: "rise",
 
-	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo² 
+	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo²
+	weightCoins: true,
 };
 
 export const global = {
@@ -28,6 +29,7 @@ export const global = {
 		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
 		width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
 	},
+	coinWeights: Object.fromEntries(Array.from({ length:settings.slots.x }, (i,k) => [k+1,0])),
 	remainingTurns: settings.initialTurns,
 	coins: [],
 	score: 0,

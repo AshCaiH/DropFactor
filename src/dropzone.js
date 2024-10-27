@@ -13,12 +13,13 @@ export class Dropzone extends SpriteClass {
 				drop: (xPos) => {
 					this.xPos = xPos;
 					this.opacity = 1;
+					global.coins.push(this.coin);
+					this.coin = null;
 					machine.setState("LOCKED")
-				}
+				},
+				lock: () => machine.setState("LOCKED"),
 			},
-			LOCKED: {
-				unlock: () => {machine.setState("INPUT")}
-			},
+			LOCKED: {unlock: () => machine.setState("INPUT")},
 			HIDDEN: {},
 		});
 
@@ -26,6 +27,7 @@ export class Dropzone extends SpriteClass {
 			xPos: 4,
 			opacity: 1,
 			machine: machine,
+			coin: null,
 		});
 	}
 

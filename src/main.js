@@ -1,4 +1,4 @@
-import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPointer } from "../node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
 import { Coin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
@@ -7,6 +7,7 @@ import { settings, global } from "./Global.js";
 let { canvas } = init();
 
 initPointer();
+initKeys();
 
 let changes = null;
 let auto = false;
@@ -44,27 +45,32 @@ let machine = new Machine("NEXTROUND", {
 			}
 			dropZone.machine.dispatch("unlock");
 
-			dropPos = auto ? randInt(0,settings.slots.x-1) : dropZone.x;
-			let coin = new Coin(dropPos, {
-				value: randomCoin(),
-				firstDrop: true
-			})
-			console.log(coin.value);
-			coin.machine.dispatch("start", [dropZone]);
-			camera.addChild(coin);
+			if (!dropZone.coin) {
+				dropPos = auto ? randInt(0,settings.slots.x-1) : dropZone.x;
+				let coin = new Coin(dropPos, {
+					value: randomCoin(),
+					firstDrop: true
+				})
+				dropZone.coin = coin;
+				coin.machine.dispatch("start", [dropZone]);
+				camera.addChild(coin);
+			};
 		},
 		drop: () => {		
 			global.remainingTurns--;
 			dropZone.machine.dispatch("drop", [dropPos]);
 			machine.setStateAndRun("DROPPING");
 		},
-		power: (type) => {console.log(`Ran power ${type}`)},
+		power: (type = null) => {
+			console.log(`Ran power ${type}`)
+			machine.setStateAndRun("POWER");
+		},
 	},
 	DROPPING: {
 		start: () => {
 			global.coins.sort((a,b) => a.gridPos.y < b.gridPos.y); 
 			global.coins.map((coin) => {coin.machine.dispatch("drop")});
-			changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
+			changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;
 		},
 		update: () => {
 			if (global.gameOver) machine.setStateAndRun("GAMEOVER");
@@ -81,7 +87,8 @@ let machine = new Machine("NEXTROUND", {
 		},
 		update: () => {
 			global.coins = global.coins.filter((coin) => coin.isAlive());
-			let finished = global.coins.filter((coin) => coin.machine.state !== "IDLE").length === 0;
+			let finished = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length === 0;
+			console.log(global.coins.filter((coin) => coin.machine.state !== "IDLE").length);
 
 			if (finished) {
 				if (changes > 0) {
@@ -90,6 +97,14 @@ let machine = new Machine("NEXTROUND", {
 				} else machine.setStateAndRun("NEXTROUND");
 			}
 		}
+	},	
+	POWER: {
+		start: () => {
+			global.remainingTurns--;
+			global.coins.forEach(coin => {
+			coin.machine.dispatch("crumble");
+			setTimeout(() => machine.setStateAndRun("POPPING"), 300);
+		})},
 	},
 	NEXTROUND: {
 		start: () => {
@@ -108,6 +123,8 @@ let machine = new Machine("NEXTROUND", {
 						y: settings.roundMode == "rise" ? global.boardDims.height : -settings.coinRadius * 2 - settings.coinBuffer,
 						dirtLayer: 2
 					})
+		
+					global.coins.push(coin);
 					coin.machine.setStateAndRun(nextState);
 					camera.addChild(coin);
 				}
@@ -181,8 +198,9 @@ onPointer('down', function(e, object) {
 });
 
 function update() {
-	camera.update();
+	onKey('p', function(e) {machine.dispatch("power")});
 
+	camera.update();
 	machine.dispatch("update");
 }
 

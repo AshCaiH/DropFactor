@@ -179,8 +179,6 @@ export class Coin extends SpriteClass {
 		
 		let self = this;
 		let value = this.value;
-		
-		global.coins.push(this);
 
 		let text = Text({
 			text: value,

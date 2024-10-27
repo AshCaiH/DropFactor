@@ -144,7 +144,7 @@ export class Coin extends SpriteClass {
 						}, {color: this.dirtLayer == 2 ? "#678" : "#ABC",}
 					));
 					this.dirtLayer--;
-					machine.setState("IDLE");
+					setTimeout(() => machine.setState("IDLE"), 300);
 				},
 			},
 			RISING: {

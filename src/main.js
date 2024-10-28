@@ -50,7 +50,6 @@ let machine = new Machine("NEXTROUND", {
 			dropZone.machine.dispatch("unlock");
 
 			if (!dropZone.coin) {
-				dropPos = dropZone.x;
 				let coin = randomCoin();
 				dropZone.coin = coin;
 				coin.machine.dispatch("start", [dropZone]);

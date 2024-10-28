@@ -1,5 +1,5 @@
-import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
-import { Coin } from "./coin.js";
+import { init, Text, GameLoop, Sprite, GameObject, initPointer, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
+import { Coin, randomCoin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
 import { settings, global } from "./Global.js";
@@ -9,36 +9,10 @@ let { canvas } = init();
 initPointer();
 initKeys();
 
+let dropZone = new Dropzone();
 let changes = null;
 
-function randomCoin() {
-	if (!settings.weightCoins) return randInt(0,settings.slots.x-1);
-	let sumWeights = Object.values(global.coinWeights).reduce((sum, n) => sum + n, 0);
-	let runningTotal = 0;
-	let randomNumber = randInt(0,sumWeights);
-	let value = null;
-	console.log("random", sumWeights);
-	console.log("weights", Object.keys(global.coinWeights).length);
-	for (let i = 1; i <= Object.keys(global.coinWeights).length; i++) {
-		console.log(i, randomNumber, runningTotal);
-		runningTotal += global.coinWeights[i]
-		if (randomNumber <= runningTotal) {
-			value = i;
-			break;
-		}
-	}
-	Object.keys(global.coinWeights).forEach(key => global.coinWeights[key]+=Object.keys(global.coinWeights).length);
-	global.coinWeights[value] = 1;
-	let buried = value > global.maxCoinValue;
-	if (buried) console.log("ding");
-	let coin = new Coin(dropZone.x, {
-		value: buried ? randInt(1,global.maxCoinValue) : value,
-		dirtLayer: buried ? randInt(1,2) : 0,
-	})
-	return coin;
-};
-
-let machine = new Machine("NEXTROUND", {
+let machine = global.gameMachine = new Machine("NEXTROUND", {
 	INPUT: {
 		start: () => {
 			console.log(global.coinWeights);
@@ -50,7 +24,7 @@ let machine = new Machine("NEXTROUND", {
 			dropZone.machine.dispatch("unlock");
 
 			if (!dropZone.coin) {
-				let coin = randomCoin();
+				let coin = randomCoin(dropZone.x);
 				dropZone.coin = coin;
 				coin.machine.dispatch("start", [dropZone]);
 				camera.addChild(coin);
@@ -160,14 +134,11 @@ let gridBg = Sprite({
 	}
 })
 
-
-let camera = GameObject({
+let camera = global.camera = GameObject({
 	x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer,
 	y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 })
-global.camera = camera;
 
-let dropZone = new Dropzone();
 camera.addChild(dropZone, gridBg);
 
 let debugText = Text({
@@ -192,11 +163,7 @@ let score = Text({
 camera.addChild(debugText, score);
 machine.dispatch("start");
 
-onPointer('up', function(e) {machine.dispatch("drop");});
-
 function update() {
-	onKey('p', function(e) {machine.dispatch("power")});
-
 	camera.update();
 	machine.dispatch("update");
 }

@@ -1,6 +1,7 @@
-import { getPointer, SpriteClass } from "../node_modules/kontra/kontra.mjs";
+import { SpriteClass } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 import { Machine } from "./Machine.js";
+import { cursorToCell } from "./controls.js";
 
 export class Dropzone extends SpriteClass {
 	constructor() {
@@ -10,8 +11,7 @@ export class Dropzone extends SpriteClass {
 					let cellPos = cursorToCell();
 					this.xPos = Math.min(Math.max(0, cellPos.x), settings.slots.x - 1);
 				},
-				drop: (xPos) => {
-					this.opacity = 1;
+				drop: () => {
 					global.coins.push(this.coin);
 					this.coin = null;
 					machine.setState("LOCKED")
@@ -19,7 +19,6 @@ export class Dropzone extends SpriteClass {
 				lock: () => machine.setState("LOCKED"),
 			},
 			LOCKED: {unlock: () => machine.setState("INPUT")},
-			HIDDEN: {},
 		});
 
 		super({
@@ -50,13 +49,4 @@ export class Dropzone extends SpriteClass {
 		super.update(dt);
 		this.machine.dispatch("update");
 	}
-}
-
-function cursorToCell() {
-	const cPos = (({ x, y }) => ({ x, y }))(getPointer());
-
-	Object.keys(cPos).forEach(function(k, index) {cPos[k] -= global.camera[k] - settings.coinBuffer/2});
-	Object.keys(cPos).forEach(function(k, index) {cPos[k] = Math.floor(cPos[k]/(settings.coinRadius * 2 + settings.coinBuffer))});
-
-	return cPos;
 }

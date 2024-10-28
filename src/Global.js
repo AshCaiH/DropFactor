@@ -8,7 +8,6 @@ export const settings = {
 	coinPalette: [ "#ffa600", "#ff764a", "#ef5675", "#bc5090", "#7a5195", "#5779CC", "#0073A8" ],
 
 	// Animation
-	launchSpeed: 10,
 	fallSpeed: 12,
 	fallAccel: 1.1,
 
@@ -17,14 +16,14 @@ export const settings = {
 	initialTurns: 0, // 0 runs rising phase immediately on game start.
 	roundMode: "rise",
 
-	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo²
+	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo² (Unused)
 	weightCoins: true,
-	dirtCoins: true,
+	dirtCoins: false,
 };
 
 export const global = {
+	gameMachine: null,
 	camera: null,
-	dropZone: null,
 	grid: Array.from({ length:settings.slots.x }, i => Array.from({ length:settings.slots.y }, i => null)),
 	boardDims: {
 		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),

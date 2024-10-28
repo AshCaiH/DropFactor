@@ -19,6 +19,7 @@ export const settings = {
 
 	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo²
 	weightCoins: true,
+	dirtCoins: true,
 };
 
 export const global = {
@@ -29,11 +30,13 @@ export const global = {
 		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
 		width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
 	},
-	coinWeights: Object.fromEntries(Array.from({ length:settings.slots.x }, (i,k) => [k+1,1])),
+	maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
+	coinWeights: null,
 	remainingTurns: settings.initialTurns,
 	coins: [],
 	score: 0,
 	combo: 1,
 	gameOver: false,
-	maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
 }
+
+global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));

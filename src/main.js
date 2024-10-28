@@ -28,9 +28,16 @@ function randomCoin() {
 			break;
 		}
 	}
-	Object.keys(global.coinWeights).forEach(key => global.coinWeights[key]++);
+	Object.keys(global.coinWeights).forEach(key => global.coinWeights[key]+=Object.keys(global.coinWeights).length);
 	global.coinWeights[value] = 1;
-	return value;
+	let buried = value > global.maxCoinValue;
+	if (buried) console.log("ding");
+	let coin = new Coin(dropZone.x, {
+		value: buried ? randInt(1,global.maxCoinValue) : value,
+		dirtLayer: buried ? randInt(1,2) : 0,
+		firstDrop: true
+	})
+	return coin;
 };
 
 let machine = new Machine("NEXTROUND", {
@@ -46,10 +53,7 @@ let machine = new Machine("NEXTROUND", {
 
 			if (!dropZone.coin) {
 				dropPos = dropZone.x;
-				let coin = new Coin(dropPos, {
-					value: randomCoin(),
-					firstDrop: true
-				})
+				let coin = randomCoin();
 				dropZone.coin = coin;
 				coin.machine.dispatch("start", [dropZone]);
 				camera.addChild(coin);

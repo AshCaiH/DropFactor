@@ -11,7 +11,6 @@ export class Dropzone extends SpriteClass {
 					this.xPos = Math.min(Math.max(0, cellPos.x), settings.slots.x - 1);
 				},
 				drop: (xPos) => {
-					this.xPos = xPos;
 					this.opacity = 1;
 					global.coins.push(this.coin);
 					this.coin = null;

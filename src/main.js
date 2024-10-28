@@ -10,7 +10,6 @@ initPointer();
 initKeys();
 
 let changes = null;
-let auto = false;
 let dropPos = null;
 
 function randomCoin() {
@@ -46,7 +45,7 @@ let machine = new Machine("NEXTROUND", {
 			dropZone.machine.dispatch("unlock");
 
 			if (!dropZone.coin) {
-				dropPos = auto ? randInt(0,settings.slots.x-1) : dropZone.x;
+				dropPos = dropZone.x;
 				let coin = new Coin(dropPos, {
 					value: randomCoin(),
 					firstDrop: true
@@ -58,7 +57,7 @@ let machine = new Machine("NEXTROUND", {
 		},
 		drop: () => {		
 			global.remainingTurns--;
-			dropZone.machine.dispatch("drop", [dropPos]);
+			dropZone.machine.dispatch("drop");
 			machine.setStateAndRun("DROPPING");
 		},
 		power: (type = null) => {
@@ -192,10 +191,7 @@ let score = Text({
 camera.addChild(debugText, score);
 machine.dispatch("start");
 
-onPointer('down', function(e, object) {
-	dropPos = dropZone.xPos;
-	machine.dispatch("drop");
-});
+onPointer('up', function(e) {machine.dispatch("drop");});
 
 function update() {
 	onKey('p', function(e) {machine.dispatch("power")});

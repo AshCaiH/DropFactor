@@ -10,7 +10,6 @@ initPointer();
 initKeys();
 
 let changes = null;
-let dropPos = null;
 
 function randomCoin() {
 	if (!settings.weightCoins) return randInt(0,settings.slots.x-1);
@@ -35,7 +34,6 @@ function randomCoin() {
 	let coin = new Coin(dropZone.x, {
 		value: buried ? randInt(1,global.maxCoinValue) : value,
 		dirtLayer: buried ? randInt(1,2) : 0,
-		firstDrop: true
 	})
 	return coin;
 };

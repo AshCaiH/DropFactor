@@ -1,5 +1,5 @@
 import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
-import { Coin } from "./coin.js";
+import { Coin, randomCoin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
 import { settings, global } from "./Global.js";
@@ -10,33 +10,6 @@ initPointer();
 initKeys();
 
 let changes = null;
-
-function randomCoin() {
-	if (!settings.weightCoins) return randInt(0,settings.slots.x-1);
-	let sumWeights = Object.values(global.coinWeights).reduce((sum, n) => sum + n, 0);
-	let runningTotal = 0;
-	let randomNumber = randInt(0,sumWeights);
-	let value = null;
-	console.log("random", sumWeights);
-	console.log("weights", Object.keys(global.coinWeights).length);
-	for (let i = 1; i <= Object.keys(global.coinWeights).length; i++) {
-		console.log(i, randomNumber, runningTotal);
-		runningTotal += global.coinWeights[i]
-		if (randomNumber <= runningTotal) {
-			value = i;
-			break;
-		}
-	}
-	Object.keys(global.coinWeights).forEach(key => global.coinWeights[key]+=Object.keys(global.coinWeights).length);
-	global.coinWeights[value] = 1;
-	let buried = value > global.maxCoinValue;
-	if (buried) console.log("ding");
-	let coin = new Coin(dropZone.x, {
-		value: buried ? randInt(1,global.maxCoinValue) : value,
-		dirtLayer: buried ? randInt(1,2) : 0,
-	})
-	return coin;
-};
 
 let machine = new Machine("NEXTROUND", {
 	INPUT: {
@@ -50,7 +23,7 @@ let machine = new Machine("NEXTROUND", {
 			dropZone.machine.dispatch("unlock");
 
 			if (!dropZone.coin) {
-				let coin = randomCoin();
+				let coin = randomCoin(dropZone.x);
 				dropZone.coin = coin;
 				coin.machine.dispatch("start", [dropZone]);
 				camera.addChild(coin);

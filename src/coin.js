@@ -5,7 +5,6 @@ import { global, settings } from "./Global.js";
 
 export class Coin extends SpriteClass {
 	constructor(gridX, ...options) {
-		// let value = randInt(1,7);
 		let isBuried = 0 //randInt(1,3) === 3;
 		let opacity = 1;
 		let dropZone = null;
@@ -234,3 +233,29 @@ export class Coin extends SpriteClass {
 		this.children = [];
 	}
 }
+
+export function randomCoin(xPos) {
+	const {weightCoins, slots} = settings;
+	const {coinWeights, maxCoinValue} = global;
+
+	if (!weightCoins) return randInt(0,slots.x-1);
+	let sumWeights = Object.values(coinWeights).reduce((sum, n) => sum + n, 0);
+	let runningTotal = 0;
+	let randomNumber = randInt(0,sumWeights);
+	let value = null;
+	for (let i = 1; i <= Object.keys(coinWeights).length; i++) {
+		runningTotal += coinWeights[i]
+		if (randomNumber <= runningTotal) {
+			value = i;
+			break;
+		}
+	}
+	Object.keys(coinWeights).forEach(key => coinWeights[key]+=Object.keys(coinWeights).length);
+	coinWeights[value] = 1;
+	let buried = value > maxCoinValue;
+	let coin = new Coin(xPos, {
+		value: buried ? randInt(1,maxCoinValue) : value,
+		dirtLayer: buried ? randInt(1,2) : 0,
+	})
+	return coin;
+};

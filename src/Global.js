@@ -35,4 +35,5 @@ export const global = {
 	score: 0,
 	combo: 1,
 	gameOver: false,
+	maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
 }

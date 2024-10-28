@@ -169,7 +169,7 @@ export class Coin extends SpriteClass {
 			gridPos: {x: gridX, y: -1},
 			x: gridX * (settings.coinRadius * 2 + settings.coinBuffer),
 			y: -1 * (settings.coinRadius * 2 + settings.coinBuffer),
-			value: randInt(1,7),
+			value: randInt(1,global.maxCoinValue),
 			machine: machine,
 			dirtLayer: isBuried ? 2 : 0,
 			firstDrop: false,

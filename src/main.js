@@ -144,8 +144,8 @@ let machine = new Machine("NEXTROUND", {
 
 let gridBg = Sprite({
 	render: function() {
-		for (let i=0; i<7; i++) {
-		for (let j=0; j<7; j++) {
+		for (let i=0; i<settings.slots.x; i++) {
+		for (let j=0; j<settings.slots.y; j++) {
 			this.context.lineWidth = 1.5;
 			this.context.strokeStyle = "#345";
 			this.context.beginPath();

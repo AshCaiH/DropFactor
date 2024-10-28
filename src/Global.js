@@ -18,12 +18,12 @@ export const settings = {
 
 	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo² (Unused)
 	weightCoins: true,
-	dirtCoins: true,
+	dirtCoins: false,
 };
 
 export const global = {
+	gameMachine: null,
 	camera: null,
-	dropZone: null,
 	grid: Array.from({ length:settings.slots.x }, i => Array.from({ length:settings.slots.y }, i => null)),
 	boardDims: {
 		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),

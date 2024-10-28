@@ -1,4 +1,4 @@
-import { init, Text, GameLoop, Sprite, GameObject, initPointer, randInt, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, Sprite, GameObject, initPointer, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
 import { Coin, randomCoin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
@@ -9,9 +9,10 @@ let { canvas } = init();
 initPointer();
 initKeys();
 
+let dropZone = new Dropzone();
 let changes = null;
 
-let machine = new Machine("NEXTROUND", {
+let machine = global.gameMachine = new Machine("NEXTROUND", {
 	INPUT: {
 		start: () => {
 			console.log(global.coinWeights);
@@ -133,14 +134,11 @@ let gridBg = Sprite({
 	}
 })
 
-
-let camera = GameObject({
+let camera = global.camera = GameObject({
 	x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer,
 	y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 })
-global.camera = camera;
 
-let dropZone = new Dropzone();
 camera.addChild(dropZone, gridBg);
 
 let debugText = Text({
@@ -165,11 +163,7 @@ let score = Text({
 camera.addChild(debugText, score);
 machine.dispatch("start");
 
-onPointer('up', function(e) {machine.dispatch("drop");});
-
 function update() {
-	onKey('p', function(e) {machine.dispatch("power")});
-
 	camera.update();
 	machine.dispatch("update");
 }

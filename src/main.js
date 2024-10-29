@@ -112,7 +112,9 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 		}
 	},
 	GAMEOVER: {
-		start: () => {}
+		start: () => {
+			dropZone.machine.dispatch("lock");
+		}
 	},
 });
 

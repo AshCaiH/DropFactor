@@ -18,7 +18,9 @@ export class Dropzone extends SpriteClass {
 				},
 				lock: () => machine.setState("LOCKED"),
 			},
-			LOCKED: {unlock: () => machine.setState("INPUT")},
+			LOCKED: {
+				unlock: () => machine.setState("INPUT")
+			},
 		});
 
 		super({
@@ -26,23 +28,26 @@ export class Dropzone extends SpriteClass {
 			opacity: 1,
 			machine: machine,
 			coin: null,
+			render: () => {
+				const gradient = this.context.createLinearGradient(0, 0, 0, 600);
+				let dims = {x: -settings.coinBuffer / 2 + this.xPos * (settings.coinRadius * 2 + settings.coinBuffer),
+							y: -settings.coinBuffer / 2,
+							w: settings.coinRadius * 2 + settings.coinBuffer,
+							h: global.boardDims.height}
+				gradient.addColorStop(0, "#6785");
+				gradient.addColorStop(1, "#6782");
+
+				if (machine.state === "LOCKED") {
+					dims.x += 5;
+					dims.w -= 10;
+				}
+		
+				this.context.fillStyle = gradient;
+				this.context.beginPath();
+				this.context.fillRect(dims.x, dims.y, dims.w, dims.h);
+				this.context.closePath();
+			},
 		});
-	}
-
-	draw () {
-		let gradient = this.context.createLinearGradient(0, 0, 0, 600);
-		gradient.addColorStop(0, "#6785");
-		gradient.addColorStop(1, "#6782");
-
-		this.context.fillStyle = gradient;
-		this.context.beginPath();
-		this.context.fillRect(
-			-settings.coinBuffer / 2 + this.xPos * (settings.coinRadius * 2 + settings.coinBuffer),
-			-settings.coinBuffer / 2,
-			settings.coinRadius * 2 + settings.coinBuffer,
-			global.boardDims.height,
-		);
-		this.context.closePath();
 	}
 
 	update (dt) {

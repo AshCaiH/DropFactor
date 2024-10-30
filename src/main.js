@@ -1,8 +1,9 @@
-import { init, Text, GameLoop, Sprite, GameObject, initPointer, onPointer, initKeys, onKey } from "../node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, GameObject, initPointer, initKeys } from "../node_modules/kontra/kontra.mjs";
 import { Coin, randomCoin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
 import { settings, global } from "./Global.js";
+import { GridBG } from "./gridbg.js";
 
 let { canvas } = init();
 
@@ -118,29 +119,12 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	},
 });
 
-let gridBg = Sprite({
-	render: function() {
-		for (let i=0; i<settings.slots.x; i++) {
-		for (let j=0; j<settings.slots.y; j++) {
-			this.context.lineWidth = 1.5;
-			this.context.strokeStyle = "#345";
-			this.context.beginPath();
-			this.context.strokeRect(
-				i*(settings.coinRadius * 2 + settings.coinBuffer)-settings.coinBuffer/2,
-				j*(settings.coinRadius * 2 + settings.coinBuffer)-settings.coinBuffer/2,
-				settings.coinRadius * 2 + settings.coinBuffer,
-				(settings.coinRadius * 2 + settings.coinBuffer)
-			);
-			this.context.closePath();
-		}}
-	}
-})
-
 let camera = global.camera = GameObject({
 	x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer,
 	y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 })
 
+let gridBg = global.bg = new GridBG();
 camera.addChild(dropZone, gridBg);
 
 let debugText = Text({

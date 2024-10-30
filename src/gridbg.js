@@ -5,10 +5,18 @@ const {slots, coinRadius, coinBuffer} = settings;
 
 export class GridBG extends SpriteClass {
 	constructor() {
-		super();
+		super(
+			{
+				cells: {},
+				lightup: (cells) => {
+					cells.forEach(cell => this.cells[cell].colour[3] = 0.3);},
+			}
+		);
 		for (let i=0; i<slots.x; i++) {
 		for (let j=0; j<slots.y; j++) {
-			this.addChild(new GridBGCell({x: i, y:j}));
+			let cell = new GridBGCell({x: i, y:j})
+			this.cells[`${i},${j}`] = cell;
+			this.addChild(cell);
 		}}
 	}
 }
@@ -32,7 +40,7 @@ class GridBGCell extends GameObject {
 				ctx.fillRect(dim.x, dim.y, dim.w, dim.h);
 				ctx.strokeRect(dim.x, dim.y, dim.w, dim.h);
 			},
-			update: () => {if (this.colour[3] > 0) this.colour[3] -= 0.03;},
+			update: () => {if (this.colour[3] > 0) this.colour[3] -= 0.01;},
 		});
 	}
 }

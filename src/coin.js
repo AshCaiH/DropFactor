@@ -70,7 +70,10 @@ export class Coin extends SpriteClass {
 					else {
 						let vCheck = this.machine.dispatch("checkVertical");
 						let hCheck = this.machine.dispatch("checkHorizontal");
-						if (vCheck || hCheck) {
+						if (vCheck.length > 0 || hCheck.length > 0) {
+							console.log(vCheck.concat(hCheck));
+							global.bg.lightup(vCheck.concat(hCheck));
+							// global.bg.lightup(["2,2"])
 							global.score += 1 * global.combo;
 							this.parent.addChild(new Particles(
 								{
@@ -90,28 +93,28 @@ export class Coin extends SpriteClass {
 					}
 				},
 				checkVertical: () => {
-					let inColumn = 0;
-					for (let i=settings.slots.y-1; i>=0; i--) {
-						if (global.grid[this.gridPos.x][i] != null) inColumn++;
+					let cells = []
+					for (let y=settings.slots.y-1; y>=0; y--) {
+						if (global.grid[this.gridPos.x][y] != null) cells.push(`${this.gridPos.x},${y}`);
 						else break;
 					}
-					if (inColumn == value) return true;
+					return cells.length === value ? cells : [];
 				},
 				checkHorizontal: () => {
-					let inRow = 1;
 					let x = this.gridPos.x - 1;
+					let cells = [`${this.gridPos.x},${this.gridPos.y}`];
 					while (x >= 0) {
 						if (global.grid[x][this.gridPos.y] == null) break;
-						else inRow++;
+						else cells.push(`${x},${this.gridPos.y}`);
 						x--;
 					}
 					x = this.gridPos.x + 1;
 					while (x < settings.slots.x) {
 						if (global.grid[x][this.gridPos.y] == null) break;
-						else inRow++;
+						else cells.push(`${x},${this.gridPos.y}`);
 						x++;
 					}
-					if (inRow === value) return true;
+					return cells.length === value ? cells : [];
 				},
 				breakSurrounding: () => {
 					let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]

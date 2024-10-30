@@ -122,7 +122,8 @@ let camera = global.camera = GameObject({
 	y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 })
 
-camera.addChild(dropZone, new GridBG());
+let gridBg = global.bg = new GridBG();
+camera.addChild(dropZone, gridBg);
 
 let debugText = Text({
 	y: global.boardDims.height + 10,

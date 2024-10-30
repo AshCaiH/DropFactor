@@ -17,22 +17,22 @@ class GridBGCell extends GameObject {
 	constructor(gridPosition) {
 		super({
 			gridPosition: gridPosition,
+			fillOpacity: 0,
+			colour: [255,255,255,0],
 			render: () => {
 				const ctx = this.context;
+				const dim = {x: gridPosition.x*(coinRadius * 2 + coinBuffer)-coinBuffer/2,
+							y: gridPosition.y*(coinRadius * 2 + coinBuffer)-coinBuffer/2,
+							w: coinRadius * 2 + coinBuffer,
+							h: (coinRadius * 2 + coinBuffer)}
 				ctx.lineWidth = 1.5;
 				ctx.strokeStyle = "#345";
-				ctx.beginPath();
-				ctx.strokeRect(
-					gridPosition.x*(coinRadius * 2 + coinBuffer)-coinBuffer/2,
-					gridPosition.y*(coinRadius * 2 + coinBuffer)-coinBuffer/2,
-					coinRadius * 2 + coinBuffer,
-					(coinRadius * 2 + coinBuffer)
-				);
-				ctx.closePath();
+				let c = this.colour;
+				ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${c[3]})`;
+				ctx.fillRect(dim.x, dim.y, dim.w, dim.h);
+				ctx.strokeRect(dim.x, dim.y, dim.w, dim.h);
 			},
-			update: () => {
-
-			},
+			update: () => {if (this.colour[3] > 0) this.colour[3] -= 0.03;},
 		});
 	}
 }

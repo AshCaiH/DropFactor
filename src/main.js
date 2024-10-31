@@ -4,6 +4,7 @@ import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
 import { settings, global } from "./Global.js";
 import { GridBG } from "./gridbg.js";
+import { PowerTray } from "./powertoken.js";
 
 let { canvas } = init();
 
@@ -120,7 +121,7 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 });
 
 let camera = global.camera = GameObject({
-	x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer,
+	x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer / 2,
 	y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 })
 
@@ -132,7 +133,7 @@ let debugText = Text({
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = `Turns: ${global.remainingTurns}\n\nMulti: x${global.combo}\n\n${Object.values(global.coinWeights)}\n\n${machine.state}`}
+	update: () => {debugText.text = `Turns: ${global.remainingTurns}\n\nMulti: x${global.combo}\n\n${machine.state}`}
 })
 
 let score = Text({
@@ -146,7 +147,7 @@ let score = Text({
 	update: () => {score.text = `${global.score}`}
 })
 
-camera.addChild(debugText, score);
+camera.addChild(debugText, score, new PowerTray());
 machine.dispatch("start");
 
 function update() {

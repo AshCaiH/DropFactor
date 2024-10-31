@@ -20,6 +20,9 @@ export class Dropzone extends SpriteClass {
 				},
 				lock: () => machine.setState("LOCKED"),
 			},
+			PRIMED: {
+				
+			},
 			LOCKED: {
 				unlock: () => machine.setState("INPUT")
 			},

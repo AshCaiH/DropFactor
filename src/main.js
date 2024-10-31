@@ -1,4 +1,4 @@
-import { init, Text, GameLoop, GameObject, initPointer, initKeys } from "../node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "../node_modules/kontra/kontra.mjs";
 import { Coin, randomCoin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
@@ -94,11 +94,17 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 				global.coins.map(coin => {
 					coin.machine.setStateAndRun(nextState);
 				});
+				let prevValue = null;
 				for (let i=0; i<settings.slots.x; i++) {
+					let coinValue;
+					do coinValue = randInt(1, global.maxCoinValue)
+					while (coinValue === prevValue);
+					prevValue = coinValue;
 					let coin = new Coin(i, {
 						gridPos: {x: i, y: settings.roundMode == "rise" ? settings.slots.y : -1},
 						y: settings.roundMode == "rise" ? global.boardDims.height : -settings.coinRadius * 2 - settings.coinBuffer,
-						dirtLayer: 2
+						dirtLayer: 2,
+						value: coinValue,
 					})
 		
 					global.coins.push(coin);

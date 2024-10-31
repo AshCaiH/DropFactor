@@ -7,9 +7,11 @@ export class Dropzone extends SpriteClass {
 	constructor() {
 		let machine = new Machine("INPUT", {
 			INPUT: {
+				start: () => this.opacity = 1,
 				update: () => {
-					let cellPos = cursorToCell();
-					this.xPos = Math.min(Math.max(0, cellPos.x), settings.slots.x - 1);
+					let cellPos = this.getCellPos();
+					if (cellPos) this.xPos = cellPos.x;
+					else machine.setStateAndRun("INACTIVE");
 				},
 				drop: () => {
 					global.coins.push(this.coin);
@@ -20,6 +22,16 @@ export class Dropzone extends SpriteClass {
 			},
 			LOCKED: {
 				unlock: () => machine.setState("INPUT")
+			},
+			INACTIVE: {
+				start: () => this.opacity = 0.3,
+				update: () => {
+					let cellPos = this.getCellPos();
+					if (cellPos) {
+						this.xPos = cellPos.x;
+						machine.setStateAndRun("INPUT");
+					}
+				}
 			},
 		});
 
@@ -48,6 +60,12 @@ export class Dropzone extends SpriteClass {
 				this.context.closePath();
 			},
 		});
+	}
+
+	getCellPos() {
+		let cellPos = cursorToCell();
+		if (cellPos.x < 0 || cellPos.x >= settings.slots.x || cellPos.y >= settings.slots.x) return null;
+		else return cellPos;
 	}
 
 	update (dt) {

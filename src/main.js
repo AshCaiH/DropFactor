@@ -32,7 +32,8 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 				camera.addChild(coin);
 			};
 		},
-		drop: () => {		
+		drop: () => {
+			if (dropZone.machine.state != "INPUT") return;
 			global.remainingTurns--;
 			dropZone.machine.dispatch("drop");
 			machine.setStateAndRun("DROPPING");

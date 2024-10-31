@@ -134,7 +134,9 @@ let debugText = Text({
 	color: "white",
 	text: "hello",
 	font: 'bold 12px Arial',
-	update: () => {debugText.text = `Turns: ${global.remainingTurns}\n\nMulti: x${global.combo}\n\n${machine.state}`}
+	update: () => {
+		debugText.text = global.getDebugText("\n\n");
+	}
 })
 
 let score = Text({
@@ -148,6 +150,7 @@ let score = Text({
 	update: () => {score.text = `${global.score}`}
 })
 
+global.addDebugText(machine, "state", null, 3)
 camera.addChild(debugText, score, new PowerTray());
 machine.dispatch("start");
 

@@ -26,7 +26,7 @@ export class PowerTray extends SpriteClass {
 
 		for (let i=0; i<3; i++) {
 			powerSlots.push({
-				x: i * (50 + 10) + 12,
+				x: i * (50 + 10) + 15,
 				y: 10,
 			});
 		}

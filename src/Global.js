@@ -21,6 +21,8 @@ export const settings = {
 	dirtCoins: false,
 };
 
+let debugText = [];
+
 export const global = {
 	gameMachine: null,
 	camera: null,
@@ -37,6 +39,21 @@ export const global = {
 	score: 0,
 	combo: 1,
 	gameOver: false,
+	addDebugText: (object, value, name, order = 0) => {
+		debugText.push({name: name || "", object: object, value: value, order: order});		
+		debugText.sort((a, b) => {return a.order > b.order});
+	},
+	getDebugText: (delineator = "\n") => {
+		let string = "";
+		debugText.forEach((dbug, i) => {
+			string = string.concat(dbug.name, dbug.name && ": ", dbug.object[dbug.value])
+			if (i != debugText.length - 1) string = string.concat(delineator);
+		});
+		return string;
+	},
 }
+
+global.addDebugText(global, "remainingTurns", "Turns", 1);
+global.addDebugText(global, "combo", "Combo", 2);
 
 global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));

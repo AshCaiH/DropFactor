@@ -17,7 +17,6 @@ let changes = null;
 let machine = global.gameMachine = new Machine("NEXTROUND", {
 	INPUT: {
 		start: () => {
-			console.log(global.coinWeights);
 			global.combo = 1;
 			if (global.gameOver) {
 				machine.setStateAndRun("GAMEOVER");
@@ -32,10 +31,10 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 				camera.addChild(coin);
 			};
 		},
+		prime: () => dropZone.machine.dispatch("prime"),
 		drop: () => {
-			if (dropZone.machine.state != "INPUT") return;
+			if (!dropZone.machine.dispatch("drop")) return;
 			global.remainingTurns--;
-			dropZone.machine.dispatch("drop");
 			machine.setStateAndRun("DROPPING");
 		},
 		power: (type = null) => {
@@ -65,7 +64,6 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 		update: () => {
 			global.coins = global.coins.filter((coin) => coin.isAlive());
 			let finished = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length === 0;
-			console.log(global.coins.filter((coin) => coin.machine.state !== "IDLE").length);
 
 			if (finished) {
 				if (changes > 0) {
@@ -85,11 +83,9 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	},
 	NEXTROUND: {
 		start: () => {
-			console.log(global.remainingTurns);
 			if (global.remainingTurns > 0) machine.setStateAndRun("INPUT");
 			else {
 				let nextState = settings.roundMode == "rise" ? "RISING" : "DROPPING";
-				console.log(nextState);
 				global.remainingTurns = settings.turnsInRound;
 				global.coins.map(coin => {
 					coin.machine.setStateAndRun(nextState);

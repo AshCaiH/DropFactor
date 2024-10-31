@@ -5,26 +5,47 @@ import { cursorToCell } from "./controls.js";
 
 export class Dropzone extends SpriteClass {
 	constructor() {
+		let lock = () => machine.setStateAndRun("LOCKED");
+		
 		let machine = new Machine("INPUT", {
 			INPUT: {
-				start: () => this.opacity = 1,
+				start: () => this.opacity = 0.6,
 				update: () => {
 					let cellPos = this.getCellPos();
 					if (cellPos) this.xPos = cellPos.x;
 					else machine.setStateAndRun("INACTIVE");
 				},
+				prime: () => machine.setStateAndRun("PRIMED"),
+				lock: () => lock(),
+			},
+			PRIMED: {
+				start: () => this.opacity = 1,
 				drop: () => {
 					global.coins.push(this.coin);
 					this.coin = null;
-					machine.setState("LOCKED")
+					lock();
+					return true;
 				},
-				lock: () => machine.setState("LOCKED"),
+				update: () => {
+					let cellPos = this.getCellPos();
+					if (cellPos) this.xPos = cellPos.x;
+					else machine.setStateAndRun("PRIMED_INACTIVE");
+				},
 			},
-			PRIMED: {
-				
+			PRIMED_INACTIVE: {
+				start: () => this.opacity = 0.3,
+				update: () => {
+					let cellPos = this.getCellPos();
+					if (cellPos) {
+						this.xPos = cellPos.x;
+						machine.setStateAndRun("PRIMED");
+					}
+				},
+				drop: () => machine.setStateAndRun("INPUT"),
 			},
 			LOCKED: {
-				unlock: () => machine.setState("INPUT")
+				start: () => this.opacity = 0,
+				unlock: () => machine.setStateAndRun("INPUT")
 			},
 			INACTIVE: {
 				start: () => this.opacity = 0.3,
@@ -44,20 +65,12 @@ export class Dropzone extends SpriteClass {
 			machine: machine,
 			coin: null,
 			render: () => {
-				const gradient = this.context.createLinearGradient(0, 0, 0, 600);
 				let dims = {x: -settings.coinBuffer / 2 + this.xPos * (settings.coinRadius * 2 + settings.coinBuffer),
 							y: -settings.coinBuffer / 2,
 							w: settings.coinRadius * 2 + settings.coinBuffer,
 							h: global.boardDims.height}
-				gradient.addColorStop(0, "#6785");
-				gradient.addColorStop(1, "#6782");
-
-				if (machine.state === "LOCKED") {
-					dims.x += 5;
-					dims.w -= 10;
-				}
-		
-				this.context.fillStyle = gradient;
+					
+				this.context.fillStyle = "#334353AA";
 				this.context.beginPath();
 				this.context.fillRect(dims.x, dims.y, dims.w, dims.h);
 				this.context.closePath();

@@ -1,6 +1,7 @@
 import { getPointer, onKey, onPointer } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 
+onPointer('down', function(e) {global.gameMachine.dispatch("prime");});
 onPointer('up', function(e) {global.gameMachine.dispatch("drop");});
 onKey('p', function(e) {global.gameMachine.dispatch("power")});
 

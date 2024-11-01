@@ -27,7 +27,7 @@ export class Dropzone extends SpriteClass {
 					return true;
 				},
 				update: () => {
-					let cellPos = this.getCellPos();
+					let cellPos = this.getCellPos(false);
 					if (cellPos) this.xPos = cellPos.x;
 					else machine.setStateAndRun("PRIMED_INACTIVE");
 				},
@@ -35,7 +35,7 @@ export class Dropzone extends SpriteClass {
 			PRIMED_INACTIVE: {
 				start: () => this.opacity = 0.3,
 				update: () => {
-					let cellPos = this.getCellPos();
+					let cellPos = this.getCellPos(false);
 					if (cellPos) {
 						this.xPos = cellPos.x;
 						machine.setStateAndRun("PRIMED");
@@ -48,7 +48,7 @@ export class Dropzone extends SpriteClass {
 				unlock: () => machine.setStateAndRun("INPUT")
 			},
 			INACTIVE: {
-				start: () => this.opacity = 0.3,
+				start: () => this.opacity = 0,
 				update: () => {
 					let cellPos = this.getCellPos();
 					if (cellPos) {
@@ -78,9 +78,9 @@ export class Dropzone extends SpriteClass {
 		});
 	}
 
-	getCellPos() {
+	getCellPos(inGrid = true) {
 		let cellPos = cursorToCell();
-		if (cellPos.x < 0 || cellPos.x >= settings.slots.x || cellPos.y >= settings.slots.x) return null;
+		if (cellPos.x < 0 || cellPos.x >= settings.slots.x || (inGrid && cellPos.y >= settings.slots.x)) return null;
 		else return cellPos;
 	}
 

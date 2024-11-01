@@ -31,7 +31,9 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 				camera.addChild(coin);
 			};
 		},
-		prime: () => dropZone.machine.dispatch("prime"),
+		prime: () => {
+			dropZone.machine.dispatch("prime")
+		},
 		drop: () => {
 			if (!dropZone.machine.dispatch("drop")) return;
 			global.remainingTurns--;
@@ -158,6 +160,7 @@ machine.dispatch("start");
 
 function update() {
 	camera.update();
+	camera.children.sort((a, b) => a.zIndex > b.zIndex || (a.zIndex && !b.zIndex));
 	machine.dispatch("update");
 }
 

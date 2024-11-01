@@ -71,7 +71,6 @@ export class Coin extends SpriteClass {
 						let vCheck = this.machine.dispatch("checkVertical");
 						let hCheck = this.machine.dispatch("checkHorizontal");
 						if (vCheck.length > 0 || hCheck.length > 0) {
-							console.log(vCheck.concat(hCheck));
 							global.bg.lightup(vCheck.concat(hCheck));
 							// global.bg.lightup(["2,2"])
 							global.score += 1 * global.combo;

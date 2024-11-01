@@ -162,6 +162,8 @@ export class Coin extends SpriteClass {
 					}
 				},
 			},
+			POWERPENDING: {},
+			POWERSELECTED: {},
 			OOB: {},
 		});
 
@@ -173,7 +175,6 @@ export class Coin extends SpriteClass {
 			machine: machine,
 			dirtLayer: isBuried ? 2 : 0,
 			update: function(dt) {machine.dispatch("update", [dt])},
-			draw: function() {this.opacity = opacity},
 		}, ...options));
 		
 		let self = this;

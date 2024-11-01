@@ -74,7 +74,12 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 				} else machine.setStateAndRun("NEXTROUND");
 			}
 		}
-	},	
+	},
+	POWERPENDING: {
+		start: () => {},
+		cancel: () => {},
+		activate: () => {}
+	},
 	POWER: {
 		start: () => {
 			global.remainingTurns--;

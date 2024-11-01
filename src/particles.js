@@ -70,7 +70,6 @@ function randomise(target) {
 	let distance = Math.random();
 	target.vector.x = Math.sin(angle);
 	target.vector.y = Math.cos(angle);
-	// console.log(target.vector.x, target.vector.x * settings.coinRadius * 2);
 	target.x = target.vector.x * settings.coinRadius - distance * settings.coinRadius * 0.2 * Math.sign(target.vector.x);
 	target.y = target.vector.y * settings.coinRadius;
 	

@@ -54,14 +54,14 @@ class PowerToken extends SpriteClass {
 					initialMousePos.x = getPointer().x;
 					initialMousePos.y = getPointer().y;
 					this.zIndex = 1;
-					console.log(parent);
+					global.gameMachine.dispatch("pendPower");
 				},
 				release: () => {
-					machine.setState("UNLOCKED");
 					this.x = defaultPos.x;
 					this.y = defaultPos.y;
 					initialMousePos = {x: 0, y:0};
-					console.log(defaultPos);
+					global.gameMachine.dispatch("cancel");
+					machine.setState("UNLOCKED");
 				},
 				update: () => {
 					let target = {};
@@ -70,21 +70,32 @@ class PowerToken extends SpriteClass {
 					this.x = lerp(defaultPos.x, target.x, 0.3);
 					this.y = lerp(defaultPos.y, target.y, 0.3);
 					let dist = Math.sqrt(Math.pow((this.x - defaultPos.x),2) + Math.pow((this.y - defaultPos.y),2))
-					console.log(dist);
-					if (dist > 25) machine.setState("DRAG");
+					if (dist > 10) machine.setState("DRAG");
 				}
 			},
 			DRAG: {
 				release: () => {
-					machine.setState("UNLOCKED");
-					this.x = defaultPos.x;
-					this.y = defaultPos.y;
+					machine.setStateAndRun("SNAPBACK");
 					initialMousePos = {x: 0, y:0};
 					this.zIndex = 0;
+					global.gameMachine.dispatch("cancel");
 				},
 				update: () => {
 					this.x = getPointer().x - initialMousePos.x + defaultPos.x;
 					this.y = getPointer().y - initialMousePos.y + defaultPos.y;
+				}
+			},
+			SNAPBACK: { // Animate token snapping back in place. (TODO)
+				start: () => {this.lerpPos = 0.01},
+				update: () => {
+					this.x = lerp(this.x, defaultPos.x, this.lerpPos);
+					this.y = lerp(this.y, defaultPos.y, this.lerpPos);
+					if (Math.abs(this.x - defaultPos.x) < 1 && Math.abs(this.y - defaultPos.y) < 1) {
+						this.x = defaultPos.x;
+						this.y = defaultPos.y;
+						machine.setStateAndRun("UNLOCKED")
+					}
+					this.lerpPos = lerp(this.lerpPos, 1, 0.2);
 				}
 			},
 		});
@@ -109,7 +120,7 @@ class PowerToken extends SpriteClass {
 				ctx.fill();
 			},
 			onDown: () => {
-				this.machine.dispatch("drag");
+				if (global.gameMachine.state == "INPUT") this.machine.dispatch("drag");
 			},
 			onOver: () => {},
 			onOut: () => {},

@@ -39,6 +39,10 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 			global.remainingTurns--;
 			machine.setStateAndRun("DROPPING");
 		},
+		pendPower: () => {
+			dropZone.machine.dispatch("lock")
+			machine.setStateAndRun("POWERPENDING")
+		},
 		power: (type = null) => {
 			console.log(`Ran power ${type}`)
 			machine.setStateAndRun("POWER");
@@ -77,8 +81,8 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	},
 	POWERPENDING: {
 		start: () => {},
-		cancel: () => {},
-		activate: () => {}
+		cancel: () => {machine.setStateAndRun("INPUT")},
+		activate: () => {machine.setStateAndRun("POWER")}
 	},
 	POWER: {
 		start: () => {

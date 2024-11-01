@@ -43,9 +43,9 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 			dropZone.machine.dispatch("lock")
 			machine.setStateAndRun("POWERPENDING")
 		},
-		power: (type = null) => {
-			console.log(`Ran power ${type}`)
-			machine.setStateAndRun("POWER");
+		power: (power) => {
+			console.log(`Running power ${power.name}`)
+			machine.setStateAndRun("POWER", "start", [power]);
 		},
 	},
 	DROPPING: {
@@ -82,15 +82,15 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	POWERPENDING: {
 		start: () => {},
 		cancel: () => {machine.setStateAndRun("INPUT")},
-		activate: () => {machine.setStateAndRun("POWER")}
+		activate: (power) => {machine.setStateAndRun("POWER", "start", [power])}
 	},
 	POWER: {
-		start: () => {
-			global.remainingTurns--;
-			global.coins.forEach(coin => {
-			coin.machine.dispatch("crumble");
+		start: (power) => {
+			console.log(power);
+			if (power.useTurn) global.remainingTurns--;
+			power.activate(null);
 			setTimeout(() => machine.setStateAndRun("POPPING"), 300);
-		})},
+		},
 	},
 	NEXTROUND: {
 		start: () => {

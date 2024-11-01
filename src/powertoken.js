@@ -1,7 +1,7 @@
 import { Sprite, Text, SpriteClass, track, getPointer, pointerPressed, lerp } from "../node_modules/kontra/kontra.mjs";
 import { global } from "./Global.js";
 import { Machine } from "./Machine.js";
-// import * as Powers from ".powers.js";
+import { Dig } from "./powers.js";
 
 export class PowerTray extends SpriteClass {
 	constructor () {
@@ -28,9 +28,9 @@ export class PowerTray extends SpriteClass {
 		});
 
 		for (let i=0; i<3; i++) {
-			const token = new PowerToken("", {
+			const token = new PowerToken(new Dig(), {
 				x: i * (50 + 10) + 15 + 25,
-				y: 10 + 25,
+				y: 10 + 25
 			})
 			this.addChild(token);
 			this.powerSlots.push(token);
@@ -39,7 +39,7 @@ export class PowerTray extends SpriteClass {
 }
 
 class PowerToken extends SpriteClass {
-	constructor (power = "", options = {}) {
+	constructor (power = null, options = {}) {
 		let initialMousePos = {x: 0, y:0};
 		let defaultPos = {x: options.x, y: options.y}
 		let machine = new Machine("UNLOCKED", {
@@ -78,7 +78,8 @@ class PowerToken extends SpriteClass {
 					machine.setStateAndRun("SNAPBACK");
 					initialMousePos = {x: 0, y:0};
 					this.zIndex = 0;
-					global.gameMachine.dispatch("cancel");
+					console.log(this.power);
+					global.gameMachine.dispatch("activate", [this.power]);
 				},
 				update: () => {
 					this.x = getPointer().x - initialMousePos.x + defaultPos.x;

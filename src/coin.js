@@ -16,7 +16,11 @@ export class Coin extends SpriteClass {
 				crumble: () => {
 					if (this.dirtLayer == 0) return;
 					this.machine.setStateAndRun("CRUMBLING", "start");
-				}
+				},
+				snipe: () => {
+					this.kill();
+					machine.setStateAndRun("POPPING", "start");
+				},
 			},
 			DROPZONE: {
 				start: (dz) => {
@@ -36,7 +40,6 @@ export class Coin extends SpriteClass {
 			DROPPING: {
 				start: () => {
 					this.dy = settings.fallSpeed;
-					// TODO: Wipe grid from main script instead.
 					global.grid[this.gridPos.x][this.gridPos.y] = null;
 
 					for (let i=this.gridPos.y; i<settings.slots.y; i++) {
@@ -72,7 +75,6 @@ export class Coin extends SpriteClass {
 						let hCheck = this.machine.dispatch("checkHorizontal");
 						if (vCheck.length > 0 || hCheck.length > 0) {
 							global.bg.lightup(vCheck.concat(hCheck));
-							// global.bg.lightup(["2,2"])
 							global.score += 1 * global.combo;
 							this.parent.addChild(new Particles(
 								{
@@ -128,7 +130,7 @@ export class Coin extends SpriteClass {
 				update: (dt) => {
 					opacity -= 0.1;
 					if (opacity <= 0) {
-						global.grid[this.gridPos.x][this.gridPos.y] = null				
+						global.grid[this.gridPos.x][this.gridPos.y] = null;
 						machine.setState("IDLE");
 						this.kill();
 					}

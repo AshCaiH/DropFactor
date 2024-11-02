@@ -17,9 +17,9 @@ export class Coin extends SpriteClass {
 					this.machine.setStateAndRun("CRUMBLING", "start");
 				},
 				snipe: () => {
-					this.kill();
-					machine.setStateAndRun("POPPING", "start");
+					this.doomed = true;
 				},
+				changeValue: (increase = true) => machine.setStateAndRun("CHANGEVALUE", "start", [increase]),
 			},
 			DROPZONE: {
 				start: (dz) => {
@@ -68,11 +68,11 @@ export class Coin extends SpriteClass {
 			},
 			POPPING: {
 				start: () => {
-					if (this.dirtLayer > 0) machine.setState("IDLE");
+					if (this.dirtLayer > 0 && !this.doomed) machine.setState("IDLE");
 					else {
 						let vCheck = this.machine.dispatch("checkVertical");
 						let hCheck = this.machine.dispatch("checkHorizontal");
-						if (vCheck.length > 0 || hCheck.length > 0) {
+						if (vCheck.length > 0 || hCheck.length > 0 || this.doomed) {
 							global.bg.lightup(vCheck.concat(hCheck));
 							global.score += 1 * global.combo;
 							this.parent.addChild(new Particles(
@@ -82,12 +82,12 @@ export class Coin extends SpriteClass {
 									y: this.y + settings.coinRadius,
 								}, 
 								{
-									color: settings.coinPalette[value-1],
+									color: settings.coinPalette[self.value-1],
 									v: vCheck,
 									h: hCheck,
 								}
 							));
-							this.machine.dispatch("breakSurrounding");
+							if (!this.doomed) this.machine.dispatch("breakSurrounding");
 							return true;
 						} else machine.setState("IDLE");
 					}
@@ -98,7 +98,7 @@ export class Coin extends SpriteClass {
 						if (global.grid[this.gridPos.x][y] != null) cells.push(`${this.gridPos.x},${y}`);
 						else break;
 					}
-					return cells.length === value ? cells : [];
+					return cells.length === this.value ? cells : [];
 				},
 				checkHorizontal: () => {
 					let x = this.gridPos.x - 1;
@@ -114,7 +114,7 @@ export class Coin extends SpriteClass {
 						else cells.push(`${x},${this.gridPos.y}`);
 						x++;
 					}
-					return cells.length === value ? cells : [];
+					return cells.length === this.value ? cells : [];
 				},
 				breakSurrounding: () => {
 					let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
@@ -129,7 +129,6 @@ export class Coin extends SpriteClass {
 				update: (dt) => {
 					this.opacity -= 0.1;
 					if (this.opacity <= 0) {
-						global.grid[this.gridPos.x][this.gridPos.y] = null;
 						machine.setState("IDLE");
 						this.kill();
 					}
@@ -146,6 +145,20 @@ export class Coin extends SpriteClass {
 					));
 					this.dirtLayer--;
 					setTimeout(() => machine.setState("IDLE"), 300);
+				},
+			},
+			CHANGEVALUE: {
+				start: (increase=true) => {
+					if (this.dirtLayer > 0) return;
+					if (increase) this.value++;
+					else this.value--;
+
+					if (this.value <= 0 || this.value > global.maxCoinValue) {
+						this.value = randInt(1, global.maxCoinValue);
+						this.dirtLayer = 1;
+					}
+
+					machine.setState("IDLE");
 				},
 			},
 			RISING: {
@@ -176,15 +189,15 @@ export class Coin extends SpriteClass {
 			machine: machine,
 			dirtLayer: isBuried ? 2 : 0,
 			opacity: 1,
+			doomed: false,
 			update: function(dt) {machine.dispatch("update", [dt])},
 		}, ...options));
 		
 		let self = this;
-		let value = this.value;
 
 		let text = Text({
-			text: value,
-			color: value >= 5 ? "#CDE" : "#311",
+			text: self.value,
+			color: self.value >= 5 ? "#CDE" : "#311",
 			font: 'bold 24px Arial',
 			width: settings.coinRadius * 2,
 			textAlign: "center",
@@ -192,6 +205,8 @@ export class Coin extends SpriteClass {
 			opacity: self.dirtLayer > 0 ? 0: this.opacity,
 			render: function() {
 				this.opacity = self.dirtLayer > 0 ? 0: parent.opacity;
+				this.text = self.value;
+				this.color = self.value >= 5 ? "#CDE" : "#311";
 				this.draw();
 			}
 		})
@@ -200,7 +215,7 @@ export class Coin extends SpriteClass {
 			render: function() {
 				let ctx = this.context;
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
-					"#ABC": settings.coinPalette[value-1];
+					"#ABC": settings.coinPalette[self.value-1];
 				this.opacity = parent.opacity;
 				let dim = {
 					top: -this.parent.y - 200,
@@ -234,6 +249,7 @@ export class Coin extends SpriteClass {
 	}
 
 	kill() {
+		global.grid[this.gridPos.x][this.gridPos.y] = null;
 		this.ttl = 0;
 		this.children = [];
 	}

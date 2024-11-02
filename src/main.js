@@ -5,6 +5,7 @@ import { Machine } from "./Machine.js";
 import { settings, global } from "./Global.js";
 import { GridBG } from "./gridbg.js";
 import { PowerTray } from "./powertoken.js";
+import { cursorToCell } from "./controls.js";
 
 let { canvas } = init();
 
@@ -86,10 +87,11 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	},
 	POWER: {
 		start: (power) => {
-			console.log(power);
+			console.log(global.grid);
+			if (!power) return machine.setStateAndRun("INPUT")
 			if (power.useTurn) global.remainingTurns--;
-			power.activate(null);
-			setTimeout(() => machine.setStateAndRun("POPPING"), 300);
+			power.activate(cursorToCell());
+			setTimeout(() => machine.setStateAndRun("POPPING"), power.effectDelay);
 		},
 	},
 	NEXTROUND: {

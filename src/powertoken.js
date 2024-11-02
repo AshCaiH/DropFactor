@@ -49,12 +49,11 @@ class PowerToken extends SpriteClass {
 		let machine = new Machine("UNLOCKED", {
 			LOCKED: {},
 			UNLOCKED: {
-				start: () => {					
+				start: () => {
 					this.zIndex = 0;
+					global.coins.map((coin) => coin.opacity = 1);
 				},
-				drag: () => {
-					machine.setStateAndRun("SELECT")
-				}
+				drag: () => machine.setStateAndRun("SELECT")
 			},
 			SELECT: {
 				start: () => {

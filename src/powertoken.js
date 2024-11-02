@@ -1,10 +1,11 @@
 import { Sprite, Text, SpriteClass, track, getPointer, pointerPressed, lerp } from "../node_modules/kontra/kontra.mjs";
+import { cursorInGrid } from "./controls.js";
 import { global } from "./Global.js";
 import { Machine } from "./Machine.js";
-import { Dig } from "./powers.js";
+import * as powers from "./powers.js";
 
 export class PowerTray extends SpriteClass {
-	constructor () {
+	constructor () {		
 		super({
 			x: (700 - 406) / 2,
 			y: global.boardDims.height + 10,
@@ -27,8 +28,11 @@ export class PowerTray extends SpriteClass {
 			},
 		});
 
+		let powerList = [powers.Dig, powers.Snipe, powers.Increase];
+
 		for (let i=0; i<3; i++) {
-			const token = new PowerToken(new Dig(), {
+			let p = powerList[i];
+			const token = new PowerToken(new p(), {
 				x: i * (50 + 10) + 15 + 25,
 				y: 10 + 25
 			})
@@ -45,6 +49,9 @@ class PowerToken extends SpriteClass {
 		let machine = new Machine("UNLOCKED", {
 			LOCKED: {},
 			UNLOCKED: {
+				start: () => {					
+					this.zIndex = 0;
+				},
 				drag: () => {
 					machine.setStateAndRun("SELECT")
 				}
@@ -54,6 +61,7 @@ class PowerToken extends SpriteClass {
 					initialMousePos.x = getPointer().x;
 					initialMousePos.y = getPointer().y;
 					this.zIndex = 1;
+					this.power.highlightTargets();
 					global.gameMachine.dispatch("pendPower");
 				},
 				release: () => {
@@ -61,7 +69,7 @@ class PowerToken extends SpriteClass {
 					this.y = defaultPos.y;
 					initialMousePos = {x: 0, y:0};
 					global.gameMachine.dispatch("cancel");
-					machine.setState("UNLOCKED");
+					machine.setStateAndRun("UNLOCKED");
 				},
 				update: () => {
 					let target = {};
@@ -77,17 +85,28 @@ class PowerToken extends SpriteClass {
 				release: () => {
 					machine.setStateAndRun("SNAPBACK");
 					initialMousePos = {x: 0, y:0};
-					this.zIndex = 0;
-					console.log(this.power);
-					global.gameMachine.dispatch("activate", [this.power]);
+
+					if (this.valid) global.gameMachine.dispatch("activate", [this.power]);
+					else global.gameMachine.dispatch("cancel");
+
+					this.valid = false;
 				},
 				update: () => {
 					this.x = getPointer().x - initialMousePos.x + defaultPos.x;
 					this.y = getPointer().y - initialMousePos.y + defaultPos.y;
+
+					this.valid = cursorInGrid() != null;
 				}
 			},
 			SNAPBACK: { // Animate token snapping back in place. (TODO)
-				start: () => {this.lerpPos = 0.01},
+				start: () => {
+					if (this.valid) {
+						this.x = defaultPos.x;
+						this.y = defaultPos.y;
+						machine.setStateAndRun("UNLOCKED");
+					}
+					this.lerpPos = 0.01
+				},
 				update: () => {
 					this.x = lerp(this.x, defaultPos.x, this.lerpPos);
 					this.y = lerp(this.y, defaultPos.y, this.lerpPos);
@@ -109,10 +128,11 @@ class PowerToken extends SpriteClass {
 			radius: 22,
 			anchor: {x: 0.5, y: 0.5},
 			zIndex: 0,
+			valid: false,
 			render: () => {
 				const ctx = this.context;
-				ctx.lineWidth = 3;
-				ctx.strokeStyle = "#567"
+				ctx.lineWidth = 5;
+				ctx.strokeStyle = this.valid ? "#FFF" : "#567";
 				ctx.fillStyle = "#333"
 				ctx.beginPath();
 				ctx.arc(22, 20, 25, 0, 2 * Math.PI);
@@ -133,6 +153,16 @@ class PowerToken extends SpriteClass {
 				}
 			},
 		}, options));
+
+		this.addChild(new Text({
+			color: "white",
+			text: this.power.name,
+			font: 'bold 10px Arial',
+			textAlign: "center",
+			width: 40,
+			x: -20,
+			y: -5,
+		}))
 
 		track(this);
 	}

@@ -36,9 +36,17 @@ class PowerBase {
 		this.range = ranges.board;
 		this.effect = effects.blank;
 		this.useTurn = true;
+		this.pointsRequired = 100;
+		this.filter = (coin) => true;
 	}
 
-	activate = (cellPos) => this.effect(this.range(cellPos));
+	highlightTargets = () => global.coins.map((coin) => {
+		if (!this.filter(coin)) coin.opacity = 0.3;
+	});
+	activate = (cellPos) => {
+		global.coins.map((coin) => coin.opacity = 1);
+		this.effect(this.range(cellPos));
+	}
 }
 
 export class Dig extends PowerBase {
@@ -47,6 +55,7 @@ export class Dig extends PowerBase {
 		this.description = "Remove one layer of dirt from all buried coins."
 		this.range = ranges.board;
 		this.effect = effects.dig;
+		this.filter = (coin) => coin.dirtLayer > 0;
 	}
 };
 

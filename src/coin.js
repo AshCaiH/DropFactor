@@ -6,7 +6,6 @@ import { global, settings } from "./Global.js";
 export class Coin extends SpriteClass {
 	constructor(gridX, ...options) {
 		let isBuried = 0 //randInt(1,3) === 3;
-		let opacity = 1;
 		let dropZone = null;
 
 		let machine = new Machine("DROPZONE", {
@@ -128,8 +127,8 @@ export class Coin extends SpriteClass {
 					});
 				},
 				update: (dt) => {
-					opacity -= 0.1;
-					if (opacity <= 0) {
+					this.opacity -= 0.1;
+					if (this.opacity <= 0) {
 						global.grid[this.gridPos.x][this.gridPos.y] = null;
 						machine.setState("IDLE");
 						this.kill();
@@ -176,6 +175,7 @@ export class Coin extends SpriteClass {
 			value: randInt(1,global.maxCoinValue),
 			machine: machine,
 			dirtLayer: isBuried ? 2 : 0,
+			opacity: 1,
 			update: function(dt) {machine.dispatch("update", [dt])},
 		}, ...options));
 		
@@ -189,9 +189,9 @@ export class Coin extends SpriteClass {
 			width: settings.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
-			opacity: self.dirtLayer > 0 ? 0: opacity,
+			opacity: self.dirtLayer > 0 ? 0: this.opacity,
 			render: function() {
-				this.opacity = self.dirtLayer > 0 ? 0: opacity;
+				this.opacity = self.dirtLayer > 0 ? 0: parent.opacity;
 				this.draw();
 			}
 		})
@@ -201,7 +201,7 @@ export class Coin extends SpriteClass {
 				let ctx = this.context;
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
 					"#ABC": settings.coinPalette[value-1];
-				this.opacity = opacity;
+				this.opacity = parent.opacity;
 				let dim = {
 					top: -this.parent.y - 200,
 					bottom: -this.parent.y + global.boardDims.height - settings.coinBuffer / 2,

@@ -13,3 +13,9 @@ export function cursorToCell() {
 
 	return cPos;
 }
+
+export function cursorInGrid() {
+	let pos = cursorToCell();
+	if (pos.x >= 0 && pos.x < settings.slots.x && pos.y >= 0 && pos.y < settings.slots.y) return pos;
+	else return null;
+}

@@ -149,7 +149,7 @@ export class Coin extends SpriteClass {
 			},
 			CHANGEVALUE: {
 				start: (increase=true) => {
-					if (this.dirtLayer > 0) return;
+					if (this.dirtLayer > 0) return machine.setState("IDLE");;
 					if (increase) this.value++;
 					else this.value--;
 

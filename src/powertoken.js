@@ -46,14 +46,20 @@ class PowerToken extends SpriteClass {
 	constructor (power = null, options = {}) {
 		let initialMousePos = {x: 0, y:0};
 		let defaultPos = {x: options.x, y: options.y}
-		let machine = new Machine("UNLOCKED", {
-			LOCKED: {},
+		let machine = new Machine("LOCKED", {
+			LOCKED: {
+				update: () => {
+					this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
+					if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
+				},
+				drag: () => console.log(this.meter),
+			},
 			UNLOCKED: {
 				start: () => {
 					this.zIndex = 0;
 					global.coins.map((coin) => coin.opacity = 1);
 				},
-				drag: () => machine.setStateAndRun("SELECT")
+				drag: () => machine.setStateAndRun("SELECT"),
 			},
 			SELECT: {
 				start: () => {
@@ -97,12 +103,14 @@ class PowerToken extends SpriteClass {
 					this.valid = cursorInGrid() != null;
 				}
 			},
-			SNAPBACK: { // Animate token snapping back in place. (TODO)
+			SNAPBACK: {
 				start: () => {
 					if (this.valid) {
 						this.x = defaultPos.x;
 						this.y = defaultPos.y;
-						machine.setStateAndRun("UNLOCKED");
+						this.prevScore = global.score;
+						this.meter = 0;
+						machine.setStateAndRun("LOCKED");
 					}
 					this.lerpPos = 0.01
 				},
@@ -112,7 +120,7 @@ class PowerToken extends SpriteClass {
 					if (Math.abs(this.x - defaultPos.x) < 1 && Math.abs(this.y - defaultPos.y) < 1) {
 						this.x = defaultPos.x;
 						this.y = defaultPos.y;
-						machine.setStateAndRun("UNLOCKED")
+						machine.setStateAndRun("LOCKED")
 					}
 					this.lerpPos = lerp(this.lerpPos, 1, 0.2);
 				}
@@ -122,7 +130,8 @@ class PowerToken extends SpriteClass {
 		super(Object.assign({},{
 			power: power,
 			machine: machine,
-			meter: 0,
+			meter: 1,
+			prevScore: 0,
 			stock: 0,
 			radius: 22,
 			anchor: {x: 0.5, y: 0.5},
@@ -130,14 +139,20 @@ class PowerToken extends SpriteClass {
 			valid: false,
 			render: () => {
 				const ctx = this.context;
-				ctx.lineWidth = 5;
-				ctx.strokeStyle = this.valid ? "#FFF" : "#567";
+				ctx.lineWidth = 2.5;
+				ctx.strokeStyle = this.valid ? "#FFF" : "#CCC";
 				ctx.fillStyle = "#333"
 				ctx.beginPath();
 				ctx.arc(22, 20, 25, 0, 2 * Math.PI);
 				ctx.closePath();
-				ctx.stroke();
 				ctx.fill();
+				ctx.beginPath();
+				ctx.arc(22, 20, 25, (2 * Math.PI) * -.25, (2 * Math.PI) * (this.meter - .25));
+				if (this.meter !== 1) ctx.lineTo(22,20);
+				ctx.closePath();
+				ctx.fillStyle = this.valid ? "#888" : "#555"
+				ctx.fill();
+				if (this.meter === 1) ctx.stroke();
 			},
 			onDown: () => {
 				if (global.gameMachine.state == "INPUT") this.machine.dispatch("drag");
@@ -162,6 +177,8 @@ class PowerToken extends SpriteClass {
 			x: -20,
 			y: -5,
 		}))
+
+		// global.addDebugText(machine, "state", power.name, -1);
 
 		track(this);
 	}

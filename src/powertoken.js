@@ -116,7 +116,7 @@ class PowerToken extends SpriteClass {
 					if (Math.abs(this.x - defaultPos.x) < 1 && Math.abs(this.y - defaultPos.y) < 1) {
 						this.x = defaultPos.x;
 						this.y = defaultPos.y;
-						machine.setStateAndRun("LOCKED")
+						machine.setStateAndRun("UNLOCKED")
 					}
 					this.lerpPos = lerp(this.lerpPos, 1, 0.2);
 				}
@@ -178,6 +178,8 @@ class PowerToken extends SpriteClass {
 			this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
 			if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
 		})
+
+		global.addDebugText(this.machine, "state", false, -2);
 
 		track(this);
 	}

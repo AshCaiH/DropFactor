@@ -104,7 +104,7 @@ class PowerToken extends SpriteClass {
 					if (this.valid) {
 						this.x = defaultPos.x;
 						this.y = defaultPos.y;
-						this.prevScore = global.score;
+						this.prevScore = global.score.value;
 						this.meter = 0;
 						machine.setStateAndRun("LOCKED");
 					}

@@ -58,7 +58,5 @@ export const global = {
 
 global.addDebugText(global, "remainingTurns", "Turns", 1);
 global.addDebugText(global, "combo", "Combo", 2);
-global.addDebugText(global, "cursorCellPos", "CellPos", -2);
-
 
 global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));

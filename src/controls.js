@@ -15,7 +15,7 @@ export function cursorToCell() {
 }
 
 export function cursorInGrid() {
-	let pos = cursorToCell();
+	let pos = global.cursorCellPos.value;
 	if (pos.x >= 0 && pos.x < settings.slots.x && pos.y >= 0 && pos.y < settings.slots.y) return pos;
 	else return null;
 }

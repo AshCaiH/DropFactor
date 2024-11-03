@@ -90,7 +90,7 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 			console.log(global.grid);
 			if (!power) return machine.setStateAndRun("INPUT")
 			if (power.useTurn) global.remainingTurns--;
-			power.activate(cursorToCell());
+			power.activate(global.cursorCellPos.value);
 			setTimeout(() => machine.setStateAndRun("POPPING"), power.effectDelay);
 		},
 	},

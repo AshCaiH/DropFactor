@@ -1,7 +1,6 @@
 import { SpriteClass } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 import { Machine } from "./Machine.js";
-import { cursorToCell } from "./controls.js";
 
 export class Dropzone extends SpriteClass {
 	constructor() {
@@ -68,11 +67,5 @@ export class Dropzone extends SpriteClass {
 			}
 		})
 		global.addDebugText(machine, "state", "DropZoneState", 2);
-	}
-
-	getCellPos(inGrid = true) {
-		let cellPos = cursorToCell();
-		if (cellPos.x < 0 || cellPos.x >= settings.slots.x || (inGrid && cellPos.y >= settings.slots.x)) return null;
-		else return cellPos;
 	}
 }

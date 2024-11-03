@@ -4,13 +4,25 @@ export class SignalValue {
 	oneShotEvents = [];
 	get value() {return this.myvalue};
 	set value(value) {
-		if (this.myvalue === value) return;
+		if (typeof this.myvalue == "object") {
+			let match = true;
+			Object.keys(this.myvalue).forEach(key => {
+				if (value[key] != this.myvalue[key]) {
+					this.myvalue[key] = value[key]
+					match = false;
+				}
+			});
+			if (match) return;
+		} else if (this.myvalue == value) return;
 		this.myvalue = value;
 		[...this.events, ...this.oneShotEvents].forEach(event => event());
 		this.oneShotEvents = [];
 	};
 	valueOf () {return this.myvalue};
-    toString () {return String(this.myvalue)};
+    toString () {
+		if (typeof this.myvalue == "object") return String(Object.values(this.myvalue));
+		return String(this.myvalue)
+	};
 
 	constructor (value) {
 		this.myvalue = value;

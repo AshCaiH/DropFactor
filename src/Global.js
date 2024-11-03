@@ -39,6 +39,7 @@ export const global = {
 	remainingTurns: settings.initialTurns,
 	coins: [],
 	score: new SignalValue(0),
+	cursorCellPos: new SignalValue({x: 0, y:0}),
 	combo: 1,
 	gameOver: false,
 	addDebugText: (object, value, name, order = 0) => {
@@ -57,6 +58,7 @@ export const global = {
 
 global.addDebugText(global, "remainingTurns", "Turns", 1);
 global.addDebugText(global, "combo", "Combo", 2);
+global.addDebugText(global, "cursorCellPos", "CellPos", -2);
 
 
 global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));

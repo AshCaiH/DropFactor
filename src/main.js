@@ -173,6 +173,7 @@ function update() {
 	camera.update();
 	camera.children.sort((a, b) => a.zIndex > b.zIndex || (a.zIndex && !b.zIndex));
 	machine.dispatch("update");
+	global.cursorCellPos.value = cursorToCell()
 }
 
 let loop = GameLoop({

@@ -74,7 +74,7 @@ export class Coin extends SpriteClass {
 						let hCheck = this.machine.dispatch("checkHorizontal");
 						if (vCheck.length > 0 || hCheck.length > 0 || this.doomed) {
 							global.bg.lightup(vCheck.concat(hCheck));
-							global.score += 1 * global.combo;
+							global.score.value += 1 * global.combo;
 							this.parent.addChild(new Particles(
 								{
 									preset: presets.popping,

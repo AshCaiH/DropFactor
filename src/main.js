@@ -72,8 +72,6 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 			global.coins = global.coins.filter((coin) => coin.isAlive());
 			let finished = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length === 0;
 
-			console.log(global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length);
-
 			if (finished) {
 				if (changes > 0) {
 					machine.setStateAndRun("DROPPING");
@@ -92,7 +90,7 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 			console.log(global.grid);
 			if (!power) return machine.setStateAndRun("INPUT")
 			if (power.useTurn) global.remainingTurns--;
-			power.activate(cursorToCell());
+			power.activate(global.cursorCellPos.value);
 			setTimeout(() => machine.setStateAndRun("POPPING"), power.effectDelay);
 		},
 	},
@@ -175,6 +173,7 @@ function update() {
 	camera.update();
 	camera.children.sort((a, b) => a.zIndex > b.zIndex || (a.zIndex && !b.zIndex));
 	machine.dispatch("update");
+	global.cursorCellPos.value = cursorToCell()
 }
 
 let loop = GameLoop({

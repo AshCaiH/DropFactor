@@ -1,7 +1,6 @@
 import { SpriteClass } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 import { Machine } from "./Machine.js";
-import { cursorToCell } from "./controls.js";
 
 export class Dropzone extends SpriteClass {
 	constructor() {
@@ -9,19 +8,15 @@ export class Dropzone extends SpriteClass {
 		
 		let machine = new Machine("INPUT", {
 			INPUT: {
-				start: () => {
-					this.opacity = 0.6
-					let cellPos = this.getCellPos();
-					if (cellPos) this.xPos = cellPos.x;
-					else machine.setStateAndRun("INACTIVE");
-				},
-				update: () => {
-					let cellPos = this.getCellPos();
-					if (cellPos) this.xPos = cellPos.x;
-					else machine.setStateAndRun("INACTIVE");
-				},
+				start: () => this.opacity = 0.6,
 				prime: () => machine.setStateAndRun("PRIMED"),
+				lock: () => lock(),
+				inactive: () => machine.setStateAndRun("INACTIVE"),
+			},
+			INACTIVE: {
+				start: () => this.opacity = 0,
 				lock: () => lock(machine.setStateAndRun("LOCKED")),
+				active: () => machine.setStateAndRun("INPUT"),
 			},
 			PRIMED: {
 				start: () => this.opacity = 1,
@@ -31,37 +26,16 @@ export class Dropzone extends SpriteClass {
 					lock();
 					return true;
 				},
-				update: () => {
-					let cellPos = this.getCellPos(false);
-					if (cellPos) this.xPos = cellPos.x;
-					else machine.setStateAndRun("PRIMED_INACTIVE");
-				},
+				inactive: () => machine.setStateAndRun("PRIMED_INACTIVE"),
 			},
 			PRIMED_INACTIVE: {
 				start: () => this.opacity = 0.3,
-				update: () => {
-					let cellPos = this.getCellPos(false);
-					if (cellPos) {
-						this.xPos = cellPos.x;
-						machine.setStateAndRun("PRIMED");
-					}
-				},
 				drop: () => machine.setStateAndRun("INPUT"),
+				active: () => machine.setStateAndRun("ACTIVE"),
 			},
 			LOCKED: {
 				start: () => this.opacity = 0,
 				unlock: () => machine.setStateAndRun("INPUT")
-			},
-			INACTIVE: {
-				start: () => this.opacity = 0,
-				update: () => {
-					let cellPos = this.getCellPos();
-					if (cellPos) {
-						this.xPos = cellPos.x;
-						machine.setStateAndRun("INPUT");
-					}
-				},				
-				lock: () => lock(machine.setStateAndRun("LOCKED")),
 			},
 		});
 
@@ -83,17 +57,15 @@ export class Dropzone extends SpriteClass {
 			},
 		});
 
+		global.cursorCellPos.listen(() => {
+			let cellPos = global.cursorCellPos.value;
+			if (cellPos.x < 0 || cellPos.x >= settings.slots.x || cellPos.y >= settings.slots.y)
+				this.machine.dispatch("inactive");
+			else {
+				this.machine.dispatch("active");
+				this.xPos = cellPos.x;
+			}
+		})
 		global.addDebugText(machine, "state", "DropZoneState", 2);
-	}
-
-	getCellPos(inGrid = true) {
-		let cellPos = cursorToCell();
-		if (cellPos.x < 0 || cellPos.x >= settings.slots.x || (inGrid && cellPos.y >= settings.slots.x)) return null;
-		else return cellPos;
-	}
-
-	update (dt) {
-		super.update(dt);
-		this.machine.dispatch("update");
 	}
 }

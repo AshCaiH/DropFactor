@@ -48,10 +48,6 @@ class PowerToken extends SpriteClass {
 		let defaultPos = {x: options.x, y: options.y}
 		let machine = new Machine("LOCKED", {
 			LOCKED: {
-				update: () => {
-					this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
-					if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
-				},
 				drag: () => console.log(this.meter),
 			},
 			UNLOCKED: {
@@ -178,7 +174,10 @@ class PowerToken extends SpriteClass {
 			y: -5,
 		}))
 
-		// global.addDebugText(machine, "state", power.name, -1);
+		global.score.listen(() => {
+			this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
+			if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
+		})
 
 		track(this);
 	}

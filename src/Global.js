@@ -1,3 +1,5 @@
+import { SignalValue } from "./signalValue.js";
+
 export const settings = {
     // Board
     slots: {x: 7, y:7},
@@ -36,7 +38,7 @@ export const global = {
 	coinWeights: null,
 	remainingTurns: settings.initialTurns,
 	coins: [],
-	score: 0,
+	score: new SignalValue(0),
 	combo: 1,
 	gameOver: false,
 	addDebugText: (object, value, name, order = 0) => {

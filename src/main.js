@@ -72,8 +72,6 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 			global.coins = global.coins.filter((coin) => coin.isAlive());
 			let finished = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length === 0;
 
-			console.log(global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length);
-
 			if (finished) {
 				if (changes > 0) {
 					machine.setStateAndRun("DROPPING");

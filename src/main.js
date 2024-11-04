@@ -6,6 +6,7 @@ import { settings, global } from "./Global.js";
 import { GridBG } from "./gridbg.js";
 import { PowerTray } from "./powertoken.js";
 import { cursorToCell } from "./controls.js";
+import { PowerCursor } from "./powerCursor.js";
 
 let { canvas } = init();
 
@@ -165,8 +166,10 @@ let score = Text({
 	update: () => {score.text = `${global.score}`}
 })
 
+let powerCursor = global.powerCursor = new PowerCursor();
+
 global.addDebugText(machine, "state", null, 3)
-camera.addChild(debugText, score, new PowerTray());
+camera.addChild(debugText, score, new PowerTray(), powerCursor);
 machine.dispatch("start");
 
 function update() {

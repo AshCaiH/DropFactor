@@ -1,6 +1,6 @@
 import { Sprite, Text, SpriteClass, track, getPointer, pointerPressed, lerp } from "../node_modules/kontra/kontra.mjs";
 import { cursorInGrid } from "./controls.js";
-import { global } from "./Global.js";
+import { global, settings } from "./Global.js";
 import { Machine } from "./Machine.js";
 import * as powers from "./powers.js";
 
@@ -96,11 +96,15 @@ class PowerToken extends SpriteClass {
 					this.x = getPointer().x - initialMousePos.x + defaultPos.x;
 					this.y = getPointer().y - initialMousePos.y + defaultPos.y;
 
+					
 					this.valid = cursorInGrid() != null;
+					if (this.valid) global.powerCursor.targets = this.power.range(global.cursorCellPos.value)
+					else global.powerCursor.targets = [];
 				}
 			},
 			SNAPBACK: {
 				start: () => {
+					global.powerCursor.targets = [];
 					if (this.valid) {
 						this.x = defaultPos.x;
 						this.y = defaultPos.y;
@@ -175,7 +179,8 @@ class PowerToken extends SpriteClass {
 		}))
 
 		global.score.listen(() => {
-			this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
+			if (settings.freePowers) this.meter = 1;
+			else this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
 			if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
 		})
 

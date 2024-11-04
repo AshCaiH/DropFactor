@@ -59,7 +59,7 @@ class PowerBase {
 		this.range = ranges.board;
 		this.effect = effects.blank;
 		this.useTurn = true;
-		this.pointsRequired = 100;
+		this.pointsRequired = 0;
 		this.filter = (coin) => true;
 		this.effectDelay = 300;
 	}
@@ -90,7 +90,7 @@ export class Snipe extends PowerBase {
 		this.range = ranges.cell;
 		this.effect = effects.destroy;
 		this.effectDelay = 0;
-		this.pointsRequired = 50;
+		this.pointsRequired = 0;
 	}
 };
 
@@ -101,6 +101,6 @@ export class Increase extends PowerBase {
 		this.range = ranges.row;
 		this.effect = effects.increase;
 		this.filter = (coin) => coin.dirtLayer === 0;
-		this.pointsRequired = 80;
+		this.pointsRequired = 0;
 	}
 };

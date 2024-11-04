@@ -21,6 +21,8 @@ export const settings = {
 	comboStyle: 1, // 0: No combo, 1: Points x Combo, 2: Points x Combo² (Unused)
 	weightCoins: true,
 	dirtCoins: false,
+
+	freePowers: true,
 };
 
 let debugText = [];

@@ -10,8 +10,8 @@ export class Dropzone extends SpriteClass {
 			ACTIVE: {
 				start: () => {
 					if (global.isInGrid(global.cursorCellPos.value, true)) {
-						this.opacity = 0.6
-						global.cursorCellPos.value.x 
+						this.opacity = 0.6;
+						this.xPos = global.cursorCellPos.value.x;
 					} else machine.run("inactive");
 				},
 				prime: () => machine.setStateAndRun("PRIMED_ACTIVE"),

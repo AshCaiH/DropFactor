@@ -22,7 +22,7 @@ export const settings = {
 	weightCoins: true,
 	dirtCoins: false,
 
-	freePowers: true,
+	freePowers: false,
 };
 
 let debugText = [];

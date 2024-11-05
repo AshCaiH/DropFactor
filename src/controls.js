@@ -1,9 +1,9 @@
 import { getPointer, onKey, onPointer } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 
-onPointer('down', function(e) {global.gameMachine.dispatch("prime");});
-onPointer('up', function(e) {global.gameMachine.dispatch("drop");});
-onKey('p', function(e) {global.gameMachine.dispatch("power")});
+onPointer('down', function(e) {global.gameMachine.run("prime");});
+onPointer('up', function(e) {global.gameMachine.run("drop");});
+onKey('p', function(e) {global.gameMachine.run("power")});
 
 export function cursorToCell() {
 	const cPos = (({ x, y }) => ({ x, y }))(getPointer());

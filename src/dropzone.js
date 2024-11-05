@@ -12,7 +12,7 @@ export class Dropzone extends SpriteClass {
 					if (global.isInGrid(global.cursorCellPos.value, true)) {
 						this.opacity = 0.6
 						global.cursorCellPos.value.x 
-					} else machine.dispatch("inactive");
+					} else machine.run("inactive");
 				},
 				prime: () => machine.setStateAndRun("PRIMED_ACTIVE"),
 				lock: () => lock(),
@@ -64,10 +64,10 @@ export class Dropzone extends SpriteClass {
 
 		global.cursorCellPos.listen(() => {
 			if (global.isInGrid(global.cursorCellPos.value, true)) {
-				this.machine.dispatch("active");
+				this.machine.run("active");
 				if (this.machine.state != "LOCKED")
 					this.xPos = global.cursorCellPos.value.x;
-			} else this.machine.dispatch("inactive")	
+			} else this.machine.run("inactive")	
 		})
 		global.addDebugText(machine, "state", "DropZoneState", 2);
 	}

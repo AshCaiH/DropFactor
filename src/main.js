@@ -24,25 +24,25 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 				machine.setStateAndRun("GAMEOVER");
 				return;
 			}
-			dropZone.machine.dispatch("unlock");
+			dropZone.machine.run("unlock");
 
 			if (!dropZone.coin) {
 				let coin = randomCoin(dropZone.x);
 				dropZone.coin = coin;
-				coin.machine.dispatch("start", [dropZone]);
+				coin.machine.run("start", [dropZone]);
 				camera.addChild(coin);
 			};
 		},
 		prime: () => {
-			dropZone.machine.dispatch("prime")
+			dropZone.machine.run("prime")
 		},
 		drop: () => {
-			if (!dropZone.machine.dispatch("drop")) return;
+			if (!dropZone.machine.run("drop")) return;
 			global.remainingTurns--;
 			machine.setStateAndRun("DROPPING");
 		},
 		pendPower: () => {
-			dropZone.machine.dispatch("lock")
+			dropZone.machine.run("lock")
 			machine.setStateAndRun("POWERPENDING")
 		},
 		power: (power) => {
@@ -53,7 +53,7 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	DROPPING: {
 		start: () => {
 			global.coins.sort((a,b) => a.gridPos.y < b.gridPos.y); 
-			global.coins.map((coin) => {coin.machine.dispatch("drop")});
+			global.coins.map((coin) => {coin.machine.run("drop")});
 			changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;
 		},
 		update: () => {
@@ -66,7 +66,7 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	},
 	POPPING: {
 		start: () => {
-			global.coins.map((coin) => {coin.machine.dispatch("pop")});
+			global.coins.map((coin) => {coin.machine.run("pop")});
 			changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 		},
 		update: () => {
@@ -132,7 +132,7 @@ let machine = global.gameMachine = new Machine("NEXTROUND", {
 	},
 	GAMEOVER: {
 		start: () => {
-			dropZone.machine.dispatch("lock");
+			dropZone.machine.run("lock");
 		}
 	},
 });
@@ -170,12 +170,12 @@ let powerCursor = global.powerCursor = new PowerCursor();
 
 global.addDebugText(machine, "state", null, 3)
 camera.addChild(debugText, score, new PowerTray(), powerCursor);
-machine.dispatch("start");
+machine.run("start");
 
 function update() {
 	camera.update();
 	camera.children.sort((a, b) => a.zIndex > b.zIndex || (a.zIndex && !b.zIndex));
-	machine.dispatch("update");
+	machine.run("update");
 	global.cursorCellPos.value = cursorToCell()
 }
 

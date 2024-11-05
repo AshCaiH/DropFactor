@@ -63,13 +63,13 @@ class PowerToken extends SpriteClass {
 					initialMousePos.y = getPointer().y;
 					this.zIndex = 1;
 					this.power.highlightTargets();
-					global.gameMachine.dispatch("pendPower");
+					global.gameMachine.run("pendPower");
 				},
 				release: () => {
 					this.x = defaultPos.x;
 					this.y = defaultPos.y;
 					initialMousePos = {x: 0, y:0};
-					global.gameMachine.dispatch("cancel");
+					global.gameMachine.run("cancel");
 					machine.setStateAndRun("UNLOCKED");
 				},
 				update: () => {
@@ -87,8 +87,8 @@ class PowerToken extends SpriteClass {
 					machine.setStateAndRun("SNAPBACK");
 					initialMousePos = {x: 0, y:0};
 
-					if (this.valid) global.gameMachine.dispatch("activate", [this.power]);
-					else global.gameMachine.dispatch("cancel");
+					if (this.valid) global.gameMachine.run("activate", [this.power]);
+					else global.gameMachine.run("cancel");
 
 					this.valid = false;
 				},
@@ -155,15 +155,15 @@ class PowerToken extends SpriteClass {
 				if (this.meter === 1) ctx.stroke();
 			},
 			onDown: () => {
-				if (global.gameMachine.state == "INPUT") this.machine.dispatch("drag");
+				if (global.gameMachine.state == "INPUT") this.machine.run("drag");
 			},
 			onOver: () => {},
 			onOut: () => {},
 			update: () => {
 				this.advance();
-				this.machine.dispatch("update");
+				this.machine.run("update");
 				if (!pointerPressed('left')){
-					this.machine.dispatch("release");
+					this.machine.run("release");
 				}
 			},
 		}, options));

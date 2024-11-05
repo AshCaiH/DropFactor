@@ -7,7 +7,7 @@ export class Machine {
 		});
 	}
 
-	dispatch(actionName, ...payload) {
+	run(actionName, ...payload) {
 		const actions = this.transitions[this.state];
 		const action = this.transitions[this.state][actionName];
 
@@ -18,6 +18,6 @@ export class Machine {
 
 	setStateAndRun(newState, actionName = "start", ...payload) {
 		this.state = newState;
-		this.dispatch(actionName, ...payload);
+		this.run(actionName, ...payload);
 	}
 }

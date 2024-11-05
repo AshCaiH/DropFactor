@@ -56,22 +56,22 @@ const effects = Object.freeze({
 	blank: (targets) => {console.log("Power does nothing")},
 	dig: (targets) => {
 		targets.forEach(coin => {
-			coin.machine.dispatch("crumble");
+			coin.machine.run("crumble");
 		});
 	},
 	destroy: (targets) => {
 		targets.forEach(coin => {
-			coin.machine.dispatch("snipe");
+			coin.machine.run("snipe");
 		});
 	},
 	increase: (targets) => {
 		targets.forEach(coin => {
-			coin.machine.dispatch("changeValue", [true]);
+			coin.machine.run("changeValue", [true]);
 		});
 	},
 	decrease: (targets) => {
 		targets.forEach(coin => {
-			coin.machine.dispatch("changeValue", [false]);
+			coin.machine.run("changeValue", [false]);
 		});
 	},
 });

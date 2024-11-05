@@ -70,8 +70,8 @@ export class Coin extends SpriteClass {
 				start: () => {
 					if (this.dirtLayer > 0 && !this.doomed) machine.setState("IDLE");
 					else {
-						let vCheck = this.machine.dispatch("checkVertical");
-						let hCheck = this.machine.dispatch("checkHorizontal");
+						let vCheck = this.machine.run("checkVertical");
+						let hCheck = this.machine.run("checkHorizontal");
 						if (vCheck.length > 0 || hCheck.length > 0 || this.doomed) {
 							global.bg.lightup(vCheck.concat(hCheck));
 							global.score.value += 1 * global.combo;
@@ -87,7 +87,7 @@ export class Coin extends SpriteClass {
 									h: hCheck,
 								}
 							));
-							if (!this.doomed) this.machine.dispatch("breakSurrounding");
+							if (!this.doomed) this.machine.run("breakSurrounding");
 							return true;
 						} else machine.setState("IDLE");
 					}
@@ -123,7 +123,7 @@ export class Coin extends SpriteClass {
 						if (checkPos.x < 0 || checkPos.x >= settings.slots.x) return;
 						else if (checkPos.y < 0 || checkPos.y >= settings.slots.y) return;
 						let adjacent = global.grid[checkPos.x][checkPos.y]
-						if (adjacent) adjacent.machine.dispatch("crumble");
+						if (adjacent) adjacent.machine.run("crumble");
 					});
 				},
 				update: (dt) => {
@@ -190,7 +190,7 @@ export class Coin extends SpriteClass {
 			dirtLayer: isBuried ? 2 : 0,
 			opacity: 1,
 			doomed: false,
-			update: function(dt) {machine.dispatch("update", [dt])},
+			update: function(dt) {machine.run("update", [dt])},
 		}, ...options));
 		
 		let self = this;

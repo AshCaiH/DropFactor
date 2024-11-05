@@ -59,14 +59,15 @@ export const globalInit = () => {
 			});
 			return string;
 		},
+		resetDebugText: () => debugText = [],
 		isInGrid: (pos, canBeAbove = false) => 
 			!(pos.x < 0 || pos.x >= settings.slots.x 
 				|| (!canBeAbove && pos.y < 0 ) || pos.y >= settings.slots.y)
 	}
 
 	global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));
-}
 
-globalInit();
-global.addDebugText(global, "remainingTurns", "Turns", 1);
-global.addDebugText(global, "combo", "Combo", 2);
+	global.resetDebugText();
+	global.addDebugText(global, "remainingTurns", "Turns", 1);
+	global.addDebugText(global, "combo", "Combo", 2);
+}

@@ -2,7 +2,7 @@ import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from
 import { Coin, randomCoin } from "./coin.js";
 import { Dropzone } from "./dropzone.js";
 import { Machine } from "./Machine.js";
-import { settings, global } from "./Global.js";
+import { settings, global, globalInit } from "./Global.js";
 import { GridBG } from "./gridbg.js";
 import { PowerTray } from "./powertoken.js";
 import { cursorToCell } from "./controls.js";
@@ -13,8 +13,11 @@ let { canvas } = init();
 initPointer();
 initKeys();
 
-class Game {
+export class Game {
 	constructor() {		
+		globalInit();
+
+		this.dropZone = new Dropzone();
 		this.changes = null;
 		this.gridBg = global.bg = new GridBG();
 		this.powerCursor = global.powerCursor = new PowerCursor();
@@ -138,7 +141,7 @@ class Game {
 				}
 			},
 		});
-		let {changes, machine, camera} = this;
+		let {changes, machine, camera, dropZone} = this;
 
 		this.camera = global.camera = GameObject({
 			x: 700 / 2 - (settings.coinRadius + settings.coinBuffer) * (settings.slots.x - 1) + settings.coinBuffer / 2,
@@ -186,12 +189,16 @@ class Game {
 	}
 }
 
-let dropZone = new Dropzone();
-let game = new Game();
+export let game = {
+	game: new Game(),
+};
 
 let loop = GameLoop({
-	update: (dt) => game.update(dt),
-	render: () => game.camera.render(),
+	update: (dt) => {
+		if (game.game != null)
+			game.game.update(dt)
+	},
+	render: () => game.game.camera.render(),
 });
 
 loop.start();

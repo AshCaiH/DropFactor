@@ -27,41 +27,47 @@ export const settings = {
 
 let debugText = [];
 
-export const global = {
-	gameMachine: null,
-	camera: null,
-	bg: null,
-	grid: Array.from({ length:settings.slots.x }, i => Array.from({ length:settings.slots.y }, i => null)),
-	boardDims: {
-		height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
-		width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
-	},
-	maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
-	coinWeights: null,
-	remainingTurns: settings.initialTurns,
-	coins: [],
-	score: new SignalValue(0),
-	cursorCellPos: new SignalValue({x: 0, y:0}),
-	combo: 1,
-	gameOver: false,
-	addDebugText: (object, value, name, order = 0) => {
-		debugText.push({name: name || "", object: object, value: value, order: order});		
-		debugText.sort((a, b) => {return a.order > b.order});
-	},
-	getDebugText: (delineator = "\n") => {
-		let string = "";
-		debugText.forEach((dbug, i) => {
-			string = string.concat(dbug.name, dbug.name && ": ", dbug.object[dbug.value])
-			if (i != debugText.length - 1) string = string.concat(delineator);
-		});
-		return string;
-	},
-	isInGrid: (pos, canBeAbove = false) => 
-		!(pos.x < 0 || pos.x >= settings.slots.x 
-			|| (!canBeAbove && pos.y < 0 ) || pos.y >= settings.slots.y)
+export let global = {}
+
+export const globalInit = () => {
+	global = {
+		gameMachine: null,
+		camera: null,
+		bg: null,
+		grid: Array.from({ length:settings.slots.x }, i => Array.from({ length:settings.slots.y }, i => null)),
+		boardDims: {
+			height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
+			width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
+		},
+		maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
+		coinWeights: null,
+		remainingTurns: settings.initialTurns,
+		coins: [],
+		score: new SignalValue(0),
+		cursorCellPos: new SignalValue({x: 0, y:0}),
+		combo: 1,
+		gameOver: false,
+		addDebugText: (object, value, name, order = 0) => {
+			debugText.push({name: name || "", object: object, value: value, order: order});		
+			debugText.sort((a, b) => {return a.order > b.order});
+		},
+		getDebugText: (delineator = "\n") => {
+			let string = "";
+			debugText.forEach((dbug, i) => {
+				string = string.concat(dbug.name, dbug.name && ": ", dbug.object[dbug.value])
+				if (i != debugText.length - 1) string = string.concat(delineator);
+			});
+			return string;
+		},
+		resetDebugText: () => debugText = [],
+		isInGrid: (pos, canBeAbove = false) => 
+			!(pos.x < 0 || pos.x >= settings.slots.x 
+				|| (!canBeAbove && pos.y < 0 ) || pos.y >= settings.slots.y)
+	}
+
+	global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));
+
+	global.resetDebugText();
+	global.addDebugText(global, "remainingTurns", "Turns", 1);
+	global.addDebugText(global, "combo", "Combo", 2);
 }
-
-global.addDebugText(global, "remainingTurns", "Turns", 1);
-global.addDebugText(global, "combo", "Combo", 2);
-
-global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));

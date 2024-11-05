@@ -6,19 +6,19 @@ export class Dropzone extends SpriteClass {
 	constructor() {
 		let lock = () => machine.setStateAndRun("LOCKED");
 		
-		let machine = new Machine("INPUT", {
-			INPUT: {
+		let machine = new Machine("ACTIVE", {
+			ACTIVE: {
 				start: () => this.opacity = 0.6,
-				prime: () => machine.setStateAndRun("PRIMED"),
+				prime: () => machine.setStateAndRun("PRIMED_ACTIVE"),
 				lock: () => lock(),
 				inactive: () => machine.setStateAndRun("INACTIVE"),
 			},
 			INACTIVE: {
 				start: () => this.opacity = 0,
 				lock: () => lock(machine.setStateAndRun("LOCKED")),
-				active: () => machine.setStateAndRun("INPUT"),
+				active: () => machine.setStateAndRun("ACTIVE"),
 			},
-			PRIMED: {
+			PRIMED_ACTIVE: {
 				start: () => this.opacity = 1,
 				drop: () => {
 					global.coins.push(this.coin);
@@ -30,12 +30,12 @@ export class Dropzone extends SpriteClass {
 			},
 			PRIMED_INACTIVE: {
 				start: () => this.opacity = 0.3,
-				drop: () => machine.setStateAndRun("INPUT"),
+				drop: () => machine.setStateAndRun("ACTIVE"),
 				active: () => machine.setStateAndRun("ACTIVE"),
 			},
 			LOCKED: {
 				start: () => this.opacity = 0,
-				unlock: () => machine.setStateAndRun("INPUT")
+				unlock: () => machine.setStateAndRun("ACTIVE")
 			},
 		});
 

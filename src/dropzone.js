@@ -8,7 +8,12 @@ export class Dropzone extends SpriteClass {
 		
 		let machine = new Machine("ACTIVE", {
 			ACTIVE: {
-				start: () => this.opacity = 0.6,
+				start: () => {
+					if (global.isInGrid(global.cursorCellPos.value, true)) {
+						this.opacity = 0.6
+						global.cursorCellPos.value.x 
+					} else machine.dispatch("inactive");
+				},
 				prime: () => machine.setStateAndRun("PRIMED_ACTIVE"),
 				lock: () => lock(),
 				inactive: () => machine.setStateAndRun("INACTIVE"),
@@ -31,7 +36,7 @@ export class Dropzone extends SpriteClass {
 			PRIMED_INACTIVE: {
 				start: () => this.opacity = 0.3,
 				drop: () => machine.setStateAndRun("ACTIVE"),
-				active: () => machine.setStateAndRun("ACTIVE"),
+				active: () => machine.setStateAndRun("PRIMED_ACTIVE"),
 			},
 			LOCKED: {
 				start: () => this.opacity = 0,
@@ -58,13 +63,11 @@ export class Dropzone extends SpriteClass {
 		});
 
 		global.cursorCellPos.listen(() => {
-			let cellPos = global.cursorCellPos.value;
-			if (cellPos.x < 0 || cellPos.x >= settings.slots.x || cellPos.y >= settings.slots.y)
-				this.machine.dispatch("inactive");
-			else {
+			if (global.isInGrid(global.cursorCellPos.value, true)) {
 				this.machine.dispatch("active");
-				this.xPos = cellPos.x;
-			}
+				if (this.machine.state != "LOCKED")
+					this.xPos = global.cursorCellPos.value.x;
+			} else this.machine.dispatch("inactive")	
 		})
 		global.addDebugText(machine, "state", "DropZoneState", 2);
 	}

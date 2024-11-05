@@ -22,7 +22,7 @@ export const settings = {
 	weightCoins: true,
 	dirtCoins: false,
 
-	freePowers: false,
+	freePowers: true,
 };
 
 let debugText = [];
@@ -56,6 +56,9 @@ export const global = {
 		});
 		return string;
 	},
+	isInGrid: (pos, canBeAbove = false) => 
+		!(pos.x < 0 || pos.x >= settings.slots.x 
+			|| (!canBeAbove && pos.y < 0 ) || pos.y >= settings.slots.y)
 }
 
 global.addDebugText(global, "remainingTurns", "Turns", 1);

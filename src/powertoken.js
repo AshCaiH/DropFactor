@@ -184,7 +184,7 @@ class PowerToken extends SpriteClass {
 			if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
 		})
 
-		global.addDebugText(this.machine, "state", false, -2);
+		// global.addDebugText(this.machine, "state", false, -2);
 
 		track(this);
 	}

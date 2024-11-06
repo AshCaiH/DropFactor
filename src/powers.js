@@ -92,7 +92,7 @@ class PowerBase {
 		if (!this.filter(coin)) coin.opacity = 0.3;
 	});
 	activate = (cellPos) => {
-		global.coins.map((coin) => coin.opacity = 1);
+		global.coins.forEach((coin) => coin.opacity = 1);
 		this.effect(this.range(cellPos));
 	}
 }

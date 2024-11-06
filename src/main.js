@@ -40,6 +40,7 @@ export class Game {
 				},
 				prime: () => {
 					dropZone.machine.run("prime")
+					this.camera.children = this.camera.children.filter((child) => child.ttl > 0);
 				},
 				drop: () => {
 					if (!dropZone.machine.run("drop")) return;
@@ -58,8 +59,8 @@ export class Game {
 			},
 			DROPPING: {
 				start: () => {
-					global.coins.sort((a,b) => a.gridPos.y < b.gridPos.y); 
-					global.coins.map((coin) => {coin.machine.run("drop")});
+					global.coins.sort((a,b) => a.gridPos.y < b.gridPos.y ? 1 : -1); 
+					global.coins.forEach((coin) => {coin.machine.run("drop")});
 					changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;
 				},
 				update: () => {
@@ -72,7 +73,7 @@ export class Game {
 			},
 			POPPING: {
 				start: () => {
-					global.coins.map((coin) => {coin.machine.run("pop")});
+					global.coins.forEach((coin) => {coin.machine.run("pop")});
 					changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
 				},
 				update: () => {
@@ -107,7 +108,7 @@ export class Game {
 					else {
 						let nextState = settings.roundMode == "rise" ? "RISING" : "DROPPING";
 						global.remainingTurns = settings.turnsInRound;
-						global.coins.map(coin => {
+						global.coins.forEach(coin => {
 							coin.machine.setStateAndRun(nextState);
 						});
 						let prevValue = null;
@@ -170,6 +171,7 @@ export class Game {
 		})
 
 		global.addDebugText(machine, "state", null, 3)
+		// global.addDebugText(this.camera.children, "length", null, 0)
 		this.camera.addChild(
 			dropZone,
 			this.gridBg,
@@ -183,7 +185,7 @@ export class Game {
 
 	update() {
 		this.camera.update();
-		this.camera.children.sort((a, b) => a.zIndex > b.zIndex || (a.zIndex && !b.zIndex));
+		this.camera.children.sort((a, b) => (a.zIndex || 0) > (b.zIndex || 0)  ? 1 : -1);
 		this.machine.run("update");
 		global.cursorCellPos.value = cursorToCell()
 	}

@@ -49,6 +49,7 @@ export class Dropzone extends SpriteClass {
 			opacity: 1,
 			machine: machine,
 			coin: null,
+			zIndex: -1,
 			render: () => {
 				let dims = {x: -settings.coinBuffer / 2 + this.xPos * (settings.coinRadius * 2 + settings.coinBuffer),
 							y: -settings.coinBuffer / 2,

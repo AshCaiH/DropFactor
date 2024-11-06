@@ -91,5 +91,6 @@ export class Particles extends SpriteClass {
 	update() {
 		super.update();
 		this.children = this.children.filter(child => child.ttl > 0);
+		if (this.children.length == 0) this.ttl = 0;
 	}
 }

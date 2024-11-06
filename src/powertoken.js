@@ -9,7 +9,7 @@ export class PowerTray extends SpriteClass {
 		super({
 			x: (700 - 406) / 2,
 			y: global.boardDims.height + 10,
-			zIndex: 100,
+			zIndex: 50,
 			powerSlots: [],
 			render: () => {
 				const ctx = this.context;
@@ -22,9 +22,6 @@ export class PowerTray extends SpriteClass {
 					ctx.closePath();
 					ctx.stroke();
 				})
-			},
-			update: () => {
-				this.children.sort((a,b) => {return a.zIndex > b.zIndex}); 
 			},
 		});
 
@@ -52,7 +49,6 @@ class PowerToken extends SpriteClass {
 			},
 			UNLOCKED: {
 				start: () => {
-					this.zIndex = 0;
 					global.coins.map((coin) => coin.opacity = 1);
 				},
 				drag: () => machine.setStateAndRun("SELECT"),
@@ -61,7 +57,7 @@ class PowerToken extends SpriteClass {
 				start: () => {
 					initialMousePos.x = getPointer().x;
 					initialMousePos.y = getPointer().y;
-					this.zIndex = 1;
+					this.parent.children.sort((a,b) => a === this ? 1 : -1)
 					this.power.highlightTargets();
 					global.gameMachine.run("pendPower");
 				},
@@ -135,7 +131,6 @@ class PowerToken extends SpriteClass {
 			stock: 0,
 			radius: 22,
 			anchor: {x: 0.5, y: 0.5},
-			zIndex: 0,
 			valid: false,
 			render: () => {
 				const ctx = this.context;
@@ -183,8 +178,6 @@ class PowerToken extends SpriteClass {
 			else this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
 			if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
 		})
-
-		// global.addDebugText(this.machine, "state", false, -2);
 
 		track(this);
 	}

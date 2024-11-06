@@ -57,8 +57,8 @@ export class Coin extends SpriteClass {
 
 					return true;
 				},
-				update: (dt) => {
-					this.advance(dt)
+				update: () => {
+					this.advance()
 					this.dy *= settings.fallAccel;
 					let targetPos = this.gridPos.y * (settings.coinRadius * 2 + settings.coinBuffer);
 					if (this.y > targetPos) {
@@ -127,7 +127,7 @@ export class Coin extends SpriteClass {
 						if (adjacent) adjacent.machine.run("crumble");
 					});
 				},
-				update: (dt) => {
+				update: () => {
 					this.opacity -= 0.1;
 					if (this.opacity <= 0) {
 						machine.setState("IDLE");
@@ -206,7 +206,7 @@ export class Coin extends SpriteClass {
 			dirtLayer: isBuried ? 2 : 0,
 			opacity: 1,
 			doomed: false,
-			update: function(dt) {machine.run("update", [dt])},
+			update: () => machine.run("update"),
 		}, ...options));
 		
 		let self = this;

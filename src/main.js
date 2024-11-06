@@ -214,9 +214,9 @@ export let game = {
 };
 
 let loop = GameLoop({
-	update: (dt) => {
+	update: () => {
 		if (game.game != null)
-			game.game.update(dt)
+			game.game.update()
 	},
 	render: () => game.game.camera.render(),
 });

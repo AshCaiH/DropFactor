@@ -20,6 +20,7 @@ export class Coin extends SpriteClass {
 					this.doomed = true;
 				},
 				changeValue: (increase = true) => machine.setStateAndRun("CHANGEVALUE", "start", [increase]),
+				restart: () => machine.setStateAndRun("RESTARTING"),
 			},
 			DROPZONE: {
 				start: (dz) => {
@@ -50,7 +51,7 @@ export class Coin extends SpriteClass {
 
 					if (this.gridPos.y == -1) {
 						global.gameOver = true;
-						machine.setState("OOB");
+						// machine.setState("OOB");
 					}
 					else machine.setState("DROPPING");
 
@@ -174,6 +175,21 @@ export class Coin extends SpriteClass {
 						this.machine.setState("IDLE");
 						this.y = target;
 					}
+				},
+			},
+			RESTARTING: {
+				start: () => {
+					this.parent.addChild(new Particles(
+						{
+							preset: presets.popping,
+							x: this.x + settings.coinRadius,
+							y: this.y + settings.coinRadius,
+						}, 
+						{
+							color: settings.coinPalette[self.value-1],
+						}
+					));
+					this.kill();
 				},
 			},
 			POWERPENDING: {},

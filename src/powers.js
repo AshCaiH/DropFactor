@@ -122,7 +122,7 @@ export class Increase extends PowerBase {
 	constructor () {
 		super();
 		this.description = "Increases value of coins in range by one (7s become buried coins and their values are randomised)."
-		this.range = ranges.adjacent;
+		this.range = ranges.row;
 		this.effect = effects.increase;
 		this.filter = (coin) => coin.dirtLayer === 0;
 		this.pointsRequired = 80;

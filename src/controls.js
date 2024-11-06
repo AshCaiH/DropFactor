@@ -4,7 +4,7 @@ import { Game, game } from "./main.js";
 
 onPointer('down', function(e) {global.gameMachine.run("prime");});
 onPointer('up', function(e) {global.gameMachine.run("drop");});
-onKey('r', function(e) {game.game = new Game()});
+onKey('r', function(e) {global.gameMachine.run("restart")});
 
 export function cursorToCell() {
 	const cPos = (({ x, y }) => ({ x, y }))(getPointer());

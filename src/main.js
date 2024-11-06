@@ -54,6 +54,7 @@ export class Game {
 					console.log(`Running power ${power.name}`)
 					machine.setStateAndRun("POWER", "start", [power]);
 				},
+				restart: () => this.restart()
 			},
 			DROPPING: {
 				start: () => {
@@ -136,9 +137,8 @@ export class Game {
 				}
 			},
 			GAMEOVER: {
-				start: () => {
-					dropZone.machine.run("lock");
-				}
+				start: () => dropZone.machine.run("lock"),
+				restart: () => this.restart()
 			},
 		});
 		let {changes, machine, camera, dropZone} = this;
@@ -187,7 +187,25 @@ export class Game {
 		this.machine.run("update");
 		global.cursorCellPos.value = cursorToCell()
 	}
+
+	restart() {
+		let dropColumn = (column) => {
+			if (column == settings.slots.x) {
+				setTimeout(() => game.game = new Game(), 400);
+				return;}
+			for (let i = 0; i < settings.slots.y; i++) {
+				if (global.grid[column][i])
+					global.grid[column][i].machine.run("restart");
+			}
+
+			setTimeout(() => dropColumn(column+1), 30);
+		}
+
+		dropColumn(0);
+	}
 }
+
+
 
 export let game = {
 	game: new Game(),

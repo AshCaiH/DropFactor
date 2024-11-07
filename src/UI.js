@@ -6,8 +6,8 @@ import { Machine } from "./Machine.js";
 export class RoundTicker extends GameObject{
 	constructor () {
 		super({
-			x: -40,
-			y: -settings.coinBuffer / 2,
+			x: -30 -settings.coinBuffer,
+			y: settings.coinBuffer / 2,
 			render: () => {
 				let ctx = this.context;
 				for (let i = 0; i < settings.turnsInRound; i++) {
@@ -23,9 +23,10 @@ export class RoundTicker extends GameObject{
 export class RestartButton extends GameObject {
 	constructor () {
 		super({
-			x: global.boardDims.width + settings.coinBuffer/2,
-			y: -settings.coinBuffer/2,
-			radius: 30,
+			x: global.boardDims.width + settings.coinBuffer + 24,
+			y: settings.coinBuffer / 2 + 24,
+			radius: 24,
+			colour: "#678",
 			machine: new Machine("IDLE", {
 				"IDLE": {},
 				"PULSING": {},
@@ -34,19 +35,25 @@ export class RestartButton extends GameObject {
 
 			}),
 			collidesWithPointer: (pointer) => {
-				pointer = cursorToWorld();
-				let dx = pointer.x - this.x;
-				let dy = pointer.y - this.y;
-				return Math.sqrt(dx * dx + dy * dy) < this.radius + this.radius / 2;
+				let p = global.getWorldPos(this);
+				let wp = {x: pointer.x - p.x, y: pointer.y - p.y}
+				return Math.sqrt(wp.x**2 + wp.y**2) < this.radius;
 			},
 			onDown: () => {global.gameMachine.run("restart")},
+			onOver: () => {this.colour = "white"},
+			onOut: () => {this.colour = "#678"},
 			render: () => {
 				let ctx = this.context;
-				ctx.fillStyle = ctx.strokeStyle = "#678";
+				ctx.fillStyle = ctx.strokeStyle = this.colour;
+				ctx.arc(0,0,24,0,2*Math.PI);
+				ctx.translate(-12.8, -12.8);
+				ctx.lineWidth = 2;
+				ctx.stroke();
 				ctx.scale(0.05, 0.05);
 				ctx.lineWidth = 16;
+				
 				let paths = [new Path2D("M444.84 83.16c-46.804-51.108-114.077-83.16-188.84-83.16-141.385 0-256 114.615-256 256h48c0-114.875 93.125-208 208-208 61.51 0 116.771 26.709 154.848 69.153l-74.848 74.847h176v-176l-67.16 67.16z"), new Path2D("M464 256c0 114.875-93.125 208-208 208-61.51 0-116.771-26.709-154.847-69.153l74.847-74.847h-176v176l67.16-67.16c46.804 51.108 114.077 83.16 188.84 83.16 141.385 0 256-114.615 256-256h-48z")]
-
+				
 				paths.forEach((path) => {
 					ctx.fill(path);
 					ctx.stroke(path);

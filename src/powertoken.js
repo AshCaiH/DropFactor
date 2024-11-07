@@ -74,8 +74,8 @@ class PowerToken extends SpriteClass {
 					target.y = getPointer().y - initialMousePos.y + defaultPos.y;
 					this.x = lerp(defaultPos.x, target.x, 0.3);
 					this.y = lerp(defaultPos.y, target.y, 0.3);
-					let dist = Math.sqrt(Math.pow((this.x - defaultPos.x),2) + Math.pow((this.y - defaultPos.y),2))
-					if (dist > 10) machine.setState("DRAG");
+					let dist = Math.sqrt((this.x - defaultPos.x)**2 + (this.y - defaultPos.y)**2)
+					if (dist > 15) machine.setState("DRAG");
 				}
 			},
 			DRAG: {
@@ -150,19 +150,9 @@ class PowerToken extends SpriteClass {
 				if (this.meter === 1) ctx.stroke();
 			},
 			collidesWithPointer: (pointer) => {
-				let depthX = [];
-				let depthY = [];
-				let currentObject = this;
-				do {
-					depthX.push(currentObject.x)
-					depthY.push(currentObject.y)
-					currentObject = currentObject.parent;
-				} while (currentObject)
-				depthX = depthX.reduce((p, a) => p + a, 0);
-				depthY = depthY.reduce((p, a) => p + a, 0);
-				let dx = pointer.x - depthX;
-				let dy = pointer.y - depthY;
-				return Math.sqrt(dx * dx + dy * dy) < this.radius;
+				let p = global.getWorldPos(this);
+				let wp = {x: pointer.x - p.x, y: pointer.y - p.y}
+				return Math.sqrt(wp.x**2 + wp.y**2) < this.radius;
 			},
 			onDown: () => {
 				if (global.gameMachine.state == "INPUT") this.machine.run("drag");

@@ -62,7 +62,16 @@ export const globalInit = () => {
 		resetDebugText: () => debugText = [],
 		isInGrid: (pos, canBeAbove = false) => 
 			!(pos.x < 0 || pos.x >= settings.slots.x 
-				|| (!canBeAbove && pos.y < 0 ) || pos.y >= settings.slots.y)
+				|| (!canBeAbove && pos.y < 0 ) || pos.y >= settings.slots.y),
+		getWorldPos: (currentObject) => {
+			let p = {x: 0, y: 0}
+			while (currentObject) {
+				p.x += currentObject.x
+				p.y += currentObject.y
+				currentObject = currentObject.parent;
+			}
+			return p;
+		}
 	}
 
 	global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));

@@ -68,6 +68,5 @@ export const globalInit = () => {
 	global.coinWeights = Object.fromEntries(Array.from({ length:global.maxCoinValue + (settings.dirtCoins ? 1 : 0) }, (i,k) => [k+1,1]));
 
 	global.resetDebugText();
-	global.addDebugText(global, "remainingTurns", "Turns", 1);
 	global.addDebugText(global, "combo", "Combo", 2);
 }

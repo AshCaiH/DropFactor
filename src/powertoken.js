@@ -1,5 +1,5 @@
 import { Sprite, Text, SpriteClass, track, getPointer, pointerPressed, lerp } from "../node_modules/kontra/kontra.mjs";
-import { cursorInGrid } from "./controls.js";
+import { cursorInGrid, cursorToWorld } from "./controls.js";
 import { global, settings } from "./Global.js";
 import { Machine } from "./Machine.js";
 import * as powers from "./powers.js";
@@ -148,6 +148,21 @@ class PowerToken extends SpriteClass {
 				ctx.fillStyle = this.valid ? "#888" : "#555"
 				ctx.fill();
 				if (this.meter === 1) ctx.stroke();
+			},
+			collidesWithPointer: (pointer) => {
+				let depthX = [];
+				let depthY = [];
+				let currentObject = this;
+				do {
+					depthX.push(currentObject.x)
+					depthY.push(currentObject.y)
+					currentObject = currentObject.parent;
+				} while (currentObject)
+				depthX = depthX.reduce((p, a) => p + a, 0);
+				depthY = depthY.reduce((p, a) => p + a, 0);
+				let dx = pointer.x - depthX;
+				let dy = pointer.y - depthY;
+				return Math.sqrt(dx * dx + dy * dy) < this.radius;
 			},
 			onDown: () => {
 				if (global.gameMachine.state == "INPUT") this.machine.run("drag");

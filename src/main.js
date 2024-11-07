@@ -7,14 +7,15 @@ import { GridBG } from "./gridbg.js";
 import { PowerTray } from "./powertoken.js";
 import { cursorToCell } from "./controls.js";
 import { PowerCursor } from "./powerCursor.js";
+import *  as UI from "./UI.js";
 
 let { canvas } = init();
 
 initPointer();
 initKeys();
 
-export class Game {
-	constructor() {		
+export class Game {	
+	constructor() {
 		globalInit();
 
 		this.dropZone = new Dropzone();
@@ -52,7 +53,6 @@ export class Game {
 					machine.setStateAndRun("POWERPENDING")
 				},
 				power: (power) => {
-					console.log(`Running power ${power.name}`)
 					machine.setStateAndRun("POWER", "start", [power]);
 				},
 				restart: () => this.restart()
@@ -95,7 +95,6 @@ export class Game {
 			},
 			POWER: {
 				start: (power) => {
-					console.log(global.grid);
 					if (!power) return machine.setStateAndRun("INPUT")
 					if (power.useTurn) global.remainingTurns--;
 					power.activate(global.cursorCellPos.value);
@@ -171,14 +170,15 @@ export class Game {
 		})
 
 		global.addDebugText(machine, "state", null, 3)
-		// global.addDebugText(this.camera.children, "length", null, 0)
 		this.camera.addChild(
 			dropZone,
 			this.gridBg,
 			this.debugText,
 			this.score,
+			new UI.RoundTicker(),
+			new UI.RestartButton(),
 			new PowerTray(),
-			this.powerCursor
+			this.powerCursor,
 		);
 		machine.run("start");
 	}

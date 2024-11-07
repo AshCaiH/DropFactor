@@ -53,7 +53,6 @@ export class Game {
 					machine.setStateAndRun("POWERPENDING")
 				},
 				power: (power) => {
-					console.log(`Running power ${power.name}`)
 					machine.setStateAndRun("POWER", "start", [power]);
 				},
 				restart: () => this.restart()
@@ -96,7 +95,6 @@ export class Game {
 			},
 			POWER: {
 				start: (power) => {
-					console.log(global.grid);
 					if (!power) return machine.setStateAndRun("INPUT")
 					if (power.useTurn) global.remainingTurns--;
 					power.activate(global.cursorCellPos.value);
@@ -177,9 +175,10 @@ export class Game {
 			this.gridBg,
 			this.debugText,
 			this.score,
+			new UI.RoundTicker(),
+			new UI.RestartButton(),
 			new PowerTray(),
 			this.powerCursor,
-			new UI.RoundTicker(),
 		);
 		machine.run("start");
 	}

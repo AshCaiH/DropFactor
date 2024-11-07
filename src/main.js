@@ -7,14 +7,15 @@ import { GridBG } from "./gridbg.js";
 import { PowerTray } from "./powertoken.js";
 import { cursorToCell } from "./controls.js";
 import { PowerCursor } from "./powerCursor.js";
+import *  as UI from "./UI.js";
 
 let { canvas } = init();
 
 initPointer();
 initKeys();
 
-export class Game {
-	constructor() {		
+export class Game {	
+	constructor() {
 		globalInit();
 
 		this.dropZone = new Dropzone();
@@ -171,14 +172,14 @@ export class Game {
 		})
 
 		global.addDebugText(machine, "state", null, 3)
-		// global.addDebugText(this.camera.children, "length", null, 0)
 		this.camera.addChild(
 			dropZone,
 			this.gridBg,
 			this.debugText,
 			this.score,
 			new PowerTray(),
-			this.powerCursor
+			this.powerCursor,
+			new UI.RoundTicker(),
 		);
 		machine.run("start");
 	}

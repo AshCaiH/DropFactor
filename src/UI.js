@@ -44,6 +44,7 @@ export class RestartButton extends GameObject {
 			onOut: () => {this.colour = "#678"},
 			render: () => {
 				let ctx = this.context;
+				ctx.beginPath();
 				ctx.fillStyle = ctx.strokeStyle = this.colour;
 				ctx.arc(0,0,24,0,2*Math.PI);
 				ctx.translate(-12.8, -12.8);
@@ -58,6 +59,7 @@ export class RestartButton extends GameObject {
 					ctx.fill(path);
 					ctx.stroke(path);
 				})
+				ctx.closePath();
 			}
 		})
 

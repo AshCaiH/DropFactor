@@ -173,7 +173,7 @@ export class Game {
 		this.camera.addChild(
 			dropZone,
 			this.gridBg,
-			this.debugText,
+			// this.debugText,
 			this.score,
 			new UI.RoundTicker(),
 			new UI.RestartButton(),

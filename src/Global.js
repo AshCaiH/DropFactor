@@ -22,7 +22,7 @@ export const settings = {
 	weightCoins: true,
 	dirtCoins: false,
 
-	freePowers: false,
+	freePowers: true,
 };
 
 let debugText = [];
@@ -49,7 +49,7 @@ export const globalInit = () => {
 		gameOver: false,
 		addDebugText: (object, value, name, order = 0) => {
 			debugText.push({name: name || "", object: object, value: value, order: order});		
-			debugText.sort((a, b) => a.order > b.order ? 1: -1);
+			debugText.sort((a, b) => (a.order > b.order) - (a.order < b.order));
 		},
 		getDebugText: (delineator = "\n") => {
 			let string = "";

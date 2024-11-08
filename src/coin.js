@@ -1,12 +1,11 @@
 import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
 import { Particles, presets } from "./particles.js";
+import { global, settings } from "./Global.js";
 
 export class Coin extends SpriteClass {
-	constructor(gridX, board, ...options) {
-		let value = randInt(1,7);
+	constructor(gridX, ...options) {
 		let isBuried = 0 //randInt(1,3) === 3;
-		let opacity = 1;
 		let dropZone = null;
 
 		let machine = new Machine("DROPZONE", {
@@ -16,48 +15,52 @@ export class Coin extends SpriteClass {
 				crumble: () => {
 					if (this.dirtLayer == 0) return;
 					this.machine.setStateAndRun("CRUMBLING", "start");
-				}
+				},
+				snipe: () => {
+					this.doomed = true;
+				},
+				changeValue: (increase = true) => machine.setStateAndRun("CHANGEVALUE", "start", [increase]),
+				restart: () => machine.setStateAndRun("RESTARTING"),
 			},
 			DROPZONE: {
 				start: (dz) => {
 					dropZone = dz
-					this.gridPos.x = dropZone.xPos * (board.coinRadius * 2 + board.coinBuffer);
-					this.x = this.gridPos.x * (board.coinRadius * 2 + board.coinBuffer);
+					this.gridPos.x = dropZone.xPos * (settings.coinRadius * 2 + settings.coinBuffer);
+					this.x = this.gridPos.x * (settings.coinRadius * 2 + settings.coinBuffer);
 				},
 				update: () => {
-					this.gridPos.x = Math.min(Math.max(0, dropZone.xPos), board.width -1);
-					this.x = this.gridPos.x * (board.coinRadius * 2 + board.coinBuffer);
+					this.gridPos.x = Math.min(Math.max(0, dropZone.xPos), settings.slots.x -1);
+					this.x = this.gridPos.x * (settings.coinRadius * 2 + settings.coinBuffer);
 				},
 				drop: () => {
-					this.x = dropZone.xPos * (board.coinRadius * 2 + board.coinBuffer);
+					this.x = dropZone.xPos * (settings.coinRadius * 2 + settings.coinBuffer);
 					machine.setStateAndRun("DROPPING", "start");
 				}
 			},
 			DROPPING: {
 				start: () => {
-					this.dy = 12;
-					// TODO: Wipe grid from main script instead.
-					board.grid[this.gridPos.x][this.gridPos.y] = null;
+					this.dy = settings.fallSpeed;
+					global.grid[this.gridPos.x][this.gridPos.y] = null;
 
-					for (let i=this.gridPos.y; i<board.height; i++) {
-						if (board.grid[this.gridPos.x][i] === null) this.gridPos.y = i;
+					for (let i=this.gridPos.y; i<settings.slots.y; i++) {
+						if (global.grid[this.gridPos.x][i] === null) this.gridPos.y = i;
 						else break;
 					}
 
-					board.grid[this.gridPos.x][this.gridPos.y] = this;
+					global.grid[this.gridPos.x][this.gridPos.y] = this;
 
 					if (this.gridPos.y == -1) {
-						board.gameOver = true;
-						machine.setState("OOB");
+						global.gameOver = true;
+						// machine.setState("OOB");
 					}
 					else machine.setState("DROPPING");
 
 					return true;
 				},
-				update: (dt) => {
-					this.advance(dt)
-					this.dy += 2;
-					let targetPos = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer);
+				update: () => {
+					this.advance()
+					this.dy *= settings.fallAccel;
+					let targetPos = this.gridPos.y * (settings.coinRadius * 2 + settings.coinBuffer);
 					if (this.y > targetPos) {
 						this.y = targetPos;
 						machine.setState("IDLE");
@@ -65,57 +68,68 @@ export class Coin extends SpriteClass {
 				}
 			},
 			POPPING: {
-				start: () => {					
-					if (this.dirtLayer > 0) machine.setState("IDLE");
-					else if (this.machine.dispatch("checkVertical") || this.machine.dispatch("checkHorizontal")) {
-						this.parent.addChild(new Particles(
-							{
-								x: this.x + board.coinRadius,
-								y: this.y + board.coinRadius
-							}, {color: board.coinPalette[value-1]}
-						));
-						this.machine.dispatch("breakSurrounding");
-						return true;
-					} else machine.setState("IDLE");
+				start: () => {
+					if (this.dirtLayer > 0 && !this.doomed) machine.setState("IDLE");
+					else {
+						let vCheck = this.machine.run("checkVertical");
+						let hCheck = this.machine.run("checkHorizontal");
+						if (vCheck.length > 0 || hCheck.length > 0 || this.doomed) {
+							global.bg.lightup(vCheck.concat(hCheck));
+							global.score.value += 1 * global.combo;
+							this.parent.addChild(new Particles(
+								{
+									preset: presets.popping,
+									x: this.x + settings.coinRadius,
+									y: this.y + settings.coinRadius,
+								}, 
+								{
+									color: settings.coinPalette[self.value-1],
+									v: vCheck,
+									h: hCheck,
+								}
+							));
+							if (!this.doomed) this.machine.run("breakSurrounding");
+							return true;
+						} else machine.setState("IDLE");
+					}
 				},
 				checkVertical: () => {
-					let inColumn = 0;
-					for (let i=board.height-1; i>=0; i--) {
-						if (board.grid[this.gridPos.x][i] != null) inColumn++;
+					let cells = []
+					for (let y=settings.slots.y-1; y>=0; y--) {
+						if (global.grid[this.gridPos.x][y] != null) cells.push(`${this.gridPos.x},${y}`);
 						else break;
 					}
-					if (inColumn == value) return true;
+					return cells.length === this.value ? cells : [];
 				},
 				checkHorizontal: () => {
-					let inRow = 1;
 					let x = this.gridPos.x - 1;
+					let cells = [`${this.gridPos.x},${this.gridPos.y}`];
 					while (x >= 0) {
-						if (board.grid[x][this.gridPos.y] == null) break;
-						else inRow++;
+						if (global.grid[x][this.gridPos.y] == null) break;
+						else cells.push(`${x},${this.gridPos.y}`);
 						x--;
 					}
 					x = this.gridPos.x + 1;
-					while (x < board.width) {
-						if (board.grid[x][this.gridPos.y] == null) break;
-						else inRow++;
+					while (x < settings.slots.x) {
+						if (global.grid[x][this.gridPos.y] == null) break;
+						else cells.push(`${x},${this.gridPos.y}`);
 						x++;
 					}
-					if (inRow === value) return true;
+					return cells.length === this.value ? cells : [];
 				},
 				breakSurrounding: () => {
 					let surrounding = [[1,0], [-1,0], [0,1], [0,-1]]
 					surrounding.forEach((s) => {
 						let checkPos = {x: this.gridPos.x + s[0], y: this.gridPos.y + s[1]};
-						if (checkPos.x < 0 || checkPos.x >= board.width) return;
-						else if (checkPos.y < 0 || checkPos.y >= board.height) return;
-						let adjacent = this.grid[checkPos.x][checkPos.y]
-						if (adjacent) adjacent.machine.dispatch("crumble");
+						if (checkPos.x < 0 || checkPos.x >= settings.slots.x) return;
+						else if (checkPos.y < 0 || checkPos.y >= settings.slots.y) return;
+						let adjacent = global.grid[checkPos.x][checkPos.y]
+						if (adjacent) adjacent.machine.run("crumble");
 					});
 				},
-				update: (dt) => {
-					opacity -= 0.05;
-					if (opacity <= 0) {
-						board.grid[this.gridPos.x][this.gridPos.y] = null				
+				update: () => {
+					this.opacity -= 0.1;
+					if (this.opacity <= 0) {
 						machine.setState("IDLE");
 						this.kill();
 					}
@@ -125,65 +139,90 @@ export class Coin extends SpriteClass {
 				start: () => {
 					this.parent.addChild(new Particles(
 						{
-							x: this.x + board.coinRadius,
-							y: this.y + board.coinRadius,
+							x: this.x + settings.coinRadius,
+							y: this.y + settings.coinRadius,
 							preset: this.dirtLayer == 2 ? presets.crumbling : presets.breaking,
 						}, {color: this.dirtLayer == 2 ? "#678" : "#ABC",}
 					));
 					this.dirtLayer--;
+					setTimeout(() => machine.setState("IDLE"), 300);
+				},
+			},
+			CHANGEVALUE: {
+				start: (increase=true) => {
+					if (this.dirtLayer > 0) return machine.setState("IDLE");;
+					if (increase) this.value++;
+					else this.value--;
+
+					if (this.value <= 0 || this.value > global.maxCoinValue) {
+						this.value = randInt(1, global.maxCoinValue);
+						this.dirtLayer = 1;
+					}
+
 					machine.setState("IDLE");
 				},
 			},
 			RISING: {
 				start: () => {
 					this.gridPos.y -= 1;
-					board.grid[this.gridPos.x][this.gridPos.y] = this;
-					if (this.gridPos.y <= -1) board.gameOver = true;
+					global.grid[this.gridPos.x][this.gridPos.y] = this;
+					if (this.gridPos.y <= -1) global.gameOver = true;
 				},
 				update: () => {
 					this.y -= 4;
-					let target = this.gridPos.y * (board.coinRadius * 2 + board.coinBuffer)
+					let target = this.gridPos.y * (settings.coinRadius * 2 + settings.coinBuffer)
 					if (this.y <= target) {
 						this.machine.setState("IDLE");
 						this.y = target;
 					}
 				},
 			},
+			RESTARTING: {
+				start: () => {
+					this.parent.addChild(new Particles(
+						{
+							preset: presets.popping,
+							x: this.x + settings.coinRadius,
+							y: this.y + settings.coinRadius,
+						}, 
+						{
+							color: settings.coinPalette[self.value-1],
+						}
+					));
+					this.kill();
+				},
+			},
+			POWERPENDING: {},
+			POWERSELECTED: {},
 			OOB: {},
 		});
 
 		super (Object.assign({}, {
 			gridPos: {x: gridX, y: -1},
-			x: gridX * (board.coinRadius * 2 + board.coinBuffer),
-			y: -1 * (board.coinRadius * 2 + board.coinBuffer),
-			dy: 48,
-			value: value,
+			x: gridX * (settings.coinRadius * 2 + settings.coinBuffer),
+			y: -1 * (settings.coinRadius * 2 + settings.coinBuffer),
+			value: randInt(1,global.maxCoinValue),
 			machine: machine,
-			opacity: 0.5,
-			grid: board.grid,
 			dirtLayer: isBuried ? 2 : 0,
-			update: function(dt) {
-				machine.dispatch("update", [dt]);
-			},
-			draw: function() {
-				this.opacity = opacity;
-			},
+			opacity: 1,
+			doomed: false,
+			update: () => machine.run("update"),
 		}, ...options));
 		
 		let self = this;
-		
-		board.coins.push(this);
 
 		let text = Text({
-			text: value,
-			color: value >= 5 ? "#CDE" : "#311",
+			text: self.value,
+			color: self.value >= 5 ? "#CDE" : "#311",
 			font: 'bold 24px Arial',
-			width: board.coinRadius * 2,
+			width: settings.coinRadius * 2,
 			textAlign: "center",
 			anchor: {x: 0, y: -0.8},
-			opacity: self.dirtLayer > 0 ? 0: opacity,
+			opacity: self.dirtLayer > 0 ? 0: this.opacity,
 			render: function() {
-				this.opacity = self.dirtLayer > 0 ? 0: opacity;
+				this.opacity = self.dirtLayer > 0 ? 0: parent.opacity;
+				this.text = self.value;
+				this.color = self.value >= 5 ? "#CDE" : "#311";
 				this.draw();
 			}
 		})
@@ -192,15 +231,13 @@ export class Coin extends SpriteClass {
 			render: function() {
 				let ctx = this.context;
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
-					"#ABC": board.coinPalette[value-1];
-				this.opacity = opacity;
-				let boardWidth = board.width * (board.coinRadius * 2 + board.coinBuffer)
-				let boardHeight = board.height * (board.coinRadius * 2 + board.coinBuffer)
+					"#ABC": settings.coinPalette[self.value-1];
+				this.opacity = parent.opacity;
 				let dim = {
-					top: -this.parent.y - (board.coinRadius * 2 - board.coinBuffer) * 2,
-					bottom: -this.parent.y + board.height * (board.coinRadius * 2 + board.coinBuffer) - board.coinBuffer / 2,
-					left: -this.parent.x - board.coinBuffer,
-					right:-this.parent.x - board.coinBuffer + board.height * (board.coinRadius + board.coinBuffer) * 2,
+					top: -this.parent.y - 200,
+					bottom: -this.parent.y + global.boardDims.height - settings.coinBuffer / 2,
+					left: -this.parent.x - settings.coinBuffer / 2,
+					right: -this.parent.x + global.boardDims.width - settings.coinBuffer / 2,
 				}
 				ctx.save()
 				ctx.moveTo(dim.left, dim.top);
@@ -213,11 +250,11 @@ export class Coin extends SpriteClass {
 				ctx.lineWidth = 2.5;
 				ctx.strokeStyle = colour;
 				ctx.beginPath();
-				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius-3, 0, 2 * Math.PI);
+				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius-3, 0, 2 * Math.PI);
 				ctx.closePath();
 				ctx.fill();
 				ctx.beginPath();
-				ctx.arc(board.coinRadius, board.coinRadius, board.coinRadius, 0, 2 * Math.PI);
+				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius, 0, 2 * Math.PI);
 				ctx.closePath();
 				ctx.stroke();
 				ctx.restore();
@@ -228,7 +265,34 @@ export class Coin extends SpriteClass {
 	}
 
 	kill() {
+		global.grid[this.gridPos.x][this.gridPos.y] = null;
 		this.ttl = 0;
 		this.children = [];
 	}
 }
+
+export function randomCoin(xPos) {
+	const {weightCoins, slots} = settings;
+	const {coinWeights, maxCoinValue} = global;
+
+	if (!weightCoins) return randInt(0,slots.x-1);
+	let sumWeights = Object.values(coinWeights).reduce((sum, n) => sum + n, 0);
+	let runningTotal = 0;
+	let randomNumber = randInt(0,sumWeights);
+	let value = null;
+	for (let i = 1; i <= Object.keys(coinWeights).length; i++) {
+		runningTotal += coinWeights[i]
+		if (randomNumber <= runningTotal) {
+			value = i;
+			break;
+		}
+	}
+	Object.keys(coinWeights).forEach(key => coinWeights[key]+=Object.keys(coinWeights).length);
+	coinWeights[value] = 1;
+	let buried = value > maxCoinValue;
+	let coin = new Coin(xPos, {
+		value: buried ? randInt(1,maxCoinValue) : value,
+		dirtLayer: buried ? randInt(1,2) : 0,
+	})
+	return coin;
+};

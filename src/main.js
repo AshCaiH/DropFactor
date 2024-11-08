@@ -59,7 +59,7 @@ export class Game {
 			},
 			DROPPING: {
 				start: () => {
-					global.coins.sort((a,b) => a.gridPos.y < b.gridPos.y ? 1 : -1); 
+					global.coins.sort((a,b) => (a.gridPos.y < b.gridPos.y) - (a.gridPos.y > b.gridPos.y)); 
 					global.coins.forEach((coin) => {coin.machine.run("drop")});
 					changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;
 				},
@@ -185,7 +185,7 @@ export class Game {
 
 	update() {
 		this.camera.update();
-		this.camera.children.sort((a, b) => (a.zIndex || 0) > (b.zIndex || 0)  ? 1 : -1);
+		this.camera.children.sort((a, b) => (a.zIndex > b.zIndex) - (a.zIndex < b.zIndex));
 		this.machine.run("update");
 		global.cursorCellPos.value = cursorToCell()
 	}

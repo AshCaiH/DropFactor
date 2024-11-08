@@ -206,6 +206,7 @@ export class Coin extends SpriteClass {
 			dirtLayer: isBuried ? 2 : 0,
 			opacity: 1,
 			doomed: false,
+			zIndex: 10,
 			update: () => machine.run("update"),
 		}, ...options));
 		

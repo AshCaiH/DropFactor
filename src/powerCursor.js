@@ -6,6 +6,7 @@ export class PowerCursor extends SpriteClass {
 	constructor() {
 		super({
 			targets: [],
+			zIndex: 20,
 			render: () => {
 				if (this.machine.state === "HIDDEN") return;
 				let ctx = this.context;

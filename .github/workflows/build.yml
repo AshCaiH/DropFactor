@@ -27,11 +27,3 @@ jobs:
           FOLDER: dist # The directory where your assets are generated
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
           MESSAGE: "Build: ({sha}) {msg}" # The commit message
-
-      - name: Send files to gh-pages
-        run: |
-          git fetch origin main:gh-pages --force
-          git show main:index.html > index.html
-          git diff
-          git show main:style.css > style.css
-          git diff

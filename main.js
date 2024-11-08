@@ -1,13 +1,13 @@
-import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "../node_modules/kontra/kontra.mjs";
-import { Coin, randomCoin } from "./coin.js";
-import { Dropzone } from "./dropzone.js";
-import { Machine } from "./Machine.js";
-import { settings, global, globalInit } from "./Global.js";
-import { GridBG } from "./gridbg.js";
-import { PowerTray } from "./powertoken.js";
-import { cursorToCell } from "./controls.js";
-import { PowerCursor } from "./powerCursor.js";
-import *  as UI from "./UI.js";
+import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "./node_modules/kontra/kontra.mjs";
+import { Coin, randomCoin } from "./src/coin.js";
+import { Dropzone } from "./src/dropzone.js";
+import { Machine } from "./src/Machine.js";
+import { settings, global, globalInit } from "./src/Global.js";
+import { GridBG } from "./src/gridbg.js";
+import { PowerTray } from "./src/powertoken.js";
+import { cursorToCell } from "./src/controls.js";
+import { PowerCursor } from "./src/powerCursor.js";
+import *  as UI from "./src/UI.js";
 
 let { canvas } = init();
 

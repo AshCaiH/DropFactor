@@ -10,6 +10,6 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack"
+    "build": "webpack && cp index.html dist/index.html && cp style.css dist/style.css"
    }
 }

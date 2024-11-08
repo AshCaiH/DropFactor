@@ -78,7 +78,7 @@ const effects = Object.freeze({
 
 class PowerBase {
 	constructor () {
-		this.name = this.constructor.name;
+		this.name = "[ADD NAME]";
 		this.description = "A power";
 		this.range = ranges.board;
 		this.effect = effects.blank;
@@ -100,6 +100,7 @@ class PowerBase {
 export class Dig extends PowerBase {
 	constructor () {
 		super();
+		this.name = "Dig"
 		this.description = "Remove one layer of dirt from all buried coins."
 		this.range = ranges.surrounding;
 		this.effect = effects.dig;
@@ -110,6 +111,7 @@ export class Dig extends PowerBase {
 export class Snipe extends PowerBase {
 	constructor () {
 		super();
+		this.name = "Snipe"
 		this.description = "Destroys coin with tactical precision."
 		this.range = ranges.cell;
 		this.effect = effects.destroy;
@@ -121,6 +123,7 @@ export class Snipe extends PowerBase {
 export class Increase extends PowerBase {
 	constructor () {
 		super();
+		this.name = "Increase"
 		this.description = "Increases value of coins in range by one (7s become buried coins and their values are randomised)."
 		this.range = ranges.row;
 		this.effect = effects.increase;

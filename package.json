@@ -1,10 +1,11 @@
 {
   "name": "drop-factor",
+  "private": true,
   "dependencies": {
     "kontra": "^10.0.2"
   },
   "devDependencies": {
-    "grunt": "^1.6.1",
-    "grunt-contrib-uglify": "^5.2.2"
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4"
   }
 }

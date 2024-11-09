@@ -8,6 +8,7 @@ import { PowerTray } from "./src/powertoken.js";
 import { cursorToCell } from "./src/controls.js";
 import { PowerCursor } from "./src/powerCursor.js";
 import *  as UI from "./src/UI.js";
+import { Particles } from "./src/particles.js";
 
 let { canvas } = init();
 
@@ -178,6 +179,7 @@ export class Game {
 			new UI.RoundTicker(),
 			new UI.RestartButton(),
 			new PowerTray(),
+			new Particles(),
 			this.powerCursor,
 		);
 		machine.run("start");

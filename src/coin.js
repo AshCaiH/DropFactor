@@ -77,18 +77,13 @@ export class Coin extends SpriteClass {
 						if (vCheck.length > 0 || hCheck.length > 0 || this.doomed) {
 							global.bg.lightup(vCheck.concat(hCheck));
 							global.score.value += 1 * global.combo;
-							this.parent.addChild(new Particles(
+							global.particles.addEffect("popping",
 								{
-									preset: presets.popping,
 									x: this.x + settings.coinRadius,
 									y: this.y + settings.coinRadius,
-								}, 
-								{
 									color: settings.coinPalette[self.value-1],
-									v: vCheck,
-									h: hCheck,
 								}
-							));
+							);
 							if (!this.doomed) this.machine.run("breakSurrounding");
 							return true;
 						} else machine.setState("IDLE");
@@ -138,13 +133,12 @@ export class Coin extends SpriteClass {
 			},
 			CRUMBLING: {
 				start: () => {
-					this.parent.addChild(new Particles(
+					global.particles.addEffect("crumbling",
 						{
 							x: this.x + settings.coinRadius,
 							y: this.y + settings.coinRadius,
-							preset: this.dirtLayer == 2 ? presets.crumbling : presets.breaking,
-						}, {color: this.dirtLayer == 2 ? "#678" : "#ABC",}
-					));
+						}
+					);
 					this.dirtLayer--;
 					setTimeout(() => machine.setState("IDLE"), 300);
 				},
@@ -180,16 +174,13 @@ export class Coin extends SpriteClass {
 			},
 			RESTARTING: {
 				start: () => {
-					this.parent.addChild(new Particles(
+					global.particles.addEffect("popping",
 						{
-							preset: presets.popping,
 							x: this.x + settings.coinRadius,
 							y: this.y + settings.coinRadius,
-						}, 
-						{
 							color: settings.coinPalette[self.value-1],
 						}
-					));
+					);
 					this.kill();
 				},
 			},
@@ -229,7 +220,7 @@ export class Coin extends SpriteClass {
 			}
 		})
 
-		let bg = Sprite({			
+		let bg = Sprite({
 			render: function() {
 				let ctx = this.context;
 				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 

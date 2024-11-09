@@ -1,5 +1,5 @@
-import { SpriteClass, Sprite } from "../node_modules/kontra/kontra.mjs";
-import { settings } from "./Global.js";
+import { SpriteClass, Sprite, Pool } from "../node_modules/kontra/kontra.mjs";
+import { global, settings } from "./Global.js";
 
 const defaultParticle = {
 	color: "#ABC",
@@ -7,7 +7,7 @@ const defaultParticle = {
 	width:6,
 	count: 30,
 	ttl: 60,
-	rotation: Math.random(),
+	rotation: Math.PI * 2 * Math.random(),
 	gravity: 0,
 	decel: 0.97,
 	shrink: 0.3,
@@ -34,9 +34,6 @@ export const presets = {
 		gravity: 0.5,
 		shrink: 0.4,
 		ttl: 100,
-		randomise: function() {
-			randomise(this);
-		},
 	},
 	breaking: {
 		...defaultParticle,
@@ -70,30 +67,39 @@ function randomise(target) {
 	let distance = Math.random();
 	target.vector.x = Math.sin(angle);
 	target.vector.y = Math.cos(angle);
-	target.x = target.vector.x * settings.coinRadius - distance * settings.coinRadius * 0.2 * Math.sign(target.vector.x);
-	target.y = target.vector.y * settings.coinRadius;
+	target.x += target.vector.x * settings.coinRadius;
+	target.y += target.vector.y * settings.coinRadius;
 	
 	target.dx = target.vector.x * Math.random();
 	target.dy = target.vector.y * Math.random();
-	target.rotation = Math.random();
+	// target.rotation = Math.PI * 2 * Math.random();
 }
 
 export class Particles extends SpriteClass {
-	constructor(options, particleOptions) {
-		super(options);
+	constructor() {
+		super();
+		this.pool = Pool({create: Sprite});
+		global.particles = this;
+	}
 
-		// this.pool = Pool({create: Sprite});
-		let preset = {...options.preset ?? defaultParticle, ...particleOptions}
+	addEffect(particlePreset, options) {
+		let preset = {...presets[particlePreset] ?? defaultParticle, ...options}
 
-		for (let i=0; i<defaultParticle.count; i++) {
+		console.log(preset);
+
+		for (let i = 0; i < preset.count; i++) {
 			preset.randomise();
-			this.addChild(Sprite(preset));
+			this.pool.get(preset);
 		}
 	}
 
 	update() {
 		super.update();
-		this.children = this.children.filter(child => child.ttl > 0);
-		if (this.children.length == 0) this.ttl = 0;
+		this.pool.update();
+	}
+
+	render() {
+		this.pool.render();
+		console.log("rendering");
 	}
 }

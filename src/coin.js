@@ -33,7 +33,8 @@ export class Coin extends SpriteClass {
 					this.x = this.gridPos.x * (settings.coinRadius * 2 + settings.coinBuffer);
 				},
 				drop: () => {
-					this.x = dropZone.xPos * (settings.coinRadius * 2 + settings.coinBuffer);
+					this.gridPos.x = dropZone.xPos;
+					this.x = this.gridPos.x * (settings.coinRadius * 2 + settings.coinBuffer);
 					machine.setStateAndRun("DROPPING", "start");
 				}
 			},

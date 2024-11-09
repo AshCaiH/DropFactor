@@ -81,7 +81,10 @@ function randomise(target) {
 export class Particles extends SpriteClass {
 	constructor(options, particleOptions) {
 		super(options);
+
+		// this.pool = Pool({create: Sprite});
 		let preset = {...options.preset ?? defaultParticle, ...particleOptions}
+
 		for (let i=0; i<defaultParticle.count; i++) {
 			preset.randomise();
 			this.addChild(Sprite(preset));

@@ -3,6 +3,7 @@ import { global, settings } from "./Global.js";
 
 const defaultParticle = {
 	color: "#ABC",
+	pos: {x: 0, y: 0},
 	height:6,
 	width:6,
 	count: 30,
@@ -67,8 +68,8 @@ function randomise(target) {
 	let distance = Math.random();
 	target.vector.x = Math.sin(angle);
 	target.vector.y = Math.cos(angle);
-	target.x += target.vector.x * settings.coinRadius;
-	target.y += target.vector.y * settings.coinRadius;
+	target.x = target.pos.x + target.vector.x * settings.coinRadius;
+	target.y = target.pos.y + target.vector.y * settings.coinRadius;
 	
 	target.dx = target.vector.x * Math.random();
 	target.dy = target.vector.y * Math.random();
@@ -94,12 +95,10 @@ export class Particles extends SpriteClass {
 	}
 
 	update() {
-		super.update();
 		this.pool.update();
 	}
 
 	render() {
 		this.pool.render();
-		console.log("rendering");
 	}
 }

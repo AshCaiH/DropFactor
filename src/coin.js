@@ -79,8 +79,10 @@ export class Coin extends SpriteClass {
 							global.score.value += 1 * global.combo;
 							global.particles.addEffect("popping",
 								{
-									x: this.x + settings.coinRadius,
-									y: this.y + settings.coinRadius,
+									pos: {
+										x: this.x + settings.coinRadius,
+										y: this.y + settings.coinRadius,
+									},
 									color: settings.coinPalette[self.value-1],
 								}
 							);
@@ -135,8 +137,10 @@ export class Coin extends SpriteClass {
 				start: () => {
 					global.particles.addEffect("crumbling",
 						{
-							x: this.x + settings.coinRadius,
-							y: this.y + settings.coinRadius,
+							pos: {
+								x: this.x + settings.coinRadius,
+								y: this.y + settings.coinRadius,
+							},
 						}
 					);
 					this.dirtLayer--;
@@ -176,8 +180,10 @@ export class Coin extends SpriteClass {
 				start: () => {
 					global.particles.addEffect("popping",
 						{
-							x: this.x + settings.coinRadius,
-							y: this.y + settings.coinRadius,
+							pos: {
+								x: this.x + settings.coinRadius,
+								y: this.y + settings.coinRadius,
+							},
 							color: settings.coinPalette[self.value-1],
 						}
 					);

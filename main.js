@@ -39,8 +39,6 @@ export class Game {
 						coin.machine.run("start", [dropZone]);
 						this.camera.addChild(coin);
 					};
-
-					this.zSort();
 				},
 				prime: () => {
 					dropZone.machine.run("prime")
@@ -130,6 +128,8 @@ export class Game {
 							coin.machine.setStateAndRun(nextState);
 							this.camera.addChild(coin);
 						}
+
+						this.zSort();
 					}
 				},
 				update: () => {

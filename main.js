@@ -39,6 +39,8 @@ export class Game {
 						coin.machine.run("start", [dropZone]);
 						this.camera.addChild(coin);
 					};
+
+					this.zSort();
 				},
 				prime: () => {
 					dropZone.machine.run("prime")
@@ -178,16 +180,15 @@ export class Game {
 			this.score,
 			new UI.RoundTicker(),
 			new UI.RestartButton(),
-			new PowerTray(),
-			new Particles(),
 			this.powerCursor,
+			new Particles(),
+			new PowerTray(),
 		);
 		machine.run("start");
 	}
 
 	update() {
 		this.camera.update();
-		this.camera.children.sort((a, b) => (a.zIndex > b.zIndex) - (a.zIndex < b.zIndex));
 		this.machine.run("update");
 		global.cursorCellPos.value = cursorToCell()
 	}
@@ -206,13 +207,14 @@ export class Game {
 		}
 
 		dropColumn(0);
+		this.zSort();
 	}
+
+	zSort() {this.camera.children.sort((a, b) => (a.zIndex > b.zIndex) - (a.zIndex < b.zIndex));}
 }
 
-
-
 export let game = {
-	game: new Game(),
+	game: new Game()
 };
 
 let loop = GameLoop({

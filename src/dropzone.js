@@ -26,7 +26,6 @@ export class Dropzone extends SpriteClass {
 			PRIMED_ACTIVE: {
 				start: () => this.opacity = 1,
 				drop: () => {
-					global.coins.push(this.coin);
 					this.coin = null;
 					lock();
 					return true;

@@ -1,6 +1,5 @@
 import { Machine } from "./Machine.js";
 import { Sprite, Text, randInt, SpriteClass } from "../node_modules/kontra/kontra.mjs";
-import { Particles, presets } from "./particles.js";
 import { global, settings } from "./Global.js";
 
 export class Coin extends SpriteClass {
@@ -126,8 +125,8 @@ export class Coin extends SpriteClass {
 					});
 				},
 				update: () => {
-					this.opacity -= 0.1;
-					if (this.opacity <= 0) {
+					this.fadeout -= 0.1;
+					if (this.fadeout <= 0) {
 						machine.setState("IDLE");
 						this.kill();
 					}
@@ -203,64 +202,13 @@ export class Coin extends SpriteClass {
 			machine: machine,
 			dirtLayer: isBuried ? 2 : 0,
 			opacity: 1,
+			fadeout: 1,
 			doomed: false,
 			zIndex: 10,
 			update: () => machine.run("update"),
 		}, ...options));
 		
 		let self = this;
-
-		let text = Text({
-			text: self.value,
-			color: self.value >= 5 ? "#CDE" : "#311",
-			font: 'bold 24px Arial',
-			width: settings.coinRadius * 2,
-			textAlign: "center",
-			anchor: {x: 0, y: -0.8},
-			opacity: self.dirtLayer > 0 ? 0: this.opacity,
-			render: function() {
-				this.opacity = self.dirtLayer > 0 ? 0: parent.opacity;
-				this.text = self.value;
-				this.color = self.value >= 5 ? "#CDE" : "#311";
-				this.draw();
-			}
-		})
-
-		let bg = Sprite({
-			render: function() {
-				let ctx = this.context;
-				let colour = self.dirtLayer > 0 ? self.dirtLayer > 1 ? "#678" : 
-					"#ABC": settings.coinPalette[self.value-1];
-				this.opacity = parent.opacity;
-				let dim = {
-					top: -this.parent.y - 200,
-					bottom: -this.parent.y + global.boardDims.height - settings.coinBuffer / 2,
-					left: -this.parent.x - settings.coinBuffer / 2,
-					right: -this.parent.x + global.boardDims.width - settings.coinBuffer / 2,
-				}
-				ctx.save()
-				ctx.moveTo(dim.left, dim.top);
-				ctx.lineTo(dim.right, dim.top);
-				ctx.lineTo(dim.right, dim.bottom);
-				ctx.lineTo(dim.left, dim.bottom);
-				ctx.closePath();
-				ctx.clip()
-				ctx.fillStyle = colour;
-				ctx.lineWidth = 2.5;
-				ctx.strokeStyle = colour;
-				ctx.beginPath();
-				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius-3, 0, 2 * Math.PI);
-				ctx.closePath();
-				ctx.fill();
-				ctx.beginPath();
-				ctx.arc(settings.coinRadius, settings.coinRadius, settings.coinRadius, 0, 2 * Math.PI);
-				ctx.closePath();
-				ctx.stroke();
-				ctx.restore();
-			}
-		})
-
-		this.addChild(bg, text);
 	}
 
 	kill() {
@@ -295,3 +243,57 @@ export function randomCoin(xPos) {
 	})
 	return coin;
 };
+
+export class CoinBoard extends SpriteClass {
+	constructor() {
+		super({});
+	}
+
+	render() {
+		let ctx = this.context;
+		let dim = {
+			top: -200,
+			bottom: global.boardDims.height-settings.coinBuffer/2,
+			left: -settings.coinBuffer/2,
+			right: global.boardDims.width-settings.coinBuffer/2,
+		}
+
+		// Mask
+		ctx.save()
+		ctx.moveTo(dim.left, dim.top);
+		ctx.lineTo(dim.right, dim.top);
+		ctx.lineTo(dim.right, dim.bottom);
+		ctx.lineTo(dim.left, dim.bottom);
+		// ctx.fill();
+		ctx.closePath();
+		ctx.clip()
+
+		global.coins.forEach(coin => {
+			if (coin.fadeout < 1) return;
+			// Background
+			let colour = coin.dirtLayer > 0 ? coin.dirtLayer > 1 ? "#678" : 
+				"#ABC": settings.coinPalette[coin.value-1];
+
+			ctx.globalOpacity = coin.opacity;			
+			ctx.fillStyle = colour;
+			ctx.lineWidth = 2.5;
+			ctx.strokeStyle = colour;
+			ctx.beginPath();
+			ctx.arc(settings.coinRadius + coin.x, settings.coinRadius + coin.y, settings.coinRadius-3, 0, 2 * Math.PI);
+			ctx.closePath();
+			ctx.fill();
+			ctx.beginPath();
+			ctx.arc(settings.coinRadius + coin.x, settings.coinRadius + coin.y, settings.coinRadius, 0, 2 * Math.PI);
+			ctx.stroke();
+			ctx.closePath();
+
+			ctx.fillStyle = coin.value >= 5 ? "#CDE" : "#311";
+			ctx.font = 'bold 26px Arial';
+			const coinText = coin.dirtLayer == 0 ? coin.value : "";
+			const textMeas = ctx.measureText(coinText); 
+			ctx.fillText(coin.dirtLayer == 0 ? coin.value : "", coin.x + settings.coinRadius - textMeas.width/2, coin.y + settings.coinRadius + 9);
+		})
+
+		ctx.restore();
+	}
+}

@@ -1,5 +1,5 @@
 import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "./node_modules/kontra/kontra.mjs";
-import { Coin, randomCoin } from "./src/coin.js";
+import { Coin, CoinBoard, randomCoin } from "./src/coin.js";
 import { Dropzone } from "./src/dropzone.js";
 import { Machine } from "./src/Machine.js";
 import { settings, global, globalInit } from "./src/Global.js";
@@ -35,6 +35,7 @@ export class Game {
 
 					if (!dropZone.coin) {
 						let coin = randomCoin(dropZone.x);
+						global.coins.push(coin);
 						dropZone.coin = coin;
 						coin.machine.run("start", [dropZone]);
 						this.camera.addChild(coin);
@@ -175,6 +176,7 @@ export class Game {
 		global.addDebugText(machine, "state", null, 3)
 		this.camera.addChild(
 			dropZone,
+			new CoinBoard(),
 			this.gridBg,
 			// this.debugText,
 			this.score,

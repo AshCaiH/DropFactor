@@ -86,8 +86,6 @@ export class Particles extends SpriteClass {
 	addEffect(particlePreset, options) {
 		let preset = {...presets[particlePreset] ?? defaultParticle, ...options}
 
-		console.log(preset);
-
 		for (let i = 0; i < preset.count; i++) {
 			preset.randomise();
 			this.pool.get(preset);

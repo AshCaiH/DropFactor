@@ -177,7 +177,7 @@ export class Coin extends SpriteClass {
 			},
 			RESTARTING: {
 				start: () => {
-					global.particles.addEffect("popping",
+					global.particles.addEffect("restarting",
 						{
 							pos: {
 								x: this.x + settings.coinRadius,

@@ -214,6 +214,7 @@ export class Coin extends SpriteClass {
 	kill() {
 		global.grid[this.gridPos.x][this.gridPos.y] = null;
 		this.ttl = 0;
+		this.fadeout = 0;
 		this.children = [];
 	}
 }

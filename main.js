@@ -1,5 +1,5 @@
 import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "./node_modules/kontra/kontra.mjs";
-import { Coin, randomCoin } from "./src/coin.js";
+import { Coin, CoinBoard, randomCoin } from "./src/coin.js";
 import { Dropzone } from "./src/dropzone.js";
 import { Machine } from "./src/Machine.js";
 import { settings, global, globalInit } from "./src/Global.js";
@@ -11,6 +11,7 @@ import *  as UI from "./src/UI.js";
 import { Particles } from "./src/particles.js";
 
 let { canvas } = init();
+let particles = new Particles()
 
 initPointer();
 initKeys();
@@ -18,6 +19,7 @@ initKeys();
 export class Game {	
 	constructor() {
 		globalInit();
+		global.particles = particles;
 
 		this.dropZone = new Dropzone();
 		this.changes = null;
@@ -39,8 +41,6 @@ export class Game {
 						coin.machine.run("start", [dropZone]);
 						this.camera.addChild(coin);
 					};
-
-					this.zSort();
 				},
 				prime: () => {
 					dropZone.machine.run("prime")
@@ -130,6 +130,8 @@ export class Game {
 							coin.machine.setStateAndRun(nextState);
 							this.camera.addChild(coin);
 						}
+
+						this.zSort();
 					}
 				},
 				update: () => {
@@ -175,13 +177,13 @@ export class Game {
 		global.addDebugText(machine, "state", null, 3)
 		this.camera.addChild(
 			dropZone,
+			new CoinBoard(),
 			this.gridBg,
 			// this.debugText,
 			this.score,
 			new UI.RoundTicker(),
 			new UI.RestartButton(),
 			this.powerCursor,
-			new Particles(),
 			new PowerTray(),
 		);
 		machine.run("start");
@@ -198,7 +200,7 @@ export class Game {
 			if (column == settings.slots.x) {
 				setTimeout(() => game.game = new Game(), 400);
 				return;}
-			for (let i = 0; i < settings.slots.y; i++) {
+			for (let i = -1; i < settings.slots.y; i++) {
 				if (global.grid[column][i])
 					global.grid[column][i].machine.run("restart");
 			}
@@ -207,7 +209,6 @@ export class Game {
 		}
 
 		dropColumn(0);
-		this.zSort();
 	}
 
 	zSort() {this.camera.children.sort((a, b) => (a.zIndex > b.zIndex) - (a.zIndex < b.zIndex));}
@@ -221,8 +222,12 @@ let loop = GameLoop({
 	update: () => {
 		if (game.game != null)
 			game.game.update()
+			particles.update();
 	},
-	render: () => game.game.camera.render(),
+	render: () => {
+		game.game.camera.render();
+		particles.render();
+	}
 });
 
 loop.start();

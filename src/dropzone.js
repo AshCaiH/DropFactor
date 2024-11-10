@@ -62,6 +62,8 @@ export class Dropzone extends SpriteClass {
 				this.context.closePath();
 			},
 		});
+		
+		global.dropZone = this;
 
 		global.cursorCellPos.listen(() => {
 			if (global.isInGrid(global.cursorCellPos.value, true)) {

@@ -39,6 +39,7 @@ export const globalInit = () => {
 			height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
 			width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
 		},
+		dropZone: null,
 		maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
 		coinWeights: null,
 		remainingTurns: settings.initialTurns,
@@ -47,7 +48,6 @@ export const globalInit = () => {
 		cursorCellPos: new SignalValue({x: 0, y:0}),
 		combo: 1,
 		gameOver: false,
-		particles: null,
 		addDebugText: (object, value, name, order = 0) => {
 			debugText.push({name: name || "", object: object, value: value, order: order});		
 			debugText.sort((a, b) => (a.order > b.order) - (a.order < b.order));

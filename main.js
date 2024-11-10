@@ -1,4 +1,4 @@
-import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "./node_modules/kontra/kontra.mjs";
+import { init, Text, GameLoop, GameObject, initPointer, initKeys, randInt } from "../node_modules/kontra/kontra.mjs";
 import { Coin, randomCoin } from "./src/coin.js";
 import { Dropzone } from "./src/dropzone.js";
 import { Machine } from "./src/Machine.js";
@@ -8,6 +8,7 @@ import { PowerTray } from "./src/powertoken.js";
 import { cursorToCell } from "./src/controls.js";
 import { PowerCursor } from "./src/powerCursor.js";
 import *  as UI from "./src/UI.js";
+import { Particles } from "./src/particles.js";
 
 let { canvas } = init();
 
@@ -38,6 +39,8 @@ export class Game {
 						coin.machine.run("start", [dropZone]);
 						this.camera.addChild(coin);
 					};
+
+					this.zSort();
 				},
 				prime: () => {
 					dropZone.machine.run("prime")
@@ -177,15 +180,15 @@ export class Game {
 			this.score,
 			new UI.RoundTicker(),
 			new UI.RestartButton(),
-			new PowerTray(),
 			this.powerCursor,
+			new Particles(),
+			new PowerTray(),
 		);
 		machine.run("start");
 	}
 
 	update() {
 		this.camera.update();
-		this.camera.children.sort((a, b) => (a.zIndex > b.zIndex) - (a.zIndex < b.zIndex));
 		this.machine.run("update");
 		global.cursorCellPos.value = cursorToCell()
 	}
@@ -204,13 +207,14 @@ export class Game {
 		}
 
 		dropColumn(0);
+		this.zSort();
 	}
+
+	zSort() {this.camera.children.sort((a, b) => (a.zIndex > b.zIndex) - (a.zIndex < b.zIndex));}
 }
 
-
-
 export let game = {
-	game: new Game(),
+	game: new Game()
 };
 
 let loop = GameLoop({

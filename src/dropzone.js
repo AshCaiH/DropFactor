@@ -26,6 +26,7 @@ export class Dropzone extends SpriteClass {
 			PRIMED_ACTIVE: {
 				start: () => this.opacity = 1,
 				drop: () => {
+					global.coins.push(this.coin);
 					this.coin = null;
 					lock();
 					return true;
@@ -61,6 +62,8 @@ export class Dropzone extends SpriteClass {
 				this.context.closePath();
 			},
 		});
+		
+		global.dropZone = this;
 
 		global.cursorCellPos.listen(() => {
 			if (global.isInGrid(global.cursorCellPos.value, true)) {

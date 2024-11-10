@@ -246,10 +246,6 @@ export function randomCoin(xPos) {
 };
 
 export class CoinBoard extends SpriteClass {
-	constructor() {
-		super({});
-	}
-
 	render() {
 		let ctx = this.context;
 		let dim = {
@@ -269,8 +265,10 @@ export class CoinBoard extends SpriteClass {
 		ctx.closePath();
 		ctx.clip()
 
-		global.coins.forEach(coin => {
-			if (coin.fadeout < 1) return;
+		const allCoins = [...global.coins, global.dropZone.coin]
+
+		allCoins.forEach(coin => {
+			if (!coin || coin.fadeout < 1) return;
 			// Background
 			let colour = coin.dirtLayer > 0 ? coin.dirtLayer > 1 ? "#678" : 
 				"#ABC": settings.coinPalette[coin.value-1];

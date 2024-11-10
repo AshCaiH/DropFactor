@@ -39,6 +39,7 @@ export const globalInit = () => {
 			height: settings.slots.y * (settings.coinRadius * 2 + settings.coinBuffer),
 			width: settings.slots.x * (settings.coinRadius * 2 + settings.coinBuffer),
 		},
+		dropZone: null,
 		maxCoinValue: Math.max(settings.slots.x, settings.slots.y),
 		coinWeights: null,
 		remainingTurns: settings.initialTurns,

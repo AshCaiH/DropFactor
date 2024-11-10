@@ -37,7 +37,6 @@ export class Game {
 
 					if (!dropZone.coin) {
 						let coin = randomCoin(dropZone.x);
-						global.coins.push(coin);
 						dropZone.coin = coin;
 						coin.machine.run("start", [dropZone]);
 						this.camera.addChild(coin);

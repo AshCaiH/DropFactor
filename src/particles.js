@@ -5,7 +5,7 @@ const defaultParticle = {
 	color: "#ABC",
 	height:6,
 	width:6,
-	count: 30,
+	count: 20,
 	ttl: 60,
 	rotation: Math.PI * 2 * Math.random(),
 	gravity: 0,
@@ -14,7 +14,7 @@ const defaultParticle = {
 	vector: {x:0, y:0},
 	border: 0,
 	anchor: {x: 0.5, y: 0.5},
-	randomise: function() {randomise(this)},
+	randomise: function(count) {randomise(this, count)},
 	update: function() {
 		this.advance();
 		this.dx *= this.decel;
@@ -44,7 +44,7 @@ export const presets = {
 		height: 8,
 		width: 8,
 		shrink: 0.12,
-		randomise: function() {
+		randomise: function(count) {
 			randomise(this);
 			this.dx = this.dy = 0;
 		},
@@ -55,24 +55,23 @@ export const presets = {
 		decel: 0.98,
 		ttl: 100,
 		shrink: 0.1,
-		randomise: function() {
+		randomise: function(count) {
 			randomise(this);
 			this.dx = this.dy = 0;
 		},
 	}
 }
 
-function randomise(target) {
-	let angle = (Math.random() * 360) * Math.PI / 180;
-	let distance = Math.random();
+function randomise(target, count) {
+	let angle = (count * 360) * Math.PI / 180;
 	target.vector.x = Math.sin(angle);
 	target.vector.y = Math.cos(angle);
 	target.x = target.pos.x + target.vector.x * settings.coinRadius + global.camera.x;
 	target.y = target.pos.y + target.vector.y * settings.coinRadius + global.camera.y;
 	
-	target.dx = target.vector.x * Math.random();
-	target.dy = target.vector.y * Math.random();
-	// target.rotation = Math.PI * 2 * Math.random();
+	target.dx = target.vector.x * Math.random() * 2;
+	target.dy = target.vector.y * Math.random() * 2;
+	target.rotation = Math.random();
 }
 
 export class Particles extends SpriteClass {
@@ -86,7 +85,7 @@ export class Particles extends SpriteClass {
 		let preset = {...presets[particlePreset] ?? defaultParticle, ...options}
 
 		for (let i = 0; i < preset.count; i++) {
-			preset.randomise();
+			preset.randomise(i / preset.count);
 			this.pool.get(preset);
 		}
 	}

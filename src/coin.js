@@ -82,7 +82,7 @@ export class Coin extends SpriteClass {
 										x: this.x + settings.coinRadius,
 										y: this.y + settings.coinRadius,
 									},
-									color: settings.coinPalette[self.value-1],
+									color: settings.coinPalette[this.value-1],
 								}
 							);
 							if (!this.doomed) this.machine.run("breakSurrounding");
@@ -183,7 +183,7 @@ export class Coin extends SpriteClass {
 								x: this.x + settings.coinRadius,
 								y: this.y + settings.coinRadius,
 							},
-							color: settings.coinPalette[self.value-1],
+							color: settings.coinPalette[this.value-1],
 						}
 					);
 					this.kill();
@@ -208,7 +208,33 @@ export class Coin extends SpriteClass {
 			update: () => machine.run("update"),
 		}, ...options));
 		
-		let self = this;
+		this.generateCracks();
+	}
+
+	generateCracks() {
+		let crackCount = 11
+		let offset = Math.random();
+		this.cracks = [];
+
+		for (let i=0; i < crackCount; i++) {
+			let angle = (((i / crackCount) + Math.random() * 0.1 - 0.05 + offset) * 360) * Math.PI / 180;
+			let crack = [{x: Math.sin(angle) * (settings.coinRadius - 3), y: Math.cos(angle) * (settings.coinRadius - 3)}]
+
+			crack.push({
+				x: Math.sin(angle) * settings.coinRadius * (0.7 + Math.random() * 0.05), 
+				y: Math.cos(angle)  * settings.coinRadius * (0.7 + Math.random() * 0.05)
+			})
+			crack.push({
+				x: Math.sin(angle) * settings.coinRadius * (0.5 + Math.random() * 0.05) + Math.random() * 8 - 4, 
+				y: Math.cos(angle) * settings.coinRadius * (0.5 + Math.random() * 0.05) + Math.random() * 8 - 4
+			})
+			crack.push({
+				x: Math.sin(angle) * settings.coinRadius * (0.3 + Math.random() * 0.2), 
+				y: Math.cos(angle) * settings.coinRadius * (0.3 + Math.random() * 0.2)
+			})
+
+			this.cracks.push(crack);
+		}
 	}
 
 	kill() {
@@ -287,6 +313,20 @@ export class CoinBoard extends SpriteClass {
 			const coinText = coin.dirtLayer == 0 ? coin.value : "";
 			const textMeas = ctx.measureText(coinText); 
 			ctx.fillText(coin.dirtLayer == 0 ? coin.value : "", coin.x + settings.coinRadius - textMeas.width/2, coin.y + settings.coinRadius + 9);
+
+			if (coin.dirtLayer == 1) {
+				ctx.strokeStyle = "#222";
+				ctx.lineWidth = 0.5;
+				ctx.beginPath();
+				coin.cracks.forEach(crack => {
+					ctx.moveTo(coin.x + crack[0].x + settings.coinRadius, coin.y + crack[0].y + settings.coinRadius);
+					ctx.lineTo(coin.x + crack[1].x + settings.coinRadius, coin.y + crack[1].y + settings.coinRadius);
+					ctx.lineTo(coin.x + crack[2].x + settings.coinRadius, coin.y + crack[2].y + settings.coinRadius);ctx.stroke();
+					ctx.beginPath();
+					ctx.lineTo(coin.x + crack[3].x + settings.coinRadius, coin.y + crack[3].y + settings.coinRadius);
+				})
+				ctx.stroke();
+			}
 		})
 
 		ctx.restore();

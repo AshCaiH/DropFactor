@@ -261,8 +261,6 @@ export class CoinBoard extends SpriteClass {
 		ctx.lineTo(dim.right, dim.top);
 		ctx.lineTo(dim.right, dim.bottom);
 		ctx.lineTo(dim.left, dim.bottom);
-		// ctx.fill();
-		ctx.closePath();
 		ctx.clip()
 
 		const allCoins = [...global.coins, global.dropZone.coin]
@@ -279,12 +277,10 @@ export class CoinBoard extends SpriteClass {
 			ctx.strokeStyle = colour;
 			ctx.beginPath();
 			ctx.arc(settings.coinRadius + coin.x, settings.coinRadius + coin.y, settings.coinRadius-3, 0, 2 * Math.PI);
-			ctx.closePath();
 			ctx.fill();
 			ctx.beginPath();
 			ctx.arc(settings.coinRadius + coin.x, settings.coinRadius + coin.y, settings.coinRadius, 0, 2 * Math.PI);
 			ctx.stroke();
-			ctx.closePath();
 
 			ctx.fillStyle = coin.value >= 5 ? "#CDE" : "#311";
 			ctx.font = 'bold 26px Arial';

@@ -9,4 +9,6 @@ canvas {
     border: white 2px solid;
     grid-row-start: 1;
     grid-column-start: 1;
+    max-width: 100%;
+    max-height: calc(100vh - 15px);
 }

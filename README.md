@@ -16,9 +16,9 @@ Built using [Kontra.js](https://straker.github.io/kontra/).
 
 ### Rules
 
-The player can drop coins with the values 1 to 7 into any column of a grid. Coins will fall downwards until they hit the bottom of the grid or another coin.
+Each turn, the player can drop a coin with a value of 1 to 7 into any column of a grid. Coins will fall downwards until they hit the bottom of the grid or another coin.
 
-If a coin finds itself in a continuous row or column the length of that coin's own value, it will disappear and erode any adjacent "buried" coins.
+If a coin finds itself in a contiguous row or column, the length which matches that coin's own value, it will disappear, digging up any adjacent "buried" coins (buried coins generally require two digs to uncover).
 
 Powers will charge as score is increased. Once a power is fully charged, it can be activated by dragging its token to the desired activation point.
 
@@ -28,27 +28,21 @@ Each round will progress as coins are dropped into the grid, or as powers are us
 
 If any dropped coin finds itself above the top of the grid, the game is over.
 
-## How does DropFactor differ from its inspirations?
+## Differences
 
-> Please note: Much of the planning for this project came about from playing [Drop-7 Professional](https://www.lexaloffle.com/bbs/?pid=35706), a remake of Drop7. As such, some of what is listed below may have already been present in the original games.
->
-> DropFactor is not intended to be a faithful remake or replacement for Drop7/Chain Factor, and these design choices were made and tuned for personal preference.
+At its core, the game mostly plays like the original Drop7 and Chain Factor. However, there are a few mechanical differences.
 
-At its core, the game mostly plays like the original Drop7 and Chain Factor. I've implemented a power system similar to Chain Factor's (unfortunately, while Chain Factor has been archived and is still playable online to an extent, its power system was gated by progress through an ARG, and the server that controlled which powers were unlocked no longer seems to be online.)
+> NOTE: DropFactor is not intended to be a faithful remake or replacement for Drop7/Chain Factor, and many of these changes are experimental and untested for balance.
 
-While Chain Factor allowed the player to choose from twelve different powers, I've chosen to narrow it down to the three I remember using the most in that game, with some minor alterations.
+- Power system similar to Chain Factor's (Chain Factor has been archived and is still playable online to an extent, but its power system was gated by community progress through an ARG, and the server controlling which powers are available no longer seems to be online.)
 
-A game of DropFactor starts with buried coins already on the grid, similar to Chain Factor.
+    While Chain Factor allowed the player to choose from twelve different powers, here they have been narrowed down to the three I remember using the most in the original version of Chain Factor, with some minor alterations.
 
-Each round of DropFactor is exactly 5 turns long. I found this allowed for the game to ramp up quickly enough to be interesting, while still leaving enough leeway in the later stages to escape a bad situation, especially in combination with the power system.
+- A weighted randomisation system makes it so any individual coin value becomes more like to appear in the drop rotation for each turn it doesn't appear. This is intended to reduce (but not eliminate) situations where the same value coins appear multiple times in a row.
 
-DropFactor also uses a weighted randomisation system, which makes it so coins become more likely to appear in the drop coin rotation for each turn they don't appear (making situations where you get, say, an entire round of only one type of coin vanishingly unlikely). Buried coins are also not included in the drop coin rotation.
-
-## Future updates
+## Roadmap
 
 This game is effectively complete outside of minor cosmetic improvements, performance optimisation and bugfixes.
-
-However, I would at some point like to add a settings menu for players to customise the game to their liking (grid size, turns in a round, power ranges and score thresholds, the choice to put buried coins into the rotation).
 
 ## Credit
 

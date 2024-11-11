@@ -5,7 +5,7 @@ const defaultParticle = {
 	color: "#ABC",
 	height:6,
 	width:6,
-	count: 20,
+	count: 18,
 	ttl: 60,
 	rotation: Math.PI * 2 * Math.random(),
 	gravity: 0,
@@ -34,36 +34,43 @@ export const presets = {
 		gravity: 0.5,
 		shrink: 0.4,
 		ttl: 100,
-	},
+	},	
 	breaking: {
 		...defaultParticle,
 		// gravity: 0.01,
-		count: 20,
+		count: 15,
 		decel: 0.98,
 		ttl: 100,
 		height: 8,
 		width: 8,
 		shrink: 0.12,
 		randomise: function(count) {
-			randomise(this);
+			randomise(this, count, true);
 			this.dx = this.dy = 0;
 		},
 	},
 	crumbling: {
 		...defaultParticle,
-		count: 20,
+		count: 15,
 		decel: 0.98,
 		ttl: 100,
-		shrink: 0.1,
+		shrink: 0.2,
 		randomise: function(count) {
-			randomise(this);
+			randomise(this, count, true);
 			this.dx = this.dy = 0;
 		},
-	}
+	},
+	restarting: {
+		...defaultParticle,
+		count: 12,
+		width: 9,
+		height: 9,
+		shrink: 0.3,
+	},
 }
 
-function randomise(target, count) {
-	let angle = (count * 360) * Math.PI / 180;
+function randomise(target, count, randomSpread = false) {
+	let angle = ((count + (randomSpread ? Math.random() * 0.08 - 0.04 : 1)) * 360) * Math.PI / 180;
 	target.vector.x = Math.sin(angle);
 	target.vector.y = Math.cos(angle);
 	target.x = target.pos.x + target.vector.x * settings.coinRadius + global.camera.x;

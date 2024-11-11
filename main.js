@@ -177,8 +177,8 @@ export class Game {
 		global.addDebugText(machine, "state", null, 3)
 		this.camera.addChild(
 			dropZone,
-			new CoinBoard(),
 			this.gridBg,
+			new CoinBoard(),
 			// this.debugText,
 			this.score,
 			new UI.RoundTicker(),
@@ -198,7 +198,7 @@ export class Game {
 	restart() {
 		let dropColumn = (column) => {
 			if (column == settings.slots.x) {
-				setTimeout(() => game.game = new Game(), 400);
+				setTimeout(() => game.game = new Game(), 30);
 				return;}
 			for (let i = -1; i < settings.slots.y; i++) {
 				if (global.grid[column][i])

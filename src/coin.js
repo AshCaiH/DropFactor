@@ -212,12 +212,12 @@ export class Coin extends SpriteClass {
 	}
 
 	generateCracks() {
-		let crackCount = 11
+		let crackCount = randInt(3,5);
 		let offset = Math.random();
 		this.cracks = [];
 
 		for (let i=0; i < crackCount; i++) {
-			let angle = (((i / crackCount) + Math.random() * 0.1 - 0.05 + offset) * 360) * Math.PI / 180;
+			let angle = (((i / crackCount) + Math.random() * 0.3 - 0.15 + offset) * 360) * Math.PI / 180;
 			let crack = [{x: Math.sin(angle) * (settings.coinRadius - 3), y: Math.cos(angle) * (settings.coinRadius - 3)}]
 
 			crack.push({

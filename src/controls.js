@@ -1,9 +1,13 @@
 import { getPointer, onKey, onPointer } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 
-onPointer('down', function(e) {global.gameMachine.run("prime");});
-onPointer('up', function(e) {global.gameMachine.run("drop");});
-onKey('r', function(e) {global.gameMachine.run("restart")});
+onPointer('down', e => global.gameMachine.run("prime"));
+onPointer('up', e => global.gameMachine.run("drop"));
+onKey('r', e => global.gameMachine.run("restart"));
+onKey('d', e => showDebug());
+
+export function showDebug() {global.debugInfo.opacity = 1 - global.debugInfo.opacity}
+document.getElementById("debugbtn").onclick = () => showDebug();
 
 export function cursorToWorld() {
 	const cPos = (({ x, y }) => ({ x, y }))(getPointer());

@@ -1,6 +1,8 @@
 import { SpriteClass, Sprite, Pool } from "../node_modules/kontra/kontra.mjs";
 import { global, settings } from "./Global.js";
 
+const glob = global;
+
 const defaultParticle = {
 	color: "#ABC",
 	height:6,
@@ -85,7 +87,6 @@ export class Particles extends SpriteClass {
 	constructor() {
 		super();
 		this.pool = Pool({create: Sprite});
-		global.particles = this;
 	}
 
 	addEffect(particlePreset, options) {

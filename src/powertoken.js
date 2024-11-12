@@ -168,6 +168,8 @@ class PowerToken extends SpriteClass {
 			},
 		}, options));
 
+		global.addDebugText(this, "meter", power.name, 5, true);
+
 		this.addChild(new Text({
 			color: "white",
 			text: this.power.name,

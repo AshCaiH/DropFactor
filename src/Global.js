@@ -48,14 +48,16 @@ export const globalInit = () => {
 		cursorCellPos: new SignalValue({x: 0, y:0}),
 		combo: 1,
 		gameOver: false,
-		addDebugText: (object, value, name, order = 0) => {
-			debugText.push({name: name || "", object: object, value: value, order: order});		
+		addDebugText: (object, value, name, order = 0, isPercent = false) => {
+			debugText.push({name: name || "", object: object, value: value, order: order, pc: isPercent});		
 			debugText.sort((a, b) => (a.order > b.order) - (a.order < b.order));
 		},
 		getDebugText: (delineator = "\n") => {
 			let string = "";
 			debugText.forEach((dbug, i) => {
-				string = string.concat(dbug.name, dbug.name && ": ", dbug.object[dbug.value])
+				let value = dbug.object[dbug.value];
+				if (dbug.pc) value = Math.round(value * 10000) / 100;
+				string = string.concat(dbug.name, dbug.name && ": ", value, dbug.pc ? "%" : "")
 				if (i != debugText.length - 1) string = string.concat(delineator);
 			});
 			return string;

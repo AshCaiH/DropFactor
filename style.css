@@ -3,10 +3,37 @@ body {
     display: grid;
     align-content: center;
     justify-content: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 canvas {
     border: white 2px solid;
     grid-row-start: 1;
     grid-column-start: 1;
+    max-width: 100%;
+    max-height: calc(100vh - 15px);
+}
+
+#debugbtn {
+    color: #fff3;
+    padding: 8px;
+    margin: 8px;
+    cursor: pointer;
+    grid-row-start: 2;
+    grid-column-start: 1;
+}
+
+@media (max-height: 750px) {
+    body {
+        align-items: end;
+    }
+
+    #debugbtn {
+        grid-row-start: 1;
+        grid-column-start: 2;
+        rotate: -90deg;
+        position: absolute;
+        top: 60px;
+        left: 30px;
+    }
 }

@@ -20,6 +20,7 @@ export class Game {
 	constructor() {
 		globalInit();
 		global.particles = particles;
+		global.addDebugText(particles.pool, "size", "Particle Count", 4)
 
 		this.dropZone = new Dropzone();
 		this.changes = null;

@@ -5,7 +5,7 @@ import { Machine } from "./src/Machine.js";
 import { settings, global, globalInit } from "./src/Global.js";
 import { GridBG } from "./src/gridbg.js";
 import { PowerTray } from "./src/powertoken.js";
-import { cursorToCell } from "./src/controls.js";
+import { cursorToCell, showDebug } from "./src/controls.js";
 import { PowerCursor } from "./src/powerCursor.js";
 import *  as UI from "./src/UI.js";
 import { Particles } from "./src/particles.js";
@@ -153,11 +153,11 @@ export class Game {
 			y: settings.coinRadius * 2 + settings.coinBuffer * 2,
 		})
 
-		this.debugText = Text({
-			y: global.boardDims.height + 10,
+		global.debugInfo = this.debugText = Text({
 			color: "white",
 			text: "hello",
 			font: 'bold 12px Arial',
+			opacity: 0,
 			update: () => {
 				this.debugText.text = global.getDebugText("\n\n");
 			}
@@ -179,7 +179,7 @@ export class Game {
 			dropZone,
 			this.gridBg,
 			new CoinBoard(),
-			// this.debugText,
+			this.debugText,
 			this.score,
 			new UI.RoundTicker(),
 			new UI.RestartButton(),

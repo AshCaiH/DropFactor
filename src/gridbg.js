@@ -1,5 +1,5 @@
 import { GameObject, SpriteClass } from "../node_modules/kontra/kontra.mjs";
-import { settings } from "./Global.js";
+import { settings, global } from "./Global.js";
 
 const {slots, coinRadius, coinBuffer} = settings;
 
@@ -34,13 +34,17 @@ class GridBGCell extends GameObject {
 							w: coinRadius * 2 + coinBuffer,
 							h: (coinRadius * 2 + coinBuffer)}
 				ctx.lineWidth = 1.5;
-				ctx.strokeStyle = "#345";
+				
+				if (global.gameMachine.state == "GAMEOVER") ctx.strokeStyle = "#9559";
+				else ctx.strokeStyle = "#345";
 				let c = this.colour;
 				ctx.fillStyle = `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${c[3]})`;
 				ctx.fillRect(dim.x, dim.y, dim.w, dim.h);
 				ctx.strokeRect(dim.x, dim.y, dim.w, dim.h);
 			},
-			update: () => {if (this.colour[3] > 0) this.colour[3] -= 0.01;},
+			update: () => {
+				if (this.colour[3] > 0) this.colour[3] -= 0.01;
+			},
 		});
 	}
 }

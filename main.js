@@ -34,6 +34,11 @@ export class Game {
 		this.machine = global.gameMachine = new Machine("NEXTROUND", {
 			INPUT: {
 				start: () => {
+					this.roundScore.timeout = setTimeout(() => {
+						this.roundScore.fadeout()
+						console.log("timing out", global.score.value) 
+					}, 800);
+
 					global.combo = 1;
 					if (global.gameOver) {
 						machine.setStateAndRun("GAMEOVER");
@@ -70,7 +75,7 @@ export class Game {
 				start: () => {
 					global.coins.sort((a,b) => (a.gridPos.y < b.gridPos.y) - (a.gridPos.y > b.gridPos.y)); 
 					global.coins.forEach((coin) => {coin.machine.run("drop")});
-					changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;					
+					changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;
 				},
 				update: () => {
 					if (global.gameOver) machine.setStateAndRun("GAMEOVER");
@@ -83,14 +88,14 @@ export class Game {
 			POPPING: {
 				start: () => {
 					global.coins.forEach((coin) => {coin.machine.run("pop")});
-					changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
-					global.roundScore.clearListeners();
+					changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;					
 					global.roundScore.listen(() => {
-						if (global.roundScore.value != 0 && this.machine.state == "POPPING") {
-							console.log(this.machine.state, global.roundScore.value);
+						if (global.roundScore.value != 0) {
+							console.log(global.roundScore.value);
 							clearTimeout(this.roundScore.timeout);
-							this.roundScore.text = `+ ${global.roundScore.value}`;
+							this.roundScore.fadeout(false);
 							this.roundScore.opacity = 1;
+							this.roundScore.text = `+ ${global.roundScore.value}`;
 						}
 					})
 				},
@@ -122,11 +127,7 @@ export class Game {
 			NEXTROUND: {
 				start: () => {
 					global.roundScore.value = 0;
-					global.roundScore.clearListeners();
-					this.roundScore.timeout = setTimeout(() => {
-						this.roundScore.fadeout(),
-						console.log("timeing out")
-					}, 2000)
+					global.roundScore.clearListeners();					
 					if (global.remainingTurns > 0) machine.setStateAndRun("INPUT");
 					else {
 						let nextState = settings.roundMode == "rise" ? "RISING" : "DROPPING";
@@ -205,7 +206,7 @@ export class Game {
 			font: 'bold 16px Arial',
 			fading: false,
 			timeout: null,
-			fadeout: () => this.fading = true,
+			fadeout: (mode = true) => this.fading = mode,
 			update: () => {
 				if (this.fading) {
 					if (this.roundScore.opacity > 0) this.roundScore.opacity -= 0.02;

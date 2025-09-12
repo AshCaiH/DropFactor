@@ -37,7 +37,7 @@ export class Game {
 					this.roundScore.timeout = setTimeout(() => {
 						this.roundScore.fadeout()
 						console.log("timing out", global.score.value) 
-					}, 800);
+					}, 1400);
 
 					global.combo = 1;
 					if (global.gameOver) {
@@ -164,7 +164,13 @@ export class Game {
 				}
 			},
 			GAMEOVER: {
-				start: () => dropZone.machine.run("lock"),
+				start: () => {
+					this.roundScore.timeout = setTimeout(() => {
+						this.roundScore.fadeout()
+						console.log("timing out", global.score.value) 
+					}, 1400);
+					dropZone.machine.run("lock")
+				},
 				restart: () => this.restart()
 			},
 		});

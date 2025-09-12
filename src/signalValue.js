@@ -33,4 +33,10 @@ export class SignalValue {
 		else this.events.push(event);
 		if (run) event();
 	}
+
+	clearListeners() {
+		this.events = [];
+	}
+
+	hasEvents() {return this.events.length > 0}
 };

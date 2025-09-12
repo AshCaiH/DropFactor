@@ -45,6 +45,7 @@ export const globalInit = () => {
 		remainingTurns: settings.initialTurns,
 		coins: [],
 		score: new SignalValue(0),
+		roundScore: new SignalValue(0),
 		cursorCellPos: new SignalValue({x: 0, y:0}),
 		combo: 1,
 		gameOver: false,

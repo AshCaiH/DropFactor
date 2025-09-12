@@ -76,6 +76,7 @@ export class Coin extends SpriteClass {
 						if (vCheck.length > 0 || hCheck.length > 0 || this.doomed) {
 							global.bg.lightup(vCheck.concat(hCheck));
 							global.score.value += 1 * global.combo;
+							global.roundScore.value += 1 * global.combo;
 							global.particles.addEffect("popping",
 								{
 									pos: {

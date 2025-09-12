@@ -16,8 +16,13 @@ let particles = new Particles()
 initPointer();
 initKeys();
 
+
 export class Game {	
+	/**
+	 * @param {Dropzone} dropZone - Loaded data
+	 */
 	constructor() {
+		
 		globalInit();
 		global.particles = particles;
 		global.addDebugText(particles.pool, "size", "Particle Count", 4)
@@ -65,7 +70,7 @@ export class Game {
 				start: () => {
 					global.coins.sort((a,b) => (a.gridPos.y < b.gridPos.y) - (a.gridPos.y > b.gridPos.y)); 
 					global.coins.forEach((coin) => {coin.machine.run("drop")});
-					changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;
+					changes = global.coins.filter((coin) => !["IDLE", "DROPZONE"].includes(coin.machine.state)).length;					
 				},
 				update: () => {
 					if (global.gameOver) machine.setStateAndRun("GAMEOVER");
@@ -79,6 +84,15 @@ export class Game {
 				start: () => {
 					global.coins.forEach((coin) => {coin.machine.run("pop")});
 					changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;
+					global.roundScore.clearListeners();
+					global.roundScore.listen(() => {
+						if (global.roundScore.value != 0 && this.machine.state == "POPPING") {
+							console.log(this.machine.state, global.roundScore.value);
+							clearTimeout(this.roundScore.timeout);
+							this.roundScore.text = `+ ${global.roundScore.value}`;
+							this.roundScore.opacity = 1;
+						}
+					})
 				},
 				update: () => {
 					global.coins = global.coins.filter((coin) => coin.isAlive());
@@ -107,6 +121,12 @@ export class Game {
 			},
 			NEXTROUND: {
 				start: () => {
+					global.roundScore.value = 0;
+					global.roundScore.clearListeners();
+					this.roundScore.timeout = setTimeout(() => {
+						this.roundScore.fadeout(),
+						console.log("timeing out")
+					}, 2000)
 					if (global.remainingTurns > 0) machine.setStateAndRun("INPUT");
 					else {
 						let nextState = settings.roundMode == "rise" ? "RISING" : "DROPPING";
@@ -132,7 +152,7 @@ export class Game {
 							this.camera.addChild(coin);
 						}
 
-						this.zSort();
+						this.zSort();						
 					}
 				},
 				update: () => {
@@ -175,6 +195,27 @@ export class Game {
 			update: () => {this.score.text = `${global.score}`}
 		})
 
+		this.roundScore = Text({
+			x: global.boardDims.width - settings.coinBuffer,
+			y: global.boardDims.height + 42,
+			color: "#999",
+			text: "",
+			anchor: {x:1, y:0},
+			textAlign: "right",
+			font: 'bold 16px Arial',
+			fading: false,
+			timeout: null,
+			fadeout: () => this.fading = true,
+			update: () => {
+				if (this.fading) {
+					if (this.roundScore.opacity > 0) this.roundScore.opacity -= 0.02;
+					else this.fading = false;
+				}
+			}
+		})
+		
+		global.addDebugText(this.roundScore, "fading", "RoundScoreFade", 99)
+
 		global.addDebugText(machine, "state", null, 3)
 		this.camera.addChild(
 			dropZone,
@@ -182,6 +223,7 @@ export class Game {
 			new CoinBoard(),
 			this.debugText,
 			this.score,
+			this.roundScore,
 			new UI.RoundTicker(),
 			new UI.RestartButton(),
 			this.powerCursor,
@@ -230,5 +272,8 @@ let loop = GameLoop({
 		particles.render();
 	}
 });
+
+
+showDebug();
 
 loop.start();

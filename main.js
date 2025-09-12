@@ -274,7 +274,6 @@ let loop = GameLoop({
 	}
 });
 
-
-showDebug();
+// showDebug();
 
 loop.start();

@@ -99,7 +99,7 @@ class PowerBase {
 		this.pointsRequired = 100;
 		this.filter = (coin) => true;
 		this.effectDelay = 300;
-		this.multiplier = 1.0; // Affects points required before activation.
+		this.multiplier = 0.5; // Affects points required before activation.
 	}
 
 	highlightTargets = () => global.coins.map((coin) => {
@@ -142,6 +142,6 @@ export class Increase extends PowerBase {
 		this.range = ranges.cross;
 		this.effect = effects.increase;
 		this.filter = (coin) => coin.dirtLayer === 0;
-		this.pointsRequired = 2;
+		this.pointsRequired = 80;
 	}
 };

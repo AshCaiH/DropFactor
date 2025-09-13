@@ -57,6 +57,9 @@ export const globalInit = () => {
 			let string = "";
 			debugText.forEach((dbug, i) => {
 				let value = dbug.object[dbug.value];
+				if (!isNaN(value)) {
+					value = parseFloat(value).toPrecision(2);
+				}
 				if (dbug.pc) value = Math.round(value * 10000) / 100;
 				string = string.concat(dbug.name, dbug.name && ": ", value, dbug.pc ? "%" : "")
 				if (i != debugText.length - 1) string = string.concat(delineator);

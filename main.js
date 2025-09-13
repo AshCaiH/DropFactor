@@ -215,8 +215,6 @@ export class Game {
 				}
 			}
 		})
-		
-		global.addDebugText(this.roundScore, "fading", "RoundScoreFade", 99)
 
 		global.addDebugText(machine, "state", null, 3)
 		this.camera.addChild(

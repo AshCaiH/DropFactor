@@ -84,7 +84,10 @@ class PowerToken extends SpriteClass {
 					machine.setStateAndRun("SNAPBACK");
 					initialMousePos = {x: 0, y:0};
 
-					if (this.valid) global.gameMachine.run("activate", [this.power]);
+					if (this.valid) {
+						global.gameMachine.run("activate", [this.power]);
+						power.multiplier += 0.1;
+					}
 					else global.gameMachine.run("cancel");
 
 					this.valid = false;
@@ -170,7 +173,7 @@ class PowerToken extends SpriteClass {
 			},
 		}, options));
 
-		global.addDebugText(this, "meter", power.name, 5, true);
+		global.addDebugText(this.power, "multiplier", power.name, 5);
 
 		this.addChild(new Text({
 			color: "white",
@@ -184,7 +187,7 @@ class PowerToken extends SpriteClass {
 
 		global.score.listen(() => {
 			if (settings.freePowers) this.meter = 1;
-			else this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
+			else this.meter = Math.min(1, (global.score - this.prevScore) / (power.pointsRequired * power.multiplier));
 			if (this.meter === 1 && !this.isEnabled) {
 				this.isEnabled = true;
 				global.particles.addEffect("eyeCatch",

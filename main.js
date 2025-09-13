@@ -33,10 +33,7 @@ export class Game {
 		this.machine = global.gameMachine = new Machine("NEXTROUND", {
 			INPUT: {
 				start: () => {
-					this.roundScore.timeout = setTimeout(() => {
-						this.roundScore.fadeout()
-						console.log("timing out", global.score.value) 
-					}, 1400);
+					this.roundScore.timeout = setTimeout(() => this.roundScore.fadeout(), 1400);
 
 					global.combo = 1;
 					if (global.gameOver) {
@@ -90,7 +87,6 @@ export class Game {
 					changes = global.coins.filter((coin) => coin.machine.state !== "IDLE").length;					
 					global.roundScore.listen(() => {
 						if (global.roundScore.value != 0) {
-							console.log(global.roundScore.value);
 							clearTimeout(this.roundScore.timeout);
 							this.roundScore.fadeout(false);
 							this.roundScore.opacity = 1;

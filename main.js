@@ -21,8 +21,7 @@ export class Game {
 	/**
 	 * @param {Dropzone} dropZone - Loaded data
 	 */
-	constructor() {
-		
+	constructor() {		
 		globalInit();
 		global.particles = particles;
 		global.addDebugText(particles.pool, "size", "Particle Count", 4)

@@ -149,13 +149,31 @@ export class Coin extends SpriteClass {
 			},
 			CHANGEVALUE: {
 				start: (increase=true) => {
-					if (this.dirtLayer > 0) return machine.setState("IDLE");;
+					var addDirt = () => {
+						console.log("adding dirt");
+						this.dirtLayer = Math.min(this.dirtLayer + 1, 2);
+						global.particles.addEffect("crumbling",
+							{
+								pos: {
+									x: this.x + settings.coinRadius,
+									y: this.y + settings.coinRadius,
+								},
+							}
+						);
+					}
+
+					if (this.dirtLayer > 0) {
+						addDirt();
+						
+						return machine.setState("IDLE");
+					}
 					if (increase) this.value++;
 					else this.value--;
 
 					if (this.value <= 0 || this.value > global.maxCoinValue) {
 						this.value = randInt(1, global.maxCoinValue);
-						this.dirtLayer = 1;
+						addDirt();
+						// this.doomed = true;
 					}
 
 					machine.setState("IDLE");

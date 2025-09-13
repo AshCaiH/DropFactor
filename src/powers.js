@@ -17,6 +17,19 @@ const ranges = Object.freeze({
 			if (target) targets.push(target);
 		}
 		return targets;
+	},	
+	cross: (cellPos) => {
+		let targets = [];
+		for (let i=0; i<settings.slots.x; i++) {
+			let target = global.grid[i][cellPos.y];
+			if (target) targets.push(target);
+		}
+		for (let i=0; i<settings.slots.y; i++) {
+			let target = global.grid[cellPos.x][i];
+			if (target) targets.push(target);
+		}
+		targets = [...new Set(targets)]
+		return targets;
 	},
 	cell: (cellPos) => {
 		let target = global.grid[cellPos.x][cellPos.y];
@@ -86,6 +99,7 @@ class PowerBase {
 		this.pointsRequired = 100;
 		this.filter = (coin) => true;
 		this.effectDelay = 300;
+		this.multiplier = 1.0; // Affects points required before activation.
 	}
 
 	highlightTargets = () => global.coins.map((coin) => {
@@ -125,9 +139,9 @@ export class Increase extends PowerBase {
 		super();
 		this.name = "Increase"
 		this.description = "Increases value of coins in range by one (7s become buried coins and their values are randomised)."
-		this.range = ranges.row;
+		this.range = ranges.cross;
 		this.effect = effects.increase;
 		this.filter = (coin) => coin.dirtLayer === 0;
-		this.pointsRequired = 80;
+		this.pointsRequired = 5;
 	}
 };

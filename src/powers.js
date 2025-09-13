@@ -142,6 +142,6 @@ export class Increase extends PowerBase {
 		this.range = ranges.cross;
 		this.effect = effects.increase;
 		this.filter = (coin) => coin.dirtLayer === 0;
-		this.pointsRequired = 5;
+		this.pointsRequired = 80;
 	}
 };

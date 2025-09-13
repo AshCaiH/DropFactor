@@ -43,13 +43,14 @@ class PowerToken extends SpriteClass {
 	constructor (power = null, options = {}) {
 		let initialMousePos = {x: 0, y:0};
 		let defaultPos = {x: options.x, y: options.y}
+		let isEnabled = false;
 		let machine = new Machine("LOCKED", {
 			LOCKED: {
-				drag: () => console.log(this.meter),
+				drag: () => console.log(this.meter, this.parent),
 			},
 			UNLOCKED: {
 				start: () => {
-					global.coins.map((coin) => coin.opacity = 1);
+					global.coins.map((coin) => coin.opacity = 1);					
 				},
 				drag: () => machine.setStateAndRun("SELECT"),
 			},
@@ -106,6 +107,7 @@ class PowerToken extends SpriteClass {
 						this.y = defaultPos.y;
 						this.prevScore = global.score.value;
 						this.meter = 0;
+						this.isEnabled = false;
 						machine.setStateAndRun("LOCKED");
 					}
 					this.lerpPos = 0.01
@@ -183,7 +185,18 @@ class PowerToken extends SpriteClass {
 		global.score.listen(() => {
 			if (settings.freePowers) this.meter = 1;
 			else this.meter = Math.min(1, (global.score - this.prevScore) / power.pointsRequired);
-			if (this.meter === 1) machine.setStateAndRun("UNLOCKED");
+			if (this.meter === 1 && !this.isEnabled) {
+				this.isEnabled = true;
+				global.particles.addEffect("eyeCatch",
+					{
+						pos: {
+							x: defaultPos.x + this.parent.x,
+							y: defaultPos.y + this.parent.y,
+						},
+					}
+				);
+				machine.setStateAndRun("UNLOCKED");
+			}
 		})
 
 		track(this);

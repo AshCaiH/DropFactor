@@ -69,14 +69,30 @@ export const presets = {
 		height: 9,
 		shrink: 0.3,
 	},
+	eyeCatch: {
+		...defaultParticle,
+		count: 40,
+		width: 6,
+		height: 6,
+		shrink: 0.08,
+		color: "#FFF",
+		decel: 0.995,
+		ttl: 400,
+		rotation: Math.PI * 2 * 45,
+		randomise: function(count) {
+			randomise(this, count, false, settings.coinRadius - 3);
+			this.dx *= 0.2;
+			this.dy *= 0.2;
+		},
+	}
 }
 
-function randomise(target, count, randomSpread = false) {
+function randomise(target, count, randomSpread = false, radius = settings.coinRadius) {
 	let angle = ((count + (randomSpread ? Math.random() * 0.08 - 0.04 : 1)) * 360) * Math.PI / 180;
 	target.vector.x = Math.sin(angle);
 	target.vector.y = Math.cos(angle);
-	target.x = target.pos.x + target.vector.x * settings.coinRadius + global.camera.x;
-	target.y = target.pos.y + target.vector.y * settings.coinRadius + global.camera.y;
+	target.x = target.pos.x + target.vector.x * radius + global.camera.x;
+	target.y = target.pos.y + target.vector.y * radius + global.camera.y;
 	
 	target.dx = target.vector.x * Math.random() * 2;
 	target.dy = target.vector.y * Math.random() * 2;

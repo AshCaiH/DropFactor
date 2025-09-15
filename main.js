@@ -121,10 +121,11 @@ export class Game {
 			},
 			NEXTROUND: {
 				start: () => {
-					global.roundScore.value = 0;
-					global.roundScore.clearListeners();					
-					if (global.remainingTurns > 0) machine.setStateAndRun("INPUT");
-					else {
+					if (global.remainingTurns > 0) {						
+						global.roundScore.value = 0;
+						global.roundScore.clearListeners();
+						machine.setStateAndRun("INPUT");
+					} else {
 						let nextState = settings.roundMode == "rise" ? "RISING" : "DROPPING";
 						global.remainingTurns = settings.turnsInRound;
 						global.coins.forEach(coin => {
